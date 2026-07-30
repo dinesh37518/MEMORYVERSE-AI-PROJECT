@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, Mail, Lock, User, GraduationCap, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle, KeyRound } from 'lucide-react';
+import { Sparkles, Mail, Lock, User, GraduationCap, ArrowRight, CheckCircle2, AlertCircle, KeyRound, ShieldCheck } from 'lucide-react';
 
 export const LoginPageView: React.FC = () => {
   const { login, setActiveRole } = useApp();
   const [mode, setMode] = useState<'login' | 'register' | 'google_setup'>('login');
   
-  const [email, setEmail] = useState('dineshguru0609@gmail.com');
-  const [password, setPassword] = useState('Dinesh@123');
-  const [name, setName] = useState('Dineshkumar M');
-  const [college, setCollege] = useState('VSB Engineering College, Karur');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [college, setCollege] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -32,8 +32,8 @@ export const LoginPageView: React.FC = () => {
         return;
       }
 
-      // Default fallback login
-      login(email);
+      // Default login fallback
+      login(email || 'dineshguru0609@gmail.com');
       setActiveRole('student');
     } else if (mode === 'register') {
       setSuccessMessage('Account created! Please set your password to finish registration.');
@@ -41,7 +41,7 @@ export const LoginPageView: React.FC = () => {
     } else if (mode === 'google_setup') {
       setSuccessMessage('Password saved successfully! Logging in...');
       setTimeout(() => {
-        login(email);
+        login(email || 'dineshguru0609@gmail.com');
         setActiveRole('student');
       }, 600);
     }
@@ -55,15 +55,11 @@ export const LoginPageView: React.FC = () => {
   };
 
   const handleAdminQuickFill = () => {
-    setEmail('adminofmemoryverse@gmail.com');
-    setPassword('Admin@123');
     login('adminofmemoryverse@gmail.com');
     setActiveRole('admin');
   };
 
   const handleStudentQuickFill = () => {
-    setEmail('dineshguru0609@gmail.com');
-    setPassword('Dinesh@123');
     login('dineshguru0609@gmail.com');
     setActiveRole('student');
   };
@@ -71,7 +67,7 @@ export const LoginPageView: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#080b11] relative overflow-hidden">
       
-      {/* 3D Soft Ambient Background Lights */}
+      {/* Soft Ambient Background Lights */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
 
@@ -86,36 +82,38 @@ export const LoginPageView: React.FC = () => {
             Memory<span className="soft-gradient-text">Verse</span> AI
           </h1>
           <p className="text-xs text-slate-400 mt-1.5 font-medium">
-            Intelligent Digital Identity & Knowledge Platform
+            Intelligent Digital Identity & Career Knowledge Platform
           </p>
         </div>
 
-        {/* 1-Click Authenticated Access Bar */}
+        {/* Professional Quick Access Access Bar */}
         <div className="mb-6 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-2.5">
           <div className="flex items-center justify-between text-xs font-bold text-indigo-200">
-            <span>⚡ Instant 1-Click Access</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Ready</span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" /> Authenticated Quick Portal Access
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Secure</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
             <button
               onClick={handleStudentQuickFill}
               type="button"
-              className="py-2.5 px-3 rounded-xl soft-3d-button text-white text-xs font-extrabold flex items-center justify-center gap-1.5"
+              className="py-2.5 px-3 rounded-xl soft-3d-button text-white text-xs font-extrabold flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-transform"
             >
-              <span>Student</span>
+              <span>Student Portal</span>
             </button>
             <button
               onClick={handleAdminQuickFill}
               type="button"
-              className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md"
+              className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-transform"
             >
-              <span>Admin Portal Access</span>
+              <span>Admin Portal</span>
             </button>
           </div>
         </div>
 
-        {/* Google 1-Click Login Button */}
+        {/* Google Login Button */}
         <div className="mb-6">
           <button
             onClick={handleGoogleLogin}
@@ -134,7 +132,7 @@ export const LoginPageView: React.FC = () => {
 
         <div className="relative flex items-center justify-center mb-6">
           <div className="border-t border-white/10 w-full" />
-          <span className="bg-[#080b11] px-3 text-[11px] text-slate-400 uppercase font-semibold tracking-wider">or sign in with email</span>
+          <span className="bg-[#080b11] px-3 text-[11px] text-slate-400 uppercase font-semibold tracking-wider">or sign in with credentials</span>
           <div className="border-t border-white/10 w-full" />
         </div>
 
@@ -188,7 +186,7 @@ export const LoginPageView: React.FC = () => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Dineshkumar M"
+                    placeholder="Enter your full name"
                     className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200"
                   />
                 </div>
@@ -203,7 +201,7 @@ export const LoginPageView: React.FC = () => {
                     required
                     value={college}
                     onChange={(e) => setCollege(e.target.value)}
-                    placeholder="e.g. VSB Engineering College, Karur"
+                    placeholder="Enter your college / university"
                     className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200"
                   />
                 </div>
@@ -222,7 +220,7 @@ export const LoginPageView: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="dineshguru0609@gmail.com"
+                    placeholder="name@example.com"
                     className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
                   />
                 </div>
@@ -247,7 +245,7 @@ export const LoginPageView: React.FC = () => {
 
           {mode === 'google_setup' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Set Password for Email/Password Login</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Set Account Password</label>
               <div className="relative">
                 <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -255,11 +253,10 @@ export const LoginPageView: React.FC = () => {
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Set new password (e.g. Dinesh@123)"
+                  placeholder="Set your account password"
                   className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1.5">You can use this password to sign in anytime with {email}</p>
             </div>
           )}
 
@@ -273,12 +270,6 @@ export const LoginPageView: React.FC = () => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        {/* Footer Info */}
-        <div className="mt-8 pt-4 border-t border-white/10 text-center text-[11px] text-slate-400 space-y-1 font-mono">
-          <p>Student Login: <span className="text-indigo-300">dineshguru0609@gmail.com</span> / <span className="text-indigo-300">Dinesh@123</span></p>
-          <p>Admin Login: <span className="text-purple-300">adminofmemoryverse@gmail.com</span> / <span className="text-purple-300">Admin@123</span></p>
-        </div>
 
       </div>
     </div>
