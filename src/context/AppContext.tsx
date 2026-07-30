@@ -79,7 +79,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v7';
+const STORAGE_KEY = 'memoryverse_ai_state_v8';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
@@ -87,7 +87,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Purge any stale legacy memoryverse storage keys on boot
   useEffect(() => {
     try {
-      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5', 'memoryverse_ai_state_v6'].forEach(key => {
+      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5', 'memoryverse_ai_state_v6', 'memoryverse_ai_state_v7'].forEach(key => {
         ['user', 'documents', 'skills', 'projects', 'internships', 'certifications', 'achievements', 'timeline', 'notifications'].forEach(sub => {
           localStorage.removeItem(`${key}_${sub}`);
         });
@@ -111,7 +111,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEY + '_documents');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.some((d: any) => d.url && d.url.includes('w3.org')) || parsed.some((d: any) => d.id === 'doc_intern_neuro' && d.uploadDate !== '2026-01-30'))) {
+      if (Array.isArray(parsed) && (parsed.some((d: any) => d.url && d.url.includes('w3.org')) || parsed.some((d: any) => d.id === 'doc_intern_manfree' && d.uploadDate !== '2026-06-24'))) {
         return INITIAL_DOCUMENTS;
       }
       return parsed;
@@ -133,7 +133,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEY + '_internships');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.some((i: any) => i.id === 'int_neuro_global' && i.startDate !== '2026-01-01')) {
+      if (Array.isArray(parsed) && parsed.some((i: any) => i.id === 'int_manfree' && i.startDate !== '2026-06-08')) {
         return INITIAL_INTERNSHIPS;
       }
       return parsed;
@@ -145,7 +145,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEY + '_certifications');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.length < INITIAL_CERTIFICATIONS.length || parsed.some((c: any) => c.id === 'cert_infosys_ang' && c.date !== '2026-02-15'))) {
+      if (Array.isArray(parsed) && (parsed.length < INITIAL_CERTIFICATIONS.length || parsed.some((c: any) => c.id === 'cert_embedded_intern' && c.date !== '2026-06-24'))) {
         return INITIAL_CERTIFICATIONS;
       }
       return parsed;
@@ -166,7 +166,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const sslcItem = parsed.find((t: any) => t.id === 'tl_sslc');
         const hscItem = parsed.find((t: any) => t.id === 'tl_hsc');
         const enrollItem = parsed.find((t: any) => t.id === 'tl_college_enroll');
-        if (!sslcItem || sslcItem.year !== 2022 || !hscItem || hscItem.year !== 2024 || !enrollItem || enrollItem.date !== '2024-09-16') {
+        const manfreeItem = parsed.find((t: any) => t.id === 'tl_manfree_intern');
+        if (!sslcItem || sslcItem.year !== 2022 || !hscItem || hscItem.year !== 2024 || !enrollItem || enrollItem.date !== '2024-09-16' || !manfreeItem || manfreeItem.date !== '2026-06-24') {
           return INITIAL_TIMELINE;
         }
         return parsed;
