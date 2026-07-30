@@ -188,11 +188,17 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                   </div>
                 </div>
 
-                <iframe
-                  src={doc.url.startsWith('blob:') || doc.url.startsWith('data:') ? doc.url : `https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
-                  title={doc.title}
+                <object
+                  data={doc.url.startsWith('blob:') || doc.url.startsWith('data:') ? doc.url : `https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
+                  type="application/pdf"
                   className="w-full h-full min-h-[380px] rounded-b-2xl border-0"
-                />
+                >
+                  <iframe
+                    src={doc.url}
+                    title={doc.title}
+                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0"
+                  />
+                </object>
               </div>
             ) : (
               /* High Resolution Formal Printable Certificate View */
