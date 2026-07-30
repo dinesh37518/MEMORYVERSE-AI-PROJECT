@@ -30,11 +30,16 @@ export const CertificationsView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {certifications.map(cert => {
-          const doc = cert.documentId ? documents.find(d => d.id === cert.documentId) : null;
+          const doc = (cert.documentId ? documents.find(d => d.id === cert.documentId) : null) || 
+                      documents.find(d => d.title.toLowerCase().includes(cert.name.toLowerCase()) || cert.name.toLowerCase().includes(d.title.toLowerCase()));
           const hasOriginalFile = doc && (doc.url.startsWith('blob:') || doc.url.startsWith('data:'));
 
           return (
-            <div key={cert.id} className="glass-panel p-6 rounded-3xl border border-slate-800 hover:border-emerald-500/40 transition-all space-y-4 flex flex-col justify-between">
+            <div 
+              key={cert.id} 
+              onClick={() => doc && setPreviewDoc(doc)}
+              className="glass-panel p-6 rounded-3xl border border-slate-800 hover:border-emerald-500/50 transition-all space-y-4 flex flex-col justify-between cursor-pointer group"
+            >
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30 flex items-center gap-1">
@@ -50,7 +55,9 @@ export const CertificationsView: React.FC = () => {
                   )}
                 </div>
 
-                <h3 className="text-base font-bold text-slate-100">{cert.name}</h3>
+                <h3 className="text-base font-bold text-slate-100 group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                  {cert.name}
+                </h3>
                 <p className="text-xs text-indigo-400 font-semibold mt-0.5">{cert.issuingOrganization}</p>
               </div>
 
@@ -71,15 +78,15 @@ export const CertificationsView: React.FC = () => {
               </div>
 
               {/* Actions & File Attachment */}
-              <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
+              <div className="pt-3 border-t border-slate-800 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   {doc && (
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => setPreviewDoc(doc)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-500/20"
+                        className="text-xs text-white bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-md transition-all"
                       >
-                        <FileText className="w-4 h-4" /> View Certificate
+                        <FileText className="w-4 h-4" /> View & Inspect Certificate
                       </button>
 
                       <button
@@ -97,7 +104,7 @@ export const CertificationsView: React.FC = () => {
                       href={cert.verificationLink}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 shadow-md transition-all ml-auto"
+                      className="px-3 py-1.5 rounded-xl bg-purple-600/40 hover:bg-purple-600 text-purple-200 border border-purple-500/40 text-xs font-bold flex items-center gap-1 transition-all ml-auto"
                     >
                       <span>Verify</span> <ExternalLink className="w-3 h-3" />
                     </a>

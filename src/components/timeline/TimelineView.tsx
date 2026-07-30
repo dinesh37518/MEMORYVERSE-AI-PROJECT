@@ -90,18 +90,25 @@ export const TimelineView: React.FC = () => {
             </div>
           ) : (
             filteredTimeline.map((event) => {
-              const doc = event.documentId ? documents.find(d => d.id === event.documentId) : null;
+              const doc = (event.documentId ? documents.find(d => d.id === event.documentId) : null) || 
+                          documents.find(d => d.title.toLowerCase().includes(event.title.toLowerCase()) || event.title.toLowerCase().includes(d.title.toLowerCase()));
 
               return (
                 <div key={event.id} className="flex items-start gap-5 sm:gap-7 group">
                   
                   {/* 3D Node Icon Badge */}
-                  <div className="relative z-10 p-3 rounded-2xl bg-slate-950 border-2 border-indigo-400 shadow-2xl shadow-indigo-500/40 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                  <div 
+                    onClick={() => doc && setPreviewDoc(doc)}
+                    className="relative z-10 p-3 rounded-2xl bg-slate-950 border-2 border-indigo-400 shadow-2xl shadow-indigo-500/40 group-hover:scale-110 transition-transform duration-300 shrink-0 cursor-pointer"
+                  >
                     {getEventIcon(event.type)}
                   </div>
 
                   {/* 3D Soft Event Bubble Card */}
-                  <div className="flex-1 soft-3d-card p-6 rounded-3xl space-y-3">
+                  <div 
+                    onClick={() => doc && setPreviewDoc(doc)}
+                    className="flex-1 soft-3d-card p-6 rounded-3xl space-y-3 cursor-pointer group/card hover:border-indigo-500/60 transition-all"
+                  >
                     
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -118,7 +125,7 @@ export const TimelineView: React.FC = () => {
                       </span>
                     </div>
 
-                    <h3 className="text-base font-extrabold text-white group-hover:text-indigo-300 transition-colors">
+                    <h3 className="text-base font-extrabold text-white group-hover/card:text-indigo-300 transition-colors">
                       {event.title}
                     </h3>
                     <p className="text-xs text-slate-300 leading-relaxed">
@@ -128,13 +135,16 @@ export const TimelineView: React.FC = () => {
                     {/* Proof Attachment Chip */}
                     {doc && (
                       <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
                           <FileText className="w-4 h-4 text-indigo-400" />
-                          <span className="truncate max-w-xs font-medium">{doc.fileName}</span>
+                          <span className="truncate max-w-xs">{doc.fileName}</span>
                         </div>
                         <button
-                          onClick={() => setPreviewDoc(doc)}
-                          className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewDoc(doc);
+                          }}
+                          className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1.5 bg-indigo-500/10 px-3 py-1 rounded-xl border border-indigo-500/20"
                         >
                           <span>Inspect Proof</span>
                           <ExternalLink className="w-3.5 h-3.5" />
