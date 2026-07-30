@@ -120,10 +120,15 @@ export const LoginPageView: React.FC = () => {
             <button
               onClick={handleAdminQuickFill}
               type="button"
-              className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-transform"
+              className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-transform shadow-lg shadow-purple-600/30"
             >
               <span>Admin Credentials</span>
             </button>
+          </div>
+
+          <div className="pt-2 border-t border-indigo-500/20 text-[10px] font-mono text-slate-300 space-y-1">
+            <p>🎓 <strong className="text-white">Student Login:</strong> <span className="text-indigo-300">dineshguru0609@gmail.com</span> | Pass: <span className="text-indigo-300">Dinesh@123</span></p>
+            <p>🔐 <strong className="text-white">Admin Login:</strong> <span className="text-purple-300">adminofmemoryverse@gmail.com</span> | Pass: <span className="text-purple-300">Admin@123</span></p>
           </div>
         </div>
 
