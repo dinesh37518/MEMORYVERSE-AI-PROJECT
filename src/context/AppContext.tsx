@@ -79,7 +79,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v6';
+const STORAGE_KEY = 'memoryverse_ai_state_v7';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
@@ -87,7 +87,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Purge any stale legacy memoryverse storage keys on boot
   useEffect(() => {
     try {
-      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5'].forEach(key => {
+      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5', 'memoryverse_ai_state_v6'].forEach(key => {
         ['user', 'documents', 'skills', 'projects', 'internships', 'certifications', 'achievements', 'timeline', 'notifications'].forEach(sub => {
           localStorage.removeItem(`${key}_${sub}`);
         });
