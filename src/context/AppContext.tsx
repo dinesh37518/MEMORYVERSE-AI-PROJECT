@@ -79,14 +79,21 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v3';
+const STORAGE_KEY = 'memoryverse_ai_state_v4';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
 
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_user');
-    return saved ? JSON.parse(saved) : INITIAL_USER;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.graduationYear !== 2028) {
+        return { ...parsed, graduationYear: 2028 };
+      }
+      return parsed;
+    }
+    return INITIAL_USER;
   });
 
   const [documents, setDocuments] = useState<DocumentItem[]>(() => {
@@ -135,7 +142,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [timeline, setTimeline] = useState<TimelineEvent[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_timeline');
-    return saved ? JSON.parse(saved) : INITIAL_TIMELINE;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.some((t: any) => (t.date && t.date.includes('2020')) || t.year === 2020)) {
+        return INITIAL_TIMELINE;
+      }
+      return parsed;
+    }
+    return INITIAL_TIMELINE;
   });
 
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {

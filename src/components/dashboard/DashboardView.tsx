@@ -141,8 +141,8 @@ export const DashboardView: React.FC = () => {
         
         {/* Total Docs */}
         <div 
-          onClick={() => setActiveTab('documents')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          onClick={() => setActiveTab('vault')}
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-indigo-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Docs</span>
@@ -161,7 +161,7 @@ export const DashboardView: React.FC = () => {
         {/* Certificates */}
         <div 
           onClick={() => setActiveTab('certifications')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Certificates</span>
@@ -178,7 +178,7 @@ export const DashboardView: React.FC = () => {
         {/* Projects */}
         <div 
           onClick={() => setActiveTab('projects')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-purple-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Projects</span>
@@ -195,7 +195,7 @@ export const DashboardView: React.FC = () => {
         {/* Internships */}
         <div 
           onClick={() => setActiveTab('internships')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-cyan-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Internships</span>
@@ -212,7 +212,7 @@ export const DashboardView: React.FC = () => {
         {/* Skills */}
         <div 
           onClick={() => setActiveTab('skills')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-amber-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Skills</span>
@@ -229,7 +229,7 @@ export const DashboardView: React.FC = () => {
         {/* Achievements */}
         <div 
           onClick={() => setActiveTab('achievements')}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between"
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between hover:border-pink-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Achievements</span>
@@ -245,8 +245,14 @@ export const DashboardView: React.FC = () => {
 
         {/* Master Resume */}
         <div 
-          onClick={() => masterResume && setPreviewDoc(masterResume)}
-          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between col-span-2 sm:col-span-1"
+          onClick={() => {
+            if (masterResume) {
+              setPreviewDoc(masterResume);
+            } else {
+              setActiveTab('resume');
+            }
+          }}
+          className="soft-3d-card p-5 rounded-3xl cursor-pointer group flex flex-col justify-between col-span-2 sm:col-span-1 hover:border-cyan-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Resume</span>
@@ -255,9 +261,9 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
           <div>
-            <p className="text-xs font-bold text-white truncate">{masterResume ? 'Master CV' : 'No Resume'}</p>
+            <p className="text-xs font-bold text-white truncate">{masterResume ? 'Master CV' : 'Resume Builder'}</p>
             <p className="text-[10px] text-cyan-300 mt-1 flex items-center gap-1 font-semibold">
-              <span>2026 Edition</span> <ExternalLink className="w-2.5 h-2.5" />
+              <span>View Document</span> <ExternalLink className="w-2.5 h-2.5" />
             </p>
           </div>
         </div>
@@ -280,7 +286,7 @@ export const DashboardView: React.FC = () => {
                 <p className="text-xs text-slate-400 mt-0.5">Original format preserved with AI extracted metadata</p>
               </div>
               <button
-                onClick={() => setActiveTab('documents')}
+                onClick={() => setActiveTab('vault')}
                 className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1"
               >
                 View Vault ({totalDocs}) <ChevronRight className="w-4 h-4" />
