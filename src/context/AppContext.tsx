@@ -13,7 +13,8 @@ import {
   GraphEdge,
   DocumentCategory,
   FileType,
-  ExperienceLevel
+  ExperienceLevel,
+  JobApplication
 } from '../types';
 import { 
   INITIAL_USER, 
@@ -27,7 +28,8 @@ import {
   INITIAL_TIMELINE, 
   INITIAL_NOTIFICATIONS, 
   INITIAL_NODES, 
-  INITIAL_EDGES 
+  INITIAL_EDGES,
+  INITIAL_JOBS
 } from '../data/initialData';
 
 interface AppContextType {
@@ -42,6 +44,7 @@ interface AppContextType {
   notifications: AppNotification[];
   nodes: GraphNode[];
   edges: GraphEdge[];
+  jobs: JobApplication[];
   activeTab: string;
   setActiveTab: (tab: string) => void;
   activeRole: 'student' | 'admin';
@@ -62,6 +65,11 @@ interface AppContextType {
   clearAllNotifications: () => void;
   exportAllUserData: () => void;
   resetToDefaultData: () => void;
+
+  // Job Tracker Handlers
+  addJob: (job: Omit<JobApplication, 'id' | 'appliedDate'>) => void;
+  updateJobStatus: (id: string, status: JobApplication['status']) => void;
+  deleteJob: (id: string) => void;
   
   // Selected Document detail modal
   previewDoc: DocumentItem | null;
@@ -130,6 +138,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_EDGES;
   });
 
+  const [jobs, setJobs] = useState<JobApplication[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY + '_jobs');
+    return saved ? JSON.parse(saved) : INITIAL_JOBS;
+  });
+
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
   const [auth, setAuth] = useState<{ isAuthenticated: boolean; email: string }>(() => {
@@ -160,7 +173,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(notifications));
     localStorage.setItem(STORAGE_KEY + '_nodes', JSON.stringify(nodes));
     localStorage.setItem(STORAGE_KEY + '_edges', JSON.stringify(edges));
-  }, [user, documents, skills, projects, internships, certifications, achievements, timeline, notifications, nodes, edges]);
+    localStorage.setItem(STORAGE_KEY + '_jobs', JSON.stringify(jobs));
+  }, [user, documents, skills, projects, internships, certifications, achievements, timeline, notifications, nodes, edges, jobs]);
 
   // Auth Methods
   const login = (email: string) => {
@@ -350,7 +364,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotifications(INITIAL_NOTIFICATIONS);
     setNodes(INITIAL_NODES);
     setEdges(INITIAL_EDGES);
+    setJobs(INITIAL_JOBS);
     localStorage.clear();
+  };
+
+  const addJob = (newJob: Omit<JobApplication, 'id' | 'appliedDate'>) => {
+    const created: JobApplication = {
+      ...newJob,
+      id: `job_${Date.now()}`,
+      appliedDate: new Date().toISOString().split('T')[0]
+    };
+    setJobs(prev => [created, ...prev]);
+  };
+
+  const updateJobStatus = (id: string, status: JobApplication['status']) => {
+    setJobs(prev => prev.map(j => j.id === id ? { ...j, status } : j));
+  };
+
+  const deleteJob = (id: string) => {
+    setJobs(prev => prev.filter(j => j.id !== id));
   };
 
   return (
@@ -366,6 +398,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       notifications,
       nodes,
       edges,
+      jobs,
       activeTab,
       setActiveTab,
       activeRole,
@@ -384,6 +417,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       clearAllNotifications,
       exportAllUserData,
       resetToDefaultData,
+      addJob,
+      updateJobStatus,
+      deleteJob,
       previewDoc,
       setPreviewDoc
     }}>

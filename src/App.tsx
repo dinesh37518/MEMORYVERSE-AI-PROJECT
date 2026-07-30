@@ -19,6 +19,9 @@ import { DocumentViewerModal } from './components/documents/DocumentViewerModal'
 import { AuthModal } from './components/auth/AuthModal';
 import { LoginPageView } from './components/auth/LoginPageView';
 
+import { ResumeBuilderView } from './components/resume/ResumeBuilderView';
+import { JobTrackerView } from './components/jobs/JobTrackerView';
+
 export function App() {
   const { activeTab, activeRole, auth, previewDoc, setPreviewDoc } = useApp();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -57,7 +60,12 @@ export function App() {
       case 'achievements':
         return <AchievementsView />;
       case 'ai-assistant':
+      case 'assistant':
         return <AIAssistantView />;
+      case 'resume':
+        return <ResumeBuilderView />;
+      case 'jobs':
+        return <JobTrackerView />;
       case 'search':
         return <SmartSearchView />;
       case 'profile':

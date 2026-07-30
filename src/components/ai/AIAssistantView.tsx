@@ -8,31 +8,42 @@ import {
   User, 
   FileText, 
   RefreshCw, 
-  Lightbulb
+  Lightbulb,
+  Key,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
+import { generateGeminiResponse, getStoredApiKey, setStoredApiKey } from '../../utils/geminiApi';
 
 export const AIAssistantView: React.FC = () => {
   const { user, documents, skills, projects, internships, certifications, achievements, setPreviewDoc } = useApp();
+
+  const [apiKey, setApiKey] = useState(getStoredApiKey());
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [showKeyText, setShowKeyText] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg_init',
       sender: 'ai',
-      text: `Hello ${user.name}! I am your MemoryVerse AI Knowledge Assistant. I have indexed your complete academic & professional vault including your VSB Engineering College ECE degree, Infosys Springboard & NPTEL certifications, 3 internships, and IoT & Full-Stack projects. What would you like to explore or generate today?`,
+      text: `Hello ${user.name}! I am your MemoryVerse AI Knowledge Assistant. I have indexed your complete academic & professional vault including your ${user.degree} degree, ${certifications.length} certifications, ${internships.length} internships, and ${projects.length} projects. What would you like to explore or generate today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedActions: [
         'What are my strongest skills?',
         'Show my IoT & WhatsApp Agriculture project.',
         'Which internships have I completed?',
         'Summarize my academic journey & certifications.',
-        'Suggest resume improvements for Full-Stack ECE role.',
-        'Generate my professional summary.'
+        'Suggest resume improvements for Full-Stack / Embedded role.',
+        'Generate my professional bio summary.'
       ]
     }
   ]);
 
   const [inputQuery, setInputQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [activeModel, setActiveModel] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +51,12 @@ export const AIAssistantView: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSaveApiKey = () => {
+    setStoredApiKey(apiKey);
+    setShowApiKeyInput(false);
+  };
+
+  const handleSend = async (textToSend?: string) => {
     const query = textToSend || inputQuery;
     if (!query.trim()) return;
 
@@ -55,89 +71,137 @@ export const AIAssistantView: React.FC = () => {
     if (!textToSend) setInputQuery('');
     setIsTyping(true);
 
-    // Context-aware RAG Engine for Dineshkumar M
-    setTimeout(() => {
-      let responseText = '';
-      let contextDocs: string[] = [];
-      const lower = query.toLowerCase();
+    const contextData = { user, documents, skills, projects, certifications, internships };
 
-      if (lower.includes('skill') || lower.includes('strongest')) {
-        responseText = `Based on your verified credentials and project reports, your top competencies are:\n\n` +
-          `• **Full Stack Web Development**: Angular, Node.js, Express.js, MySQL, HTML5, CSS3, JavaScript (Verified via Infosys Springboard & Neuro Global Internship)\n` +
-          `• **Embedded Systems & IoT**: Embedded C, Arduino IDE, Microcontrollers, Sensors Interfacing, MATLAB (Verified via Manfree Technologies & WhatsApp Agriculture Project)\n` +
-          `• **Data Analytics & Programming**: Python, C, C++, Java, Data Analytics (Verified via NPTEL IIT Madras Certification)`;
-        contextDocs = ['doc_cert_infosys_01', 'doc_cert_nptel_py', 'doc_intern_neuro'];
-      } else if (lower.includes('agri') || lower.includes('whatsapp') || lower.includes('iot') || lower.includes('project')) {
-        responseText = `Here are your major engineering projects:\n\n` + 
-          `1. **WhatsApp Agriculture Monitoring System**: Developed an Arduino-based smart agriculture IoT project integrated with a WhatsApp bot for automated land moisture updates and smart farming efficiency.\n\n` +
-          `2. **SkillBridge NGO Platform**: Web platform connecting volunteers with NGOs for opportunity matching and social event tracking.\n\n` +
-          `3. **CAREER BRIDGE WEB APPLICATION**: Centralized Student Record Management System built with Angular, Node.js, Express.js, and MySQL.`;
-        contextDocs = ['doc_proj_agri', 'doc_proj_cb'];
-      } else if (lower.includes('intern') || lower.includes('tneb') || lower.includes('manfree') || lower.includes('neuro')) {
-        responseText = `You have completed 3 practical internships:\n\n` +
-          `1. **Neuro Global (Online Internship)**: 1-Month Full Stack Development creating responsive web applications with Angular, Express.js, and MySQL.\n` +
-          `2. **Manfree Technologies – Coimbatore**: Practical training in Embedded C, Arduino, sensors interfacing, and circuit design.\n` +
-          `3. **Tamil Nadu Electricity Board (TNEB) - Karur**: In-plant training in substation electrical operations, power distribution, and transformer systems.`;
-        contextDocs = ['doc_intern_neuro', 'doc_intern_manfree', 'doc_intern_tneb'];
-      } else if (lower.includes('academic') || lower.includes('cert') || lower.includes('nptel') || lower.includes('infosys')) {
-        responseText = `**Academic & Certification Profile for Dineshkumar M**:\n\n` +
-          `• **Degree**: B.E. Electronics & Communication Engineering at VSB Engineering College, Karur (CGPA: 7.7)\n` +
-          `• **Certifications**:\n` +
-          `  - Infosys Springboard: Angular Full Stack Certification\n` +
-          `  - NPTEL / IIT Madras: Data Analytics with Python\n` +
-          `  - NPTEL / IIT Kharagpur: Computer Networks and Internet Protocol\n` +
-          `• **Achievements**: 1st Place in Inter-College Ideathon, 3rd Prize in Hackathon, State Level NCSC Participant.`;
-        contextDocs = ['doc_res_dinesh', 'doc_cert_infosys_01', 'doc_cert_nptel_py', 'doc_cert_nptel_cn'];
-      } else if (lower.includes('resume') || lower.includes('improvement')) {
-        responseText = `**Resume Optimization Recommendations for Dineshkumar M**:\n\n` +
-          `✅ **Key Strengths**: Unique dual-domain expertise bridging ECE Embedded Systems (Arduino/IoT) with Full-Stack Web Development (Angular/Node/MySQL).\n\n` +
-          `💡 **Enhancement Tips**:\n` +
-          `1. Highlight your 1st Place Inter-College Ideathon win at the top of your achievements.\n` +
-          `2. Mention live GitHub demo links for CareerBridge and WhatsApp Agriculture Monitoring bot.\n` +
-          `3. Target roles in IoT Full-Stack Development, Embedded Software Engineering, or Frontend Angular Development.`;
-      } else {
-        responseText = `I searched Dineshkumar M's vault across ${documents.length} verified documents, ${skills.length} extracted skills, and ${projects.length} projects.\n\nYour profile demonstrates high proficiency in Angular, Embedded C, Node.js, Python, and IoT systems. You hold 3 certifications (Infosys & NPTEL) and 3 completed internships.`;
-        contextDocs = documents.slice(0, 3).map(d => d.id);
-      }
+    try {
+      const response = await generateGeminiResponse(query, contextData, apiKey);
+      
+      const contextDocs = documents
+        .filter(d => 
+          query.toLowerCase().includes(d.category.toLowerCase()) || 
+          d.skills?.some((s: string) => query.toLowerCase().includes(s.toLowerCase())) ||
+          query.toLowerCase().includes(d.title.toLowerCase())
+        )
+        .slice(0, 3)
+        .map(d => d.id);
 
       const aiMsg: ChatMessage = {
         id: 'msg_' + Date.now(),
         sender: 'ai',
-        text: responseText,
+        text: response.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        contextDocIds: contextDocs
+        contextDocIds: contextDocs.length > 0 ? contextDocs : documents.slice(0, 2).map(d => d.id)
       };
 
       setMessages(prev => [...prev, aiMsg]);
+      if (response.isRealAi) {
+        setActiveModel(response.modelUsed || 'Google Gemini 2.5');
+      } else {
+        setActiveModel(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
       setIsTyping(false);
-    }, 800);
+    }
   };
 
   return (
     <div className="h-[calc(100vh-180px)] flex flex-col soft-3d-panel overflow-hidden animate-in fade-in duration-500">
       
-      {/* Header */}
-      <div className="px-6 py-4 bg-[#080b11]/80 border-b border-white/10 flex items-center justify-between">
+      {/* Top Header */}
+      <div className="px-6 py-4 bg-[#080b11]/90 border-b border-white/10 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3.5">
           <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
             <Bot className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-              MemoryVerse AI RAG Knowledge Assistant <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Verified Dineshkumar Vault</span>
+            <h2 className="text-base font-extrabold text-white flex items-center gap-2 flex-wrap">
+              MemoryVerse AI Assistant 
+              {apiKey ? (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Live Gemini AI ({activeModel || 'Connected'})
+                </span>
+              ) : (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 text-amber-400" /> Offline Contextual RAG
+                </span>
+              )}
             </h2>
-            <p className="text-xs text-slate-400">Indexed over {documents.length} credentials & {skills.length} extracted skills</p>
+            <p className="text-xs text-slate-400">Indexed {documents.length} credentials & {skills.length} extracted skills for {user.name}</p>
           </div>
         </div>
 
-        <button
-          onClick={() => setMessages([messages[0]])}
-          className="p-2.5 rounded-2xl soft-3d-button-secondary text-slate-400 hover:text-white"
-          title="Reset Chat Session"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+            className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+              apiKey 
+                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50' 
+                : 'bg-amber-500 text-slate-950 font-extrabold shadow-lg shadow-amber-500/20 hover:bg-amber-400'
+            }`}
+          >
+            <Key className="w-3.5 h-3.5" />
+            {apiKey ? 'Manage Gemini Key' : '🔑 Set Gemini API Key'}
+          </button>
+
+          <button
+            onClick={() => setMessages([messages[0]])}
+            className="p-2.5 rounded-2xl soft-3d-button-secondary text-slate-400 hover:text-white"
+            title="Reset Chat Session"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+
+      {/* API Key Modal / Drawer Bar */}
+      {showApiKeyInput && (
+        <div className="p-4 bg-indigo-950/90 border-b border-indigo-500/30 flex flex-wrap items-center justify-between gap-3 animate-in slide-in-from-top duration-300">
+          <div className="flex-1 min-w-[280px]">
+            <label className="block text-[11px] font-extrabold text-indigo-200 mb-1">
+              Google Gemini API Key
+            </label>
+            <div className="relative flex items-center">
+              <input
+                type={showKeyText ? "text" : "password"}
+                placeholder="AIzaSy..."
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="w-full bg-[#080b11] text-white border border-indigo-500/40 rounded-xl px-3 py-2 pr-10 text-xs focus:ring-2 focus:ring-indigo-500 font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setShowKeyText(!showKeyText)}
+                className="absolute right-3 text-slate-400 hover:text-white"
+              >
+                {showKeyText ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Key is stored securely in your local browser storage and used directly for Gemini 2.5 API requests.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveApiKey}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs shadow-md"
+            >
+              Save Key
+            </button>
+            <button
+              onClick={() => {
+                setApiKey('');
+                setStoredApiKey('');
+              }}
+              className="px-3 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 font-bold rounded-xl text-xs border border-red-500/30"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Chat Stream */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -165,7 +229,7 @@ export const AIAssistantView: React.FC = () => {
               {/* Context Document Links */}
               {msg.contextDocIds && msg.contextDocIds.length > 0 && (
                 <div className="pt-3 border-t border-white/10 space-y-2">
-                  <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">Referenced Credentials:</span>
+                  <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">Referenced Vault Items:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {msg.contextDocIds.map(dId => {
                       const doc = documents.find(d => d.id === dId);
@@ -213,10 +277,11 @@ export const AIAssistantView: React.FC = () => {
         {isTyping && (
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-purple-600/20 text-purple-300 border border-purple-500/30">
-              <Bot className="w-4 h-4 animate-spin" />
+              <Bot className="w-4 h-4 animate-spin text-purple-400" />
             </div>
-            <div className="soft-3d-card p-3.5 rounded-2xl text-xs text-slate-400 animate-pulse">
-              Searching Dineshkumar M's credential vectors...
+            <div className="soft-3d-card p-3.5 rounded-2xl text-xs text-slate-400 animate-pulse flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-indigo-400 animate-bounce" />
+              {apiKey ? 'Generating response via Google Gemini API...' : 'Searching MemoryVerse RAG knowledge vault...'}
             </div>
           </div>
         )}
@@ -232,14 +297,15 @@ export const AIAssistantView: React.FC = () => {
         >
           <input
             type="text"
-            placeholder="Ask AI anything about Dineshkumar M's projects, certifications, or internships..."
+            placeholder={`Ask AI anything about ${user.name}'s skills, projects, certifications, or career advice...`}
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             className="flex-1 soft-3d-input rounded-2xl px-4 py-3 text-xs text-slate-200 placeholder-slate-400"
           />
           <button
             type="submit"
-            className="px-5 py-3 rounded-2xl soft-3d-button text-white text-xs font-extrabold shadow-lg flex items-center gap-2"
+            disabled={isTyping}
+            className="px-5 py-3 rounded-2xl soft-3d-button text-white text-xs font-extrabold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform disabled:opacity-50"
           >
             <span>Ask AI</span>
             <Send className="w-4 h-4" />

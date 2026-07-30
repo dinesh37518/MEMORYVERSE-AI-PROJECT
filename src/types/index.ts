@@ -207,3 +207,37 @@ export interface StorageMetrics {
   categoryCounts: Record<DocumentCategory, number>;
   monthlyUploads: { month: string; count: number }[];
 }
+
+export type JobStage = 'Saved' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+
+export interface JobApplication {
+  id: string;
+  company: string;
+  role: string;
+  location: string;
+  salary?: string;
+  status: JobStage;
+  appliedDate: string;
+  jobUrl?: string;
+  requiredSkills: string[];
+  notes?: string;
+}
+
+export type NavigationTab = 
+  | 'dashboard' 
+  | 'vault' 
+  | 'graph' 
+  | 'timeline' 
+  | 'skills' 
+  | 'projects' 
+  | 'internships' 
+  | 'certifications' 
+  | 'achievements' 
+  | 'ai-assistant' 
+  | 'search' 
+  | 'analytics' 
+  | 'resume' 
+  | 'jobs' 
+  | 'profile' 
+  | 'admin';
+

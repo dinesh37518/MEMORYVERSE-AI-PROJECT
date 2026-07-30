@@ -20,7 +20,8 @@ import {
   UserCheck, 
   LogOut, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -50,8 +51,8 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'documents', label: 'Vault', icon: FolderKanban },
-    { id: 'upload', label: 'Quick Upload', icon: Upload, badge: 'OCR' },
+    { id: 'vault', label: 'Vault', icon: FolderKanban },
+    { id: 'quick-upload', label: 'Quick Upload', icon: Upload, badge: 'OCR' },
     { id: 'graph', label: 'Knowledge Graph', icon: Network, highlight: true },
     { id: 'timeline', label: 'Career Journey', icon: Clock },
     { id: 'skills', label: 'Skills Matrix', icon: Cpu },
@@ -59,7 +60,9 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
     { id: 'internships', label: 'Internships', icon: Building2 },
     { id: 'certifications', label: 'Certifications', icon: Award },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
-    { id: 'assistant', label: 'AI Assistant', icon: Bot, badge: 'RAG' },
+    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, badge: 'Gemini' },
+    { id: 'resume', label: 'Resume Builder', icon: FileText, badge: 'PDF' },
+    { id: 'jobs', label: 'Job Tracker', icon: Briefcase, badge: 'Match' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
     { id: 'profile', label: 'Profile', icon: Settings },

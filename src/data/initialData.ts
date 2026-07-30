@@ -761,3 +761,55 @@ export const INITIAL_EDGES: GraphEdge[] = [
   { id: 'e7', source: 'n_int_neuro', target: 'n_sk_angular', relationship: 'GAINED_AT_INTERNSHIP' },
   { id: 'e8', source: 'n_doc_ideathon', target: 'n_dinesh', relationship: 'AWARDED_TO' }
 ];
+
+export const INITIAL_JOBS: import('../types').JobApplication[] = [
+  {
+    id: 'job_01',
+    company: 'Google',
+    role: 'Associate Software Engineer - AI / Embedded Systems',
+    location: 'Bengaluru / Hybrid',
+    salary: '₹18 - ₹24 LPA',
+    status: 'Interviewing',
+    appliedDate: '2026-01-15',
+    jobUrl: 'https://careers.google.com',
+    requiredSkills: ['Python & Data Analytics', 'Embedded C & Arduino IDE', 'Computer Networks & IP Protocol', 'System Design'],
+    notes: 'Technical Interview round scheduled. Focus on IoT project architecture and Python background.'
+  },
+  {
+    id: 'job_02',
+    company: 'TCS Innovation Labs',
+    role: 'Full Stack Engineer (Angular & Node)',
+    location: 'Chennai, TN',
+    salary: '₹8 - ₹12 LPA',
+    status: 'Offer',
+    appliedDate: '2026-01-05',
+    jobUrl: 'https://tcs.com/careers',
+    requiredSkills: ['Angular & Frontend Development', 'Node.js, Express.js & MySQL', 'REST APIs'],
+    notes: 'Offer letter received! Reviewing compensation package.'
+  },
+  {
+    id: 'job_03',
+    company: 'Neuro Global Solutions',
+    role: 'Junior Full Stack Developer',
+    location: 'Remote',
+    salary: '₹6 - ₹9 LPA',
+    status: 'Applied',
+    appliedDate: '2026-01-20',
+    jobUrl: 'https://neuroglobal.example.com',
+    requiredSkills: ['Angular & Frontend Development', 'TypeScript', 'Node.js, Express.js & MySQL'],
+    notes: 'Applied following successful 1-month internship completion.'
+  },
+  {
+    id: 'job_04',
+    company: 'Infosys Springboard',
+    role: 'AI & Data Engineering Scholar',
+    location: 'Mysuru, KA',
+    salary: 'Stipend ₹35k/mo',
+    status: 'Saved',
+    appliedDate: '2026-01-28',
+    jobUrl: 'https://infosys.com/springboard',
+    requiredSkills: ['Python & Data Analytics', 'Machine Learning Core', 'SQL'],
+    notes: 'Preparing portfolio docs from NPTEL & Infosys certs.'
+  }
+];
+
