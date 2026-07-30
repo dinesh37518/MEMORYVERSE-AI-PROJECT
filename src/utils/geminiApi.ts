@@ -90,17 +90,22 @@ export async function generateGeminiResponse(
     };
   }
 
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+  // Use gemini-1.5-flash first for ultra-fast sub-second responses
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-pro'];
   const systemInstruction = buildSystemPrompt(contextData);
 
   for (const model of models) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [
             {
@@ -113,11 +118,13 @@ export async function generateGeminiResponse(
             },
           ],
           generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 1400,
+            temperature: 0.2,
+            maxOutputTokens: 650,
           },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
@@ -125,14 +132,14 @@ export async function generateGeminiResponse(
         const text = candidate?.content?.parts?.[0]?.text;
         if (text) {
           return {
-            text: text,
+            text: text.trim(),
             isRealAi: true,
             modelUsed: model,
           };
         }
       }
     } catch (err) {
-      console.warn(`Gemini API request failed for model ${model}:`, err);
+      console.warn(`Gemini API attempt for model ${model} skipped:`, err);
     }
   }
 
