@@ -829,7 +829,7 @@ export const INITIAL_TIMELINE: TimelineEvent[] = [
     id: 'tl_college_enroll',
     year: 2024,
     month: 'Sep',
-    date: '2024-09-15',
+    date: '2024-09-16',
     title: 'Enrolled in B.E. ECE at VSB Engineering College, Karur',
     category: 'Academics',
     description: 'Joined VSB Engineering College pursuing B.E. Electronics & Communication Engineering (2024 - 2028).',

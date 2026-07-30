@@ -79,10 +79,21 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v4';
+const STORAGE_KEY = 'memoryverse_ai_state_v5';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
+
+  // Purge any stale legacy memoryverse storage keys on boot
+  useEffect(() => {
+    try {
+      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4'].forEach(key => {
+        ['user', 'documents', 'skills', 'projects', 'internships', 'certifications', 'achievements', 'timeline', 'notifications'].forEach(sub => {
+          localStorage.removeItem(`${key}_${sub}`);
+        });
+      });
+    } catch (e) {}
+  }, []);
 
   const [user, setUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_user');
@@ -144,10 +155,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEY + '_timeline');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.some((t: any) => (t.date && t.date.includes('2020')) || t.year === 2020)) {
-        return INITIAL_TIMELINE;
+      if (Array.isArray(parsed)) {
+        const sslcItem = parsed.find((t: any) => t.id === 'tl_sslc');
+        const hscItem = parsed.find((t: any) => t.id === 'tl_hsc');
+        const enrollItem = parsed.find((t: any) => t.id === 'tl_college_enroll');
+        if (!sslcItem || sslcItem.year !== 2022 || !hscItem || hscItem.year !== 2024 || !enrollItem || enrollItem.date !== '2024-09-16') {
+          return INITIAL_TIMELINE;
+        }
+        return parsed;
       }
-      return parsed;
     }
     return INITIAL_TIMELINE;
   });
