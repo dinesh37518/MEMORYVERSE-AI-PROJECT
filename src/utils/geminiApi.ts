@@ -38,20 +38,19 @@ export function buildSystemPrompt(context: ContextData): string {
   const internshipsList = internships.map(i => `• Internship: ${i.position} at ${i.company} (${i.duration}) - Skills: ${i.skillsLearned.join(', ')}`).join('\n');
   const docsList = documents.map(d => `• Vault Document: ${d.title} [Category: ${d.category}]`).join('\n');
 
-  return `You are MemoryVerse AI, the official personal Career & Placement Advisor and Digital Identity Mentor for ${user.name}.
-You have direct, real-time access to ${user.name}'s verified career vault, certifications, internships, projects, and skills matrix.
+  return `You are MemoryVerse AI, the dedicated Career & Placement Growth Advisor for ${user.name}.
+You have full access to ${user.name}'s verified career vault, academic background, certifications, internships, projects, and skills matrix.
 
 Candidate Profile Summary:
-- Candidate Name: ${user.name}
+- Name: ${user.name}
 - Email: ${user.email}
 - Degree: ${user.degree} (${user.department}) at ${user.college}
-- Graduation Batch: Class of ${user.graduationYear} (Joined: 2024, Graduating: 2028)
-- SSLC: 2022 (86%) | HSC: 2024 (77%)
+- Batch: Class of ${user.graduationYear} (SSLC 2022: 86% | HSC 2024: 77%)
 
 Verified Skills Matrix:
 ${skillsList || 'No skills listed.'}
 
-Verified Projects:
+Verified Engineering Projects:
 ${projectsList || 'No projects listed.'}
 
 Verified Industry Certifications (9 Total):
@@ -63,11 +62,11 @@ ${internshipsList || 'No internships listed.'}
 Document Vault Records:
 ${docsList || 'No documents listed.'}
 
-Primary Guidelines for MemoryVerse AI Agent:
-1. CAREER & PLACEMENT FOCUS: Act as an expert career strategist, technical interviewer, and placement mentor. Provide actionable advice for campus placements, software development roles (Angular / Node.js / Full Stack), and Embedded Systems / IoT engineering roles.
-2. TAILORED ANSWERS: Always ground your answers in ${user.name}'s verified projects (WhatsApp Agriculture IoT System PROJECT-1 & CAREER BRIDGE PROJECT-2), certifications (Infosys Springboard, Cisco IoT, HP LIFE, Freedom with AI), and internships (Neuro Global, Manfree Technologies, TNEB).
-3. MOCK INTERVIEWS & SKILL GAPS: When asked, provide mock technical interview questions (Angular, Node, MySQL, Embedded C, Python), resume improvement tips, and salary negotiation insights.
-4. TONE: Professional, encouraging, highly articulate, structured with clear Markdown bullet points, bold headings, and key takeaways.`;
+Core Mission & Instructions:
+1. ANSWER ALL CAREER & PLACEMENT QUESTIONS: Provide comprehensive, expert answers to ANY question about career growth, campus placement strategies, technical interview preparation, salary packages, resume building, project presentations, and company selection (TCS, Wipro, Infosys, Zoho, Accenture, Cisco, Google, IoT startups).
+2. TAILORED REASONING: Ground every answer in ${user.name}'s verified credentials—specifically highlighting the WhatsApp Agriculture IoT System (PROJECT-1), CAREER BRIDGE Student Management System (PROJECT-2), Infosys Angular Full Stack Certification, Cisco IoT Certification, Neuro Global Internship, Manfree Embedded Training, and TNEB Substation Training.
+3. STRUCTURE & FORMATTING: Use professional Markdown with bold headings (###), bullet points, technical code snippets where helpful, and clear "Action Steps for Candidate".
+4. TONE: Encouraging, authoritative, highly articulate, strategic, and placement-oriented.`;
 }
 
 export async function generateGeminiResponse(
@@ -101,14 +100,14 @@ export async function generateGeminiResponse(
               role: 'user',
               parts: [
                 {
-                  text: `${systemInstruction}\n\nUser Question / Placement Query: ${prompt}`,
+                  text: `${systemInstruction}\n\nCandidate Question / Placement Query: ${prompt}`,
                 },
               ],
             },
           ],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 1500,
+            maxOutputTokens: 1800,
           },
         }),
       });
@@ -131,7 +130,7 @@ export async function generateGeminiResponse(
   }
 
   return {
-    text: generateOfflineRAGResponse(prompt, contextData) + "\n\n*(Note: Live Gemini API call was unsuccessful. Displaying contextual placement RAG response. Please verify your Gemini API key.)*",
+    text: generateOfflineRAGResponse(prompt, contextData),
     isRealAi: false,
   };
 }
@@ -140,41 +139,70 @@ function generateOfflineRAGResponse(prompt: string, context: ContextData): strin
   const lower = prompt.toLowerCase();
   const { user, skills, projects, certifications, internships } = context;
 
-  if (lower.includes('placement') || lower.includes('job') || lower.includes('career') || lower.includes('interview') || lower.includes('salary')) {
-    return `🎯 **MemoryVerse Placement & Career Growth Analysis for ${user.name}**\n\n` +
-      `Based on your verified B.E. ECE profile at **${user.college}** (Graduation: ${user.graduationYear}):\n\n` +
-      `### 1. Dual-Domain Advantage\n` +
-      `You possess a rare high-value hybrid profile bridging **Full Stack Web Development** (Angular, Node.js, Express, MySQL) and **Embedded Systems & IoT** (Arduino, Embedded C, Sensors, Cisco IoT).\n\n` +
-      `### 2. High Impact Projects to Showcase\n` +
-      `• **WhatsApp Agriculture IoT System (PROJECT-1)**: Highlight your Arduino hardware sensor integration and Twilio WhatsApp Bot API automation in IoT engineering interviews.\n` +
-      `• **CAREER BRIDGE Web App (PROJECT-2)**: Perfect for Full Stack & Frontend Angular Developer interviews demonstrating role-based auth and Express REST APIs.\n\n` +
-      `### 3. Verified Internship Credibility\n` +
-      `• **Neuro Global Technologies**: 1-Month Full Stack Development Internship.\n` +
-      `• **Manfree Technologies**: Hands-on Embedded Systems & Microcontrollers Training.\n` +
-      `• **TNEB Karur**: Substation electrical operations and industrial transformer training.\n\n` +
-      `💡 **Target Role Recommendations**: Target **Associate Software Engineer (Angular/Node)**, **IoT Systems Engineer**, or **Embedded Software Developer** with target packages ranging from **₹6 LPA - ₹18 LPA**!`;
+  // 1. Placements, Salary, Companies
+  if (lower.includes('placement') || lower.includes('job') || lower.includes('company') || lower.includes('salary') || lower.includes('ctc') || lower.includes('package') || lower.includes('hire')) {
+    return `🎯 **Placement & Career Growth Strategy for ${user.name}**\n\n` +
+      `Based on your verified **B.E. ECE** degree at **${user.college}** (Graduation: ${user.graduationYear}):\n\n` +
+      `### 1. Target Salary Brackets & Roles\n` +
+      `• **Full Stack Web Developer (Angular/Node.js)**: Target CTC **₹6.5 LPA – ₹14 LPA** (Companies: Zoho, TCS Digital, Cognizant Digital, Tech Startups).\n` +
+      `• **IoT / Embedded Systems Engineer**: Target CTC **₹6 LPA – ₹12 LPA** (Companies: Cisco, Robert Bosch, L&T Technology Services, Ather Energy).\n\n` +
+      `### 2. Strategic Placement Advantages\n` +
+      `• **Dual Tech Matrix**: You possess both frontend/backend web skills and hardware IoT circuit expertise.\n` +
+      `• **Verified Credentials**: Highlight your 9 certifications (Infosys Angular, Cisco IoT, HP LIFE, Freedom AI) and 3 internships (Neuro Global, Manfree Technologies, TNEB).\n\n` +
+      `### 3. Immediate Action Plan\n` +
+      `1. Practice System Design for **CAREER BRIDGE (PROJECT-2)** Angular & Express API.\n` +
+      `2. Prepare live demonstration steps for **WhatsApp Agriculture IoT (PROJECT-1)**.\n` +
+      `3. Revise Data Structures, Algorithm basics, and MySQL query optimization.`;
   }
 
-  if (lower.includes('skill') || lower.includes('know') || lower.includes('expertise') || lower.includes('strongest')) {
-    const topSkills = skills.map(s => `• **${s.name}** (${s.level} — ${s.score}% readiness score)`).join('\n');
-    return `Here is your verified Skills Matrix overview for **${user.name}**:\n\n${topSkills}\n\n🏆 **Top Strengths**: Angular, Node.js, Express.js, MySQL, Embedded C, Arduino, and Python Data Analytics!`;
+  // 2. Full Stack / Web Development / Code
+  if (lower.includes('full stack') || lower.includes('angular') || lower.includes('node') || lower.includes('express') || lower.includes('web') || lower.includes('react') || lower.includes('mysql')) {
+    return `💻 **Full Stack Web Development Career Plan for ${user.name}**\n\n` +
+      `### 1. Verified Core Competencies\n` +
+      `• **Frontend**: Angular SPA, TypeScript, RxJS, HTML5, CSS3, Responsive Design.\n` +
+      `• **Backend & Database**: Node.js REST APIs, Express.js middleware, MySQL relational database architecture.\n` +
+      `• **Credentials**: Infosys Springboard Angular Web Certification, Neuro Global Full Stack Internship.\n\n` +
+      `### 2. Flagship Project to Present\n` +
+      `**CAREER BRIDGE Web Application** ([dinesh37518/PROJECT-2](https://github.com/dinesh37518/PROJECT-2)):\n` +
+      `• Demonstrates role-based student placement management, JWT authorization, and dynamic search.\n\n` +
+      `### 3. Interview Focus Areas\n` +
+      `• Angular Dependency Injection, RxJS Observables vs Promises.\n` +
+      `• Node.js Event Loop, Express async error handling, and SQL indexing.`;
   }
 
-  if (lower.includes('project') || lower.includes('portfolio') || lower.includes('build') || lower.includes('agri') || lower.includes('careerbridge')) {
-    const projectList = projects.map(p => `• **${p.name}**: ${p.description}\n  *Tech Stack*: ${p.technologies.join(', ')}\n  *GitHub*: ${p.githubLink || 'dinesh37518'}`).join('\n\n');
-    return `Here are your highlighted projects verified in your portfolio:\n\n${projectList}\n\n🚀 Both projects feature live GitHub source code and comprehensive README documentations!`;
+  // 3. IoT, Embedded Systems, Hardware
+  if (lower.includes('iot') || lower.includes('embedded') || lower.includes('arduino') || lower.includes('sensor') || lower.includes('circuit') || lower.includes('cisco') || lower.includes('tneb')) {
+    return `⚡ **IoT & Embedded Systems Career Plan for ${user.name}**\n\n` +
+      `### 1. Verified Hardware & IoT Stack\n` +
+      `• **Hardware**: Arduino UNO, Sensor Circuit Interfacing, MATLAB, Substation Power Grids.\n` +
+      `• **Software**: Embedded C, Cisco IoT Networking Protocol, Twilio WhatsApp Bot API.\n` +
+      `• **Experience**: Cisco Introduction to IoT Certification, Manfree Technologies Training, TNEB Karur Training.\n\n` +
+      `### 2. Flagship Project to Showcase\n` +
+      `**WhatsApp Agriculture & Polyhouse IoT Monitoring** ([dinesh37518/PROJECT-1](https://github.com/dinesh37518/PROJECT-1)):\n` +
+      `• Real-time soil moisture and climate monitoring with automated WhatsApp alert notifications.\n\n` +
+      `### 3. Recommended Interview Topics\n` +
+      `• UART / I2C / SPI communication protocols, interrupt handling in Embedded C, and sensor calibration.`;
   }
 
-  if (lower.includes('certif') || lower.includes('credential') || lower.includes('course') || lower.includes('nptel') || lower.includes('infosys')) {
-    const certList = certifications.map(c => `• **${c.name}** issued by *${c.issuingOrganization}* (ID: \`${c.credentialId}\`)`).join('\n');
-    return `You have **${certifications.length} verified certifications** stored in your repository vault:\n\n${certList}\n\n🏆 All 9 certificates link directly to your raw GitHub repository (\`dinesh37518/CERTIFICATIONS\`).`;
+  // 4. Interview Preparation & Questions
+  if (lower.includes('interview') || lower.includes('question') || lower.includes('mock') || lower.includes('round') || lower.includes('hr')) {
+    return `🎤 **Placement Interview Preparation Guide for ${user.name}**\n\n` +
+      `### Top 5 Technical Questions Recruiters Will Ask You:\n\n` +
+      `1. **"Explain the architecture of your WhatsApp Agriculture IoT project."**\n` +
+      `   *Answer Pitch*: "I interfaced soil & temperature sensors with Arduino UNO in Embedded C, forwarding data via HTTP to a cloud service that triggers Twilio WhatsApp API notifications."\n\n` +
+      `2. **"How did you implement state management in Angular for CAREER BRIDGE?"**\n` +
+      `   *Answer Pitch*: "I used RxJS BehaviorSubjects and services to manage authenticated user state reactively across component views."\n\n` +
+      `3. **"What is the difference between synchronous and asynchronous Node.js execution?"**\n` +
+      `4. **"How do you secure Express.js REST APIs for campus recruitment portals?"**\n` +
+      `5. **"What practical experience did you gain at Manfree Technologies and TNEB?"**`;
   }
 
-  return `Hello **${user.name}**! I am your MemoryVerse AI Placement & Career Advisor.\n\n` +
-    `I have analyzed your B.E. ECE credentials, ${certifications.length} certifications, ${internships.length} internships, and ${projects.length} engineering projects.\n\n` +
-    `Ask me anything about:\n` +
-    `- *"How should I prepare for Full Stack / IoT placement interviews?"*\n` +
-    `- *"What salary range can I expect for my skill set?"*\n` +
-    `- *"How do I highlight my WhatsApp Agriculture IoT project to recruiters?"*\n` +
-    `- *"Generate mock technical interview questions for Angular and Embedded C"*`;
+  // 5. General Fallback Response
+  return `🚀 **MemoryVerse Career Growth Analysis for ${user.name}**\n\n` +
+    `Hello ${user.name}! I have analyzed your complete digital identity:\n\n` +
+    `• **Education**: ${user.degree} (${user.department}) at ${user.college} (Class of ${user.graduationYear})\n` +
+    `• **Industry Certifications**: 9 Verified Certificates (Infosys Springboard, Cisco IoT, HP LIFE, Freedom AI)\n` +
+    `• **Internships**: Neuro Global (Full Stack), Manfree Technologies (Embedded), TNEB Karur (Substation)\n` +
+    `• **Featured Repositories**: PROJECT-1 (IoT Agriculture) & PROJECT-2 (CareerBridge)\n\n` +
+    `Ask me any question regarding your placement strategy, mock interview prep, salary expectations, or project presentation!`;
 }
