@@ -82,7 +82,7 @@ export async function generateGeminiResponse(
     };
   }
 
-  const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro'];
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
   const systemInstruction = buildSystemPrompt(contextData);
 
   for (const model of models) {

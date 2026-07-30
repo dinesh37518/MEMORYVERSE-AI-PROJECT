@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DocumentItem, DocumentCategory } from '../../types';
 import { downloadDocumentFile } from '../../utils/downloadHelper';
@@ -16,7 +16,9 @@ import {
   Calendar, 
   ShieldCheck,
   Sparkles,
-  Cpu
+  Cpu,
+  Upload,
+  Printer
 } from 'lucide-react';
 
 interface DocumentViewerModalProps {
@@ -25,10 +27,12 @@ interface DocumentViewerModalProps {
 }
 
 export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ document: doc, onClose }) => {
-  const { user, deleteDocument, renameDocument, updateDocumentCategory } = useApp();
+  const { user, deleteDocument, renameDocument, updateDocumentCategory, attachOriginalFileToDocument } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editCategory, setEditCategory] = useState<DocumentCategory>('Certifications');
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!doc) return null;
 
@@ -49,12 +53,20 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
     downloadDocumentFile(doc, user?.name);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await attachOriginalFileToDocument(doc.id, file);
+  };
+
+  const isBlobOrDataUrl = doc.url && (doc.url.startsWith('blob:') || doc.url.startsWith('data:'));
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
       <div className="relative w-full max-w-4xl max-h-[90vh] glass-panel rounded-3xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60 flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
               <FileText className="w-5 h-5" />
@@ -65,12 +77,43 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
                   {doc.category}
                 </span>
+                {isBlobOrDataUrl && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
+                    Original File Attached
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-400 font-mono mt-0.5">{doc.fileName} • {(doc.fileSize / 1024 / 1024).toFixed(2)} MB</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf,.png,.jpg,.jpeg"
+              onChange={handleFileUpload}
+            />
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title="Upload or Replace Original PDF/File"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>{isBlobOrDataUrl ? 'Replace File' : 'Upload Original File'}</span>
+            </button>
+
+            <button
+              onClick={handleDownload}
+              className="px-3 py-1.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title="Download File"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Original</span>
+            </button>
+
             <button
               onClick={() => {
                 setEditTitle(doc.title);
@@ -81,14 +124,6 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
               title="Edit Metadata"
             >
               <Edit3 className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={handleDownload}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition-colors"
-              title="Download File"
-            >
-              <Download className="w-4 h-4" />
             </button>
 
             <button
@@ -117,19 +152,51 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
           {/* File Preview Column (Left 7 Cols) */}
           <div className="lg:col-span-7 flex flex-col gap-4">
             {doc.fileType === 'png' || doc.fileType === 'jpg' || doc.fileType === 'jpeg' ? (
-              <div className="w-full h-80 lg:h-full min-h-[350px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-6 relative overflow-hidden">
-                <img src={doc.url} alt={doc.title} className="max-h-full max-w-full object-contain rounded-lg" />
+              <div className="w-full h-80 lg:h-full min-h-[380px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
+                <img src={doc.url} alt={doc.title} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
+              </div>
+            ) : doc.url && (doc.url.startsWith('http') || doc.url.startsWith('blob') || doc.url.startsWith('data')) ? (
+              <div className="w-full h-full min-h-[420px] rounded-2xl bg-slate-950 border border-slate-800 flex flex-col overflow-hidden relative">
+                {/* Header Action Bar for Original PDF */}
+                <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
+                  <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-indigo-400" /> Original Certificate PDF
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={doc.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-md"
+                    >
+                      <span>Open PDF in New Tab</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    {doc.extractedMetadata.verificationUrl && (
+                      <a
+                        href={doc.extractedMetadata.verificationUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-300 border border-purple-500/30 text-[11px] font-bold flex items-center gap-1"
+                      >
+                        <span>GitHub Source</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <iframe
+                  src={doc.url.startsWith('blob:') || doc.url.startsWith('data:') ? doc.url : `https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
+                  title={doc.title}
+                  className="w-full h-full min-h-[380px] rounded-b-2xl border-0"
+                />
               </div>
             ) : (
-              /* Rich Interactive Visual Certificate Frame */
+              /* High Resolution Formal Printable Certificate View */
               <div className="w-full h-full min-h-[380px] rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-indigo-500/40 p-6 flex flex-col justify-between relative shadow-2xl overflow-y-auto">
-                {/* Ornamental Corners */}
-                <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-indigo-400/60 rounded-tl"></div>
-                <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-indigo-400/60 rounded-tr"></div>
-                <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-indigo-400/60 rounded-bl"></div>
-                <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-indigo-400/60 rounded-br"></div>
-
-                {/* Certificate Header */}
                 <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center font-extrabold text-xs shadow-inner">
@@ -187,17 +254,19 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 </div>
 
                 {/* Footer Action */}
-                <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center justify-between">
+                <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-wrap">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> SHA-256 Signature Hash
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> SHA-256 Verified
                   </div>
 
-                  <button
-                    onClick={handleDownload}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
-                  >
-                    <Download className="w-4 h-4" /> Download Certificate File
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleDownload}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                    >
+                      <Download className="w-4 h-4" /> Download Official File
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

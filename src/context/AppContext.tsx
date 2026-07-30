@@ -74,11 +74,12 @@ interface AppContextType {
   // Selected Document detail modal
   previewDoc: DocumentItem | null;
   setPreviewDoc: (doc: DocumentItem | null) => void;
+  attachOriginalFileToDocument: (docId: string, file: File) => Promise<DocumentItem>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v2';
+const STORAGE_KEY = 'memoryverse_ai_state_v3';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
@@ -90,7 +91,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [documents, setDocuments] = useState<DocumentItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_documents');
-    return saved ? JSON.parse(saved) : INITIAL_DOCUMENTS;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.some((d: any) => d.url && d.url.includes('w3.org'))) {
+        return INITIAL_DOCUMENTS;
+      }
+      return parsed;
+    }
+    return INITIAL_DOCUMENTS;
   });
 
   const [skills, setSkills] = useState<SkillItem[]>(() => {
@@ -110,7 +118,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [certifications, setCertifications] = useState<CertificationItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_certifications');
-    return saved ? JSON.parse(saved) : INITIAL_CERTIFICATIONS;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length < INITIAL_CERTIFICATIONS.length) {
+        return INITIAL_CERTIFICATIONS;
+      }
+      return parsed;
+    }
+    return INITIAL_CERTIFICATIONS;
   });
 
   const [achievements, setAchievements] = useState<AchievementItem[]>(() => {
@@ -368,6 +383,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.clear();
   };
 
+  const attachOriginalFileToDocument = async (docId: string, file: File): Promise<DocumentItem> => {
+    const ext = file.name.split('.').pop()?.toLowerCase() as FileType || 'pdf';
+    const blobUrl = URL.createObjectURL(file);
+
+    let updatedDoc: DocumentItem | null = null;
+
+    setDocuments(prev => prev.map(d => {
+      if (d.id === docId) {
+        updatedDoc = {
+          ...d,
+          url: blobUrl,
+          fileName: file.name,
+          originalName: file.name,
+          fileType: ext,
+          fileSize: file.size,
+          uploadDate: new Date().toISOString().split('T')[0]
+        };
+        return updatedDoc;
+      }
+      return d;
+    }));
+
+    if (previewDoc && previewDoc.id === docId && updatedDoc) {
+      setPreviewDoc(updatedDoc);
+    }
+
+    const successNotif: AppNotification = {
+      id: 'notif_' + Date.now(),
+      type: 'upload_success',
+      title: 'Original File Attached',
+      message: `Attached "${file.name}" to document.`,
+      date: new Date().toISOString(),
+      read: false
+    };
+    setNotifications(prev => [successNotif, ...prev]);
+
+    return updatedDoc || documents.find(d => d.id === docId)!;
+  };
+
   const addJob = (newJob: Omit<JobApplication, 'id' | 'appliedDate'>) => {
     const created: JobApplication = {
       ...newJob,
@@ -421,7 +475,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateJobStatus,
       deleteJob,
       previewDoc,
-      setPreviewDoc
+      setPreviewDoc,
+      attachOriginalFileToDocument
     }}>
       {children}
     </AppContext.Provider>

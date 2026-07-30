@@ -79,16 +79,16 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
   },
   {
     id: 'doc_cert_infosys_01',
-    title: 'Angular Full Stack Certification – Infosys Springboard',
-    fileName: 'Infosys_Springboard_Angular_Full_Stack_Certificate.pdf',
+    title: 'Infosys Springboard Angular Web Certification',
+    fileName: 'INFOSYS ANGULAR WEB CERTIFICATION.pdf',
     fileType: 'pdf',
     fileSize: 2100000,
     uploadDate: '2025-06-15',
     category: 'Certifications',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/INFOSYS%20ANGULAR%20WEB%20CERTIFICATION.pdf',
     hash: 'b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef01',
     status: 'analyzed',
-    originalName: 'Infosys_Springboard_Angular_Full_Stack_Certificate.pdf',
+    originalName: 'INFOSYS ANGULAR WEB CERTIFICATION.pdf',
     extractedMetadata: {
       category: 'Certifications',
       organization: 'Infosys Springboard',
@@ -96,121 +96,225 @@ export const INITIAL_DOCUMENTS: DocumentItem[] = [
       certificateName: 'Angular Full Stack Certification',
       issueDate: '2025-06-15',
       credentialId: 'INFOSYS-ANG-FS-992014',
-      verificationUrl: 'https://springboard.infosys.com/verify/INFOSYS-ANG-FS-992014',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/INFOSYS%20ANGULAR%20WEB%20CERTIFICATION.pdf',
       skills: ['Angular', 'TypeScript', 'Node.js', 'Express.js', 'MySQL', 'REST API Architecture'],
       technologies: ['Web Architecture', 'Single Page Applications'],
       languages: ['TypeScript', 'JavaScript', 'HTML/CSS'],
       keywords: ['Infosys', 'Angular', 'Full Stack', 'Certificate'],
-      summary: 'Verified Infosys Springboard certification demonstrating comprehensive knowledge in building enterprise Angular frontend apps integrated with Node.js & MySQL backends.',
-      experienceLevel: 'Advanced'
-    }
-  },
-  {
-    id: 'doc_cert_nptel_py',
-    title: 'Data Analytics with Python – NPTEL Certification',
-    fileName: 'NPTEL_Data_Analytics_with_Python_Certificate.pdf',
-    fileType: 'pdf',
-    fileSize: 1850000,
-    uploadDate: '2025-04-20',
-    category: 'Certifications',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    hash: 'c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef012',
-    status: 'analyzed',
-    originalName: 'NPTEL_Data_Analytics_with_Python_Certificate.pdf',
-    extractedMetadata: {
-      category: 'Certifications',
-      organization: 'NPTEL / IIT Madras',
-      institution: 'National Programme on Technology Enhanced Learning',
-      certificateName: 'Data Analytics with Python',
-      issueDate: '2025-04-20',
-      credentialId: 'NPTEL25CS44S8820',
-      verificationUrl: 'https://nptel.ac.in/noc/Ecertificate/?q=NPTEL25CS44S8820',
-      skills: ['Python', 'Data Analytics', 'Pandas', 'NumPy', 'Data Visualization', 'Statistical Analysis'],
-      technologies: ['Jupyter Notebook', 'Python Data Stack'],
-      languages: ['Python'],
-      keywords: ['NPTEL', 'Data Analytics', 'Python', 'IIT Certification'],
-      summary: 'National level NPTEL certification in Data Analytics with Python covering data processing, cleaning, statistical modeling, and insight visualization.',
-      experienceLevel: 'Advanced'
-    }
-  },
-  {
-    id: 'doc_cert_nptel_cn',
-    title: 'Computer Networks & Internet Protocol – NPTEL Certification',
-    fileName: 'NPTEL_Computer_Networks_Internet_Protocol_Certificate.pdf',
-    fileType: 'pdf',
-    fileSize: 1920000,
-    uploadDate: '2024-11-10',
-    category: 'Certifications',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    hash: 'd4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0123',
-    status: 'analyzed',
-    originalName: 'NPTEL_Computer_Networks_Internet_Protocol_Certificate.pdf',
-    extractedMetadata: {
-      category: 'Certifications',
-      organization: 'NPTEL / IIT Kharagpur',
-      institution: 'NPTEL IIT Learning Platform',
-      certificateName: 'Computer Networks and Internet Protocol',
-      issueDate: '2024-11-10',
-      credentialId: 'NPTEL24CS91S3301',
-      verificationUrl: 'https://nptel.ac.in/noc/Ecertificate/?q=NPTEL24CS91S3301',
-      skills: ['Computer Networks', 'TCP/IP Protocol Stack', 'Network Security', 'Routing Algorithms', 'Ethernet'],
-      technologies: ['Wireshark', 'Packet Tracer', 'Network Architecture'],
-      languages: ['C++', 'Python'],
-      keywords: ['NPTEL', 'Computer Networks', 'IP Protocol', 'Networking'],
-      summary: 'Core engineering certification verifying mastery of TCP/IP protocol suite, network socket programming, routing protocols, and internet infrastructure.',
+      summary: 'Original Infosys Springboard certification document from GitHub repository dinesh37518/CERTIFICATIONS.',
       experienceLevel: 'Advanced'
     }
   },
   {
     id: 'doc_intern_neuro',
-    title: 'Neuro Global – Full Stack Development Internship Completion Letter',
-    fileName: 'Neuro_Global_Full_Stack_Internship_Completion_Letter.pdf',
-    fileType: 'pdf',
+    title: 'Full Stack Development Internship Certificate – Neuro Global',
+    fileName: 'FULLSTACK DEVELOPMENT INTERNSHIP CERTIFICATE.jpeg',
+    fileType: 'jpeg',
     fileSize: 1650000,
     uploadDate: '2025-08-30',
     category: 'Internships',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/FULLSTACK%20DEVELOPMENT%20INTERNSHIP%20CERTIFICATE.jpeg',
     hash: 'e5f67890123456789abcdef0123456789abcdef0123456789abcdef01234',
     status: 'analyzed',
-    originalName: 'Neuro_Global_Full_Stack_Internship_Completion_Letter.pdf',
+    originalName: 'FULLSTACK DEVELOPMENT INTERNSHIP CERTIFICATE.jpeg',
     extractedMetadata: {
       category: 'Internships',
       organization: 'Neuro Global Technologies',
-      internshipCompany: 'Neuro Global (Online Division)',
+      internshipCompany: 'Neuro Global',
       issueDate: '2025-08-30',
       duration: '1 Month',
-      skills: ['Full Stack Development', 'HTML5 & CSS3', 'JavaScript (ES6+)', 'Angular', 'Node.js', 'Express.js', 'MySQL'],
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/FULLSTACK%20DEVELOPMENT%20INTERNSHIP%20CERTIFICATE.jpeg',
+      skills: ['Full Stack Development', 'Angular', 'Node.js', 'Express.js', 'MySQL'],
       technologies: ['Responsive Web Design', 'RESTful API Development', 'MySQL Database'],
       languages: ['JavaScript', 'HTML', 'CSS', 'SQL'],
-      keywords: ['Full Stack Internship', 'Neuro Global', 'Web Development', 'Angular', 'Node.js'],
-      summary: 'Internship letter confirming Dineshkumar M completed a 1-month intensive Full Stack Development internship designing responsive web apps using Angular, Express.js, and MySQL.',
+      keywords: ['Full Stack Internship', 'Neuro Global', 'Web Development'],
+      summary: 'Original Full Stack Internship completion certificate from GitHub repository dinesh37518/CERTIFICATIONS.',
       experienceLevel: 'Advanced'
     }
   },
   {
     id: 'doc_intern_manfree',
-    title: 'Manfree Technologies Coimbatore – Embedded Systems Internship Letter',
-    fileName: 'Manfree_Technologies_Coimbatore_Embedded_Internship.pdf',
-    fileType: 'pdf',
+    title: 'Embedded Systems Internship Certificate – Manfree Technologies',
+    fileName: 'EMBEDDED SYSTEMS INTERNSHIP CERTIFICATE.jpeg',
+    fileType: 'jpeg',
     fileSize: 1540000,
     uploadDate: '2024-07-25',
     category: 'Internships',
-    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/EMBEDDED%20SYSTEMS%20INTERNSHIP%20CERTIFICATE.jpeg',
     hash: 'f67890123456789abcdef0123456789abcdef0123456789abcdef012345',
     status: 'analyzed',
-    originalName: 'Manfree_Technologies_Coimbatore_Embedded_Internship.pdf',
+    originalName: 'EMBEDDED SYSTEMS INTERNSHIP CERTIFICATE.jpeg',
     extractedMetadata: {
       category: 'Internships',
       organization: 'Manfree Technologies – Coimbatore',
       internshipCompany: 'Manfree Technologies',
       issueDate: '2024-07-25',
-      duration: 'In-Plant / Practical Training',
-      skills: ['Embedded C', 'Arduino IDE', 'Electronic Components', 'Sensors Interfacing', 'Circuit Design'],
-      technologies: ['Microcontrollers', 'Arduino Uno', 'Sensor Interfacing', 'MATLAB'],
+      duration: '1 Month',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/EMBEDDED%20SYSTEMS%20INTERNSHIP%20CERTIFICATE.jpeg',
+      skills: ['Embedded C', 'Arduino IDE', 'Sensors Interfacing', 'Circuit Design'],
+      technologies: ['Microcontrollers', 'Arduino Uno', 'Sensor Interfacing'],
       languages: ['Embedded C', 'C++'],
-      keywords: ['Manfree Technologies', 'Embedded C', 'Arduino', 'Coimbatore', 'Sensors'],
-      summary: 'Practical training certificate detailing hands-on development with Embedded C, sensor hardware interfacing, electronic circuit design, and microcontrollers.',
+      keywords: ['Manfree Technologies', 'Embedded C', 'Arduino'],
+      summary: 'Original Embedded Systems internship training certificate from GitHub repository dinesh37518/CERTIFICATIONS.',
       experienceLevel: 'Intermediate'
+    }
+  },
+  {
+    id: 'doc_cert_cisco_iot',
+    title: 'Cisco Introduction to IoT Certificate',
+    fileName: 'CISCO INTRODUCTION TO IOT.pdf',
+    fileType: 'pdf',
+    fileSize: 1750000,
+    uploadDate: '2025-01-10',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/CISCO%20INTRODUCTION%20TO%20IOT.pdf',
+    hash: 'c1s2c3o4i5o6t7890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'CISCO INTRODUCTION TO IOT.pdf',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'Cisco Networking Academy',
+      institution: 'Cisco',
+      certificateName: 'Introduction to IoT',
+      issueDate: '2025-01-10',
+      credentialId: 'CISCO-IOT-9920',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/CISCO%20INTRODUCTION%20TO%20IOT.pdf',
+      skills: ['Internet of Things (IoT)', 'Sensors & Automation', 'Network Connectivity'],
+      technologies: ['IoT Architecture', 'Smart Devices'],
+      languages: ['English'],
+      keywords: ['Cisco', 'IoT', 'Introduction to IoT'],
+      summary: 'Original Cisco Introduction to IoT certification PDF from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Advanced'
+    }
+  },
+  {
+    id: 'doc_cert_cisco_badge',
+    title: 'Cisco IoT Verified Digital Badge',
+    fileName: 'CISCO BADGE.png',
+    fileType: 'png',
+    fileSize: 850000,
+    uploadDate: '2025-01-10',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/CISCO%20BADGE.png',
+    hash: 'b1a2d3g4e5f67890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'CISCO BADGE.png',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'Cisco',
+      certificateName: 'Cisco IoT Badge',
+      issueDate: '2025-01-10',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/CISCO%20BADGE.png',
+      skills: ['IoT Systems', 'Network Connectivity'],
+      technologies: ['Cisco Digital Credential'],
+      languages: ['English'],
+      keywords: ['Cisco', 'Badge', 'IoT'],
+      summary: 'Original Cisco IoT verified digital badge PNG from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Advanced'
+    }
+  },
+  {
+    id: 'doc_cert_hp_ai',
+    title: 'HP LIFE – AI for Beginners Certification',
+    fileName: 'HP AI for Beginners.pdf',
+    fileType: 'pdf',
+    fileSize: 1420000,
+    uploadDate: '2025-05-12',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/HP%20AI%20for%20Beginners.pdf',
+    hash: 'h1p2a3i4b5e6g7890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'HP AI for Beginners.pdf',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'HP LIFE Learning Platform',
+      certificateName: 'AI for Beginners',
+      issueDate: '2025-05-12',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20AI%20for%20Beginners.pdf',
+      skills: ['Artificial Intelligence', 'Machine Learning Basics', 'AI Ethics'],
+      technologies: ['AI Platforms', 'Prompts'],
+      languages: ['English'],
+      keywords: ['HP', 'AI for Beginners', 'HP LIFE'],
+      summary: 'Original HP LIFE AI for Beginners certificate PDF from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Intermediate'
+    }
+  },
+  {
+    id: 'doc_cert_hp_agile',
+    title: 'HP LIFE – Agile Project Management Certificate',
+    fileName: 'HP Agile Project Management.pdf',
+    fileType: 'pdf',
+    fileSize: 1510000,
+    uploadDate: '2025-04-18',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/HP%20Agile%20Project%20Management.pdf',
+    hash: 'h1p2a3g4i5l6e7890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'HP Agile Project Management.pdf',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'HP LIFE',
+      certificateName: 'Agile Project Management',
+      issueDate: '2025-04-18',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20Agile%20Project%20Management.pdf',
+      skills: ['Agile Methodology', 'Scrum Framework', 'Sprint Planning'],
+      technologies: ['Project Management Tools'],
+      languages: ['English'],
+      keywords: ['HP', 'Agile', 'Project Management'],
+      summary: 'Original HP LIFE Agile Project Management certificate PDF from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Advanced'
+    }
+  },
+  {
+    id: 'doc_cert_hp_email',
+    title: 'HP LIFE – Business Email Communications Certificate',
+    fileName: 'HP Business Email.pdf',
+    fileType: 'pdf',
+    fileSize: 1390000,
+    uploadDate: '2025-03-22',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/HP%20Business%20Email.pdf',
+    hash: 'h1p2e3m4a5i6l7890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'HP Business Email.pdf',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'HP LIFE',
+      certificateName: 'Business Email Communications',
+      issueDate: '2025-03-22',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20Business%20Email.pdf',
+      skills: ['Professional Communication', 'Email Writing', 'Corporate Etiquette'],
+      technologies: ['Email Clients'],
+      languages: ['English'],
+      keywords: ['HP', 'Business Email', 'Communication'],
+      summary: 'Original HP LIFE Business Email certificate PDF from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Intermediate'
+    }
+  },
+  {
+    id: 'doc_cert_freedom_ai',
+    title: 'Freedom with AI Masterclass Certificate',
+    fileName: 'FREEDOMWITH AI.pdf',
+    fileType: 'pdf',
+    fileSize: 1620000,
+    uploadDate: '2025-07-05',
+    category: 'Certifications',
+    url: 'https://raw.githubusercontent.com/dinesh37518/CERTIFICATIONS/main/FREEDOMWITH%20AI.pdf',
+    hash: 'f1r2e3e4d5o6m7890123456789abcdef0123456789abcdef0123456789abcdef',
+    status: 'analyzed',
+    originalName: 'FREEDOMWITH AI.pdf',
+    extractedMetadata: {
+      category: 'Certifications',
+      organization: 'Freedom with AI Platform',
+      certificateName: 'Freedom with AI Masterclass',
+      issueDate: '2025-07-05',
+      verificationUrl: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/FREEDOMWITH%20AI.pdf',
+      skills: ['Generative AI Tools', 'Prompt Engineering', 'AI Productivity'],
+      technologies: ['ChatGPT', 'Claude', 'Midjourney'],
+      languages: ['English'],
+      keywords: ['Freedom with AI', 'AI Masterclass'],
+      summary: 'Original Freedom with AI Masterclass certificate PDF from GitHub repository dinesh37518/CERTIFICATIONS.',
+      experienceLevel: 'Advanced'
     }
   },
   {
@@ -408,7 +512,32 @@ export const INITIAL_PROJECTS: ProjectItem[] = [
     connectedCertIds: ['cert_nptel_py'],
     connectedSkillIds: ['sk_embedded_arduino', 'sk_python_analytics'],
     date: '2025-03-10',
-    category: 'IoT & Smart Systems'
+    category: 'IoT & Smart Systems',
+    features: [
+      '🌾 Real-Time Soil Moisture Sensing: Continuous land moisture telemetry via capacitive soil sensors.',
+      '💬 WhatsApp Bot Automation: Instant automated land status updates sent via Twilio WhatsApp API.',
+      '💧 Smart Irrigation Control: Relay-actuated water pump activation when moisture drops below threshold.',
+      '📊 Environmental Telemetry: Climate monitoring using DHT11 sensors for polyhouse crop yield.'
+    ],
+    readmeContent: `# WhatsApp Agriculture & Polyhouse IoT Monitoring System
+
+**Developer**: Dineshkumar M (VSB Engineering College, Karur)  
+**GitHub Repo**: [https://github.com/dinesh37518/PROJECT-1](https://github.com/dinesh37518/PROJECT-1)
+
+## Overview
+An end-to-end IoT smart agriculture solution enabling automated land monitoring and polyhouse farming management. By combining Arduino hardware microcontrollers with a WhatsApp bot interface, farmers receive instant alerts and can control irrigation pumps remotely.
+
+## Key Features
+- **Automated Land Moisture Updates**: Continuous polling of soil moisture sensors sending status updates to mobile numbers.
+- **Automated Irrigation Control**: Relay switch automatically powers irrigation pumps when soil moisture drops below calibrated threshold.
+- **Polyhouse Climate Monitoring**: Ambient temperature and humidity logging using DHT11 sensors to maintain optimal crop health.
+- **Remote WhatsApp Control**: WhatsApp bot commands allowing manual pump activation/deactivation via simple text messages.
+
+## Tech Stack & Hardware Components
+- **Microcontroller**: Arduino UNO / ESP8266 NodeMCU Wi-Fi Module
+- **Sensors**: Capacitive Soil Moisture Sensor, DHT11 Temperature & Humidity Sensor
+- **Actuators**: 5V Single Channel Relay Module, 12V DC Water Submersible Pump
+- **Software & APIs**: Embedded C, Arduino IDE, Twilio WhatsApp API, Python API backend`
   },
   {
     id: 'prj_skillbridge',
@@ -426,7 +555,24 @@ export const INITIAL_PROJECTS: ProjectItem[] = [
     connectedCertIds: ['cert_infosys_ang'],
     connectedSkillIds: ['sk_angular', 'sk_node_sql'],
     date: '2025-06-25',
-    category: 'Full-Stack Web App'
+    category: 'Full-Stack Web App',
+    features: [
+      '🤝 Opportunity Matching Engine: Smart matching connecting volunteers with nearby NGO events.',
+      '📋 Volunteer Registration & Tracking: Real-time participation tracking and activity certificate generation.',
+      '🌐 Full Stack Architecture: Built using Angular frontend, Express API backend, and MySQL database.'
+    ],
+    readmeContent: `# SkillBridge NGO Volunteer Web Platform
+
+**Developer**: Dineshkumar M  
+**GitHub Repo**: [https://github.com/dinesh37518/PROJECT-2](https://github.com/dinesh37518/PROJECT-2)
+
+## Overview
+SkillBridge connects social non-profits with motivated volunteers. NGOs can publish events, manage volunteer attendance, and issue digital participation certificates.
+
+## Key Features
+- **NGO Event Board**: Publish volunteer events, cause categories, and required volunteer counts.
+- **Skill Matching Engine**: Recommends events based on volunteer skills and availability.
+- **Activity & Hour Logging**: Tracks volunteer service hours and automatically updates student community engagement profiles.`
   },
   {
     id: 'prj_career_bridge',
@@ -444,7 +590,32 @@ export const INITIAL_PROJECTS: ProjectItem[] = [
     connectedCertIds: ['cert_infosys_ang'],
     connectedSkillIds: ['sk_angular', 'sk_node_sql'],
     date: '2025-09-20',
-    category: 'Enterprise Web Portal'
+    category: 'Enterprise Web Portal',
+    features: [
+      '🎓 Student Academic Record System: Centralized storage for student profiles, CGPA, backlogs, and resume documents.',
+      '🔐 Role-Based Security: Multi-tier access control for Students, Placement Officers, and Corporate Recruiters.',
+      '⚡ Angular SPA Frontend: High-performance single page application with dynamic search and filtering.',
+      '🗄️ Express & MySQL Backend: Relational database queries optimized for campus placement drives.'
+    ],
+    readmeContent: `# CAREER BRIDGE WEB APPLICATION
+
+**Developer**: Dineshkumar M  
+**GitHub Repo**: [https://github.com/dinesh37518/PROJECT-2](https://github.com/dinesh37518/PROJECT-2)
+
+## Overview
+CAREER BRIDGE is a Student Record Management System built for colleges to manage student academic portfolios, placement eligibility, and campus recruitment drives.
+
+## Key Features
+- **Student Profile Management**: Manage academic marks, skills, resume PDF files, and certifications.
+- **Placement Officer Dashboard**: Filter student lists by CGPA, department, and skill criteria.
+- **Company Recruitment Management**: Post company job roles, CTC packages, and interview round dates.
+- **Role-Based Authorization**: JWT authentication protecting student records and administrative actions.
+
+## Architecture & Technologies
+- **Frontend**: Angular CLI, TypeScript, HTML5, CSS3, RxJS, TailwindCSS
+- **Backend**: Node.js, Express.js RESTful API engine
+- **Database**: MySQL relational database
+- **GitHub Repository**: [https://github.com/dinesh37518/PROJECT-2](https://github.com/dinesh37518/PROJECT-2)`
   }
 ];
 
@@ -499,35 +670,101 @@ export const INITIAL_INTERNSHIPS: InternshipItem[] = [
 export const INITIAL_CERTIFICATIONS: CertificationItem[] = [
   {
     id: 'cert_infosys_ang',
-    name: 'Angular Full Stack Certification',
+    name: 'Infosys Springboard Angular Web Certification',
     issuingOrganization: 'Infosys Springboard',
     date: '2025-06-15',
     credentialId: 'INFOSYS-ANG-FS-992014',
-    verificationLink: 'https://springboard.infosys.com/verify/INFOSYS-ANG-FS-992014',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/INFOSYS%20ANGULAR%20WEB%20CERTIFICATION.pdf',
     skillsGained: ['Angular & Frontend Development', 'Node.js, Express.js & MySQL'],
     documentId: 'doc_cert_infosys_01',
     status: 'Active'
   },
   {
-    id: 'cert_nptel_py',
-    name: 'Data Analytics with Python',
-    issuingOrganization: 'NPTEL / IIT Madras',
-    date: '2025-04-20',
-    credentialId: 'NPTEL25CS44S8820',
-    verificationLink: 'https://nptel.ac.in/noc/Ecertificate/?q=NPTEL25CS44S8820',
-    skillsGained: ['Python & Data Analytics'],
-    documentId: 'doc_cert_nptel_py',
+    id: 'cert_fullstack_intern',
+    name: 'Full Stack Development Internship Certificate',
+    issuingOrganization: 'Neuro Global Technologies',
+    date: '2025-08-30',
+    credentialId: 'NEURO-FS-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/FULLSTACK%20DEVELOPMENT%20INTERNSHIP%20CERTIFICATE.jpeg',
+    skillsGained: ['Angular', 'Node.js', 'Express.js', 'MySQL'],
+    documentId: 'doc_intern_neuro',
     status: 'Active'
   },
   {
-    id: 'cert_nptel_cn',
-    name: 'Computer Networks and Internet Protocol',
-    issuingOrganization: 'NPTEL / IIT Kharagpur',
-    date: '2024-11-10',
-    credentialId: 'NPTEL24CS91S3301',
-    verificationLink: 'https://nptel.ac.in/noc/Ecertificate/?q=NPTEL24CS91S3301',
-    skillsGained: ['Computer Networks & IP Protocol'],
-    documentId: 'doc_cert_nptel_cn',
+    id: 'cert_embedded_intern',
+    name: 'Embedded Systems & Microcontrollers Internship Certificate',
+    issuingOrganization: 'Manfree Technologies – Coimbatore',
+    date: '2024-07-25',
+    credentialId: 'MANFREE-EMB-2024',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/EMBEDDED%20SYSTEMS%20INTERNSHIP%20CERTIFICATE.jpeg',
+    skillsGained: ['Embedded C & Arduino IDE', 'Sensors Interfacing', 'Circuit Design'],
+    documentId: 'doc_intern_manfree',
+    status: 'Active'
+  },
+  {
+    id: 'cert_cisco_iot',
+    name: 'Cisco Introduction to IoT Certification',
+    issuingOrganization: 'Cisco Networking Academy',
+    date: '2025-01-10',
+    credentialId: 'CISCO-IOT-9920',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/CISCO%20INTRODUCTION%20TO%20IOT.pdf',
+    skillsGained: ['Internet of Things (IoT)', 'Sensors & Automation', 'Network Connectivity'],
+    documentId: 'doc_cert_cisco_iot',
+    status: 'Active'
+  },
+  {
+    id: 'cert_cisco_badge',
+    name: 'Cisco IoT Verified Digital Badge',
+    issuingOrganization: 'Cisco',
+    date: '2025-01-10',
+    credentialId: 'CISCO-BADGE-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/CISCO%20BADGE.png',
+    skillsGained: ['IoT Systems', 'Network Connectivity'],
+    documentId: 'doc_cert_cisco_badge',
+    status: 'Active'
+  },
+  {
+    id: 'cert_hp_ai',
+    name: 'HP LIFE – AI for Beginners Certification',
+    issuingOrganization: 'HP LIFE Learning Platform',
+    date: '2025-05-12',
+    credentialId: 'HP-AI-BEGINNER-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20AI%20for%20Beginners.pdf',
+    skillsGained: ['Artificial Intelligence', 'Machine Learning Basics'],
+    documentId: 'doc_cert_hp_ai',
+    status: 'Active'
+  },
+  {
+    id: 'cert_hp_agile',
+    name: 'HP LIFE – Agile Project Management Certificate',
+    issuingOrganization: 'HP LIFE',
+    date: '2025-04-18',
+    credentialId: 'HP-AGILE-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20Agile%20Project%20Management.pdf',
+    skillsGained: ['Agile Methodology', 'Scrum Framework', 'Sprint Planning'],
+    documentId: 'doc_cert_hp_agile',
+    status: 'Active'
+  },
+  {
+    id: 'cert_hp_email',
+    name: 'HP LIFE – Business Email Communications Certificate',
+    issuingOrganization: 'HP LIFE',
+    date: '2025-03-22',
+    credentialId: 'HP-EMAIL-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/HP%20Business%20Email.pdf',
+    skillsGained: ['Professional Communication', 'Email Writing'],
+    documentId: 'doc_cert_hp_email',
+    status: 'Active'
+  },
+  {
+    id: 'cert_freedom_ai',
+    name: 'Freedom with AI Masterclass Certificate',
+    issuingOrganization: 'Freedom with AI Platform',
+    date: '2025-07-05',
+    credentialId: 'FREEDOM-AI-2025',
+    verificationLink: 'https://github.com/dinesh37518/CERTIFICATIONS/blob/main/FREEDOMWITH%20AI.pdf',
+    skillsGained: ['Generative AI Tools', 'Prompt Engineering', 'AI Productivity'],
+    documentId: 'doc_cert_freedom_ai',
     status: 'Active'
   }
 ];

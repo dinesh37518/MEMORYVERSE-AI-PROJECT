@@ -86,6 +86,8 @@ export interface ProjectItem {
   connectedSkillIds: string[];
   date: string;
   category: string;
+  features?: string[];
+  readmeContent?: string;
 }
 
 export interface InternshipItem {
