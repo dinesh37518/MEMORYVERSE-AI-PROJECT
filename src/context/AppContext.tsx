@@ -79,7 +79,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v5';
+const STORAGE_KEY = 'memoryverse_ai_state_v6';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
@@ -87,7 +87,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Purge any stale legacy memoryverse storage keys on boot
   useEffect(() => {
     try {
-      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4'].forEach(key => {
+      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5'].forEach(key => {
         ['user', 'documents', 'skills', 'projects', 'internships', 'certifications', 'achievements', 'timeline', 'notifications'].forEach(sub => {
           localStorage.removeItem(`${key}_${sub}`);
         });
@@ -111,7 +111,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(STORAGE_KEY + '_documents');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.some((d: any) => d.url && d.url.includes('w3.org'))) {
+      if (Array.isArray(parsed) && (parsed.some((d: any) => d.url && d.url.includes('w3.org')) || parsed.some((d: any) => d.id === 'doc_intern_neuro' && d.uploadDate !== '2026-01-30'))) {
         return INITIAL_DOCUMENTS;
       }
       return parsed;
@@ -131,14 +131,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [internships, setInternships] = useState<InternshipItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_internships');
-    return saved ? JSON.parse(saved) : INITIAL_INTERNSHIPS;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.some((i: any) => i.id === 'int_neuro_global' && i.startDate !== '2026-01-01')) {
+        return INITIAL_INTERNSHIPS;
+      }
+      return parsed;
+    }
+    return INITIAL_INTERNSHIPS;
   });
 
   const [certifications, setCertifications] = useState<CertificationItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY + '_certifications');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length < INITIAL_CERTIFICATIONS.length) {
+      if (Array.isArray(parsed) && (parsed.length < INITIAL_CERTIFICATIONS.length || parsed.some((c: any) => c.id === 'cert_infosys_ang' && c.date !== '2026-02-15'))) {
         return INITIAL_CERTIFICATIONS;
       }
       return parsed;
