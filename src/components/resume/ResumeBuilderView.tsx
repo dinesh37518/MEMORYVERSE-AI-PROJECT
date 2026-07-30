@@ -14,8 +14,6 @@ import {
   Globe, 
   Mail, 
   Phone, 
-  Github, 
-  Linkedin,
   Layers
 } from 'lucide-react';
 
@@ -171,7 +169,7 @@ ${certifications.map(c => `- **${c.name}** - ${c.issuingOrganization} (${c.date}
               <Phone className="w-3.5 h-3.5 text-indigo-600" /> {user.phone}
             </p>
             <p className="flex items-center justify-end gap-1.5 font-mono text-[11px]">
-              <Github className="w-3.5 h-3.5 text-indigo-600" /> {user.github}
+              <Code className="w-3.5 h-3.5 text-indigo-600" /> {user.github}
             </p>
             <p className="flex items-center justify-end gap-1.5 font-mono text-[11px]">
               <Globe className="w-3.5 h-3.5 text-indigo-600" /> {user.portfolio}
