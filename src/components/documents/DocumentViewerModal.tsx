@@ -31,8 +31,44 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editCategory, setEditCategory] = useState<DocumentCategory>('Certifications');
+  
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [loadingPdf, setLoadingPdf] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  React.useEffect(() => {
+    let active = true;
+    if (doc && (doc.fileType === 'pdf' || (doc.url && doc.url.toLowerCase().endsWith('.pdf')))) {
+      if (doc.url.startsWith('blob:') || doc.url.startsWith('data:')) {
+        setPdfBlobUrl(doc.url);
+        setLoadingPdf(false);
+      } else {
+        setLoadingPdf(true);
+        fetch(doc.url)
+          .then(res => res.arrayBuffer())
+          .then(buffer => {
+            if (!active) return;
+            const blob = new Blob([buffer], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            setPdfBlobUrl(url);
+            setLoadingPdf(false);
+          })
+          .catch(err => {
+            if (!active) return;
+            console.error("Error creating PDF blob:", err);
+            setLoadingPdf(false);
+          });
+      }
+    } else {
+      setPdfBlobUrl(null);
+      setLoadingPdf(false);
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [doc]);
 
   if (!doc) return null;
 
@@ -188,17 +224,24 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                   </div>
                 </div>
 
-                <object
-                  data={doc.url.startsWith('blob:') || doc.url.startsWith('data:') ? doc.url : `https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
-                  type="application/pdf"
-                  className="w-full h-full min-h-[380px] rounded-b-2xl border-0"
-                >
+                {loadingPdf ? (
+                  <div className="w-full h-full min-h-[380px] flex flex-col items-center justify-center p-8 text-center space-y-3 bg-slate-950">
+                    <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                    <p className="text-xs font-bold text-slate-300">Loading Original Certificate PDF...</p>
+                  </div>
+                ) : pdfBlobUrl ? (
                   <iframe
-                    src={doc.url}
+                    src={pdfBlobUrl}
                     title={doc.title}
-                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0"
+                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0 bg-slate-950"
                   />
-                </object>
+                ) : (
+                  <iframe
+                    src={`https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
+                    title={doc.title}
+                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0 bg-slate-950"
+                  />
+                )}
               </div>
             ) : (
               /* High Resolution Formal Printable Certificate View */
