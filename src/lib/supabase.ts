@@ -64,6 +64,20 @@ export async function syncStudentProfileToSupabase(profile: UserProfile): Promis
 }
 
 /**
+ * Sync All Registered Students to Supabase database
+ */
+export async function syncAllRegisteredStudentsToSupabase(students: UserProfile[]): Promise<number> {
+  if (!isSupabaseConfigured() || !students || students.length === 0) return 0;
+
+  let successCount = 0;
+  for (const s of students) {
+    const synced = await syncStudentProfileToSupabase(s);
+    if (synced) successCount++;
+  }
+  return successCount;
+}
+
+/**
  * Fetch Student Profile from Supabase by Register Number (reg_no)
  */
 export async function fetchStudentByRegNo(regNo: string): Promise<Partial<UserProfile> | null> {

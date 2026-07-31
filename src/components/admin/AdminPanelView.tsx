@@ -64,9 +64,23 @@ export const AdminPanelView: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-4 py-3 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-right">
-          <span className="text-[10px] text-purple-300 font-bold uppercase block">Registered Students</span>
-          <span className="text-2xl font-black text-white font-mono">{registeredStudents.length} Students Registered</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={async () => {
+              const { syncAllRegisteredStudentsToSupabase } = await import('../../lib/supabase');
+              const count = await syncAllRegisteredStudentsToSupabase(registeredStudents);
+              alert(`Successfully synced ${count} student records to Supabase database (indexed by Reg No)!`);
+            }}
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2"
+          >
+            <Layers className="w-4 h-4" />
+            <span>Sync All to Supabase</span>
+          </button>
+
+          <div className="px-4 py-3 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-right">
+            <span className="text-[10px] text-purple-300 font-bold uppercase block">Registered Students</span>
+            <span className="text-2xl font-black text-white font-mono">{registeredStudents.length} Students</span>
+          </div>
         </div>
       </div>
 
