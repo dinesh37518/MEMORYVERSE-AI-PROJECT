@@ -51,6 +51,9 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'digital-twin', label: 'AI Digital Twin', icon: Bot, badge: 'Twin' },
+    { id: 'career-insights', label: 'Career Insights', icon: ShieldCheck, badge: 'Gap' },
+    { id: 'portfolio-generator', label: 'Portfolio Generator', icon: Sparkles, badge: 'AI' },
     { id: 'vault', label: 'Vault', icon: FolderKanban },
     { id: 'quick-upload', label: 'Quick Upload', icon: Upload, badge: 'OCR' },
     { id: 'graph', label: 'Knowledge Graph', icon: Network, highlight: true },

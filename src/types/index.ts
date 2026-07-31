@@ -174,19 +174,50 @@ export interface ChatMessage {
   contextSkillIds?: string[];
 }
 
+export const DEPARTMENTS = [
+  'CSE',
+  'EEE',
+  'ECE',
+  'IT',
+  'MECH',
+  'CIVIL',
+  'AIDS',
+  'AIML',
+  'CCE',
+  'CSBS',
+  'Chemical',
+  'Biotech',
+  'Bio Medical'
+] as const;
+
+export type DepartmentType = typeof DEPARTMENTS[number] | string;
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  regNo?: string;
+  section?: string;
+  currentYear?: number; // 1, 2, 3, 4
   avatarUrl: string;
   college: string;
-  department: string;
+  department: DepartmentType;
   degree: string;
   graduationYear: number;
   phone: string;
   github: string;
   linkedin: string;
   portfolio: string;
+
+  // Compulsory Coding & Professional Links
+  githubUrl?: string; // Compulsory
+  linkedinUrl?: string; // Compulsory
+  leetcodeUrl?: string; // Compulsory
+
+  // Optional Coding Profiles
+  gfgUrl?: string; // Optional (GeeksforGeeks)
+  codechefUrl?: string; // Optional (CodeChef)
+
   bio: string;
   role: 'student' | 'admin';
   createdAt: string;
@@ -227,6 +258,9 @@ export interface JobApplication {
 
 export type NavigationTab = 
   | 'dashboard' 
+  | 'digital-twin'
+  | 'career-insights'
+  | 'portfolio-generator'
   | 'vault' 
   | 'graph' 
   | 'timeline' 
@@ -242,4 +276,71 @@ export type NavigationTab =
   | 'jobs' 
   | 'profile' 
   | 'admin';
+
+export interface AIDigitalTwin {
+  professionalSummary: string;
+  academicSummary: string;
+  technicalSkills: string[];
+  softSkills: string[];
+  strongestDomains: string[];
+  experienceSummary: string;
+  careerInterests: string[];
+  strengthAnalysis: string[];
+  growthAnalysis: string[];
+  achievementSummary: string;
+  generatedAt: string;
+}
+
+export type CareerTargetRole = 
+  | 'AI Engineer' 
+  | 'Software Engineer' 
+  | 'Data Scientist' 
+  | 'Embedded Engineer' 
+  | 'Cyber Security Engineer' 
+  | 'Full Stack Developer';
+
+export interface CareerGapAnalysis {
+  targetRole: CareerTargetRole;
+  readinessScore: number;
+  currentSkills: string[];
+  missingSkills: string[];
+  recommendedCertifications: { title: string; provider: string; reason: string }[];
+  recommendedProjects: { title: string; tech: string[]; description: string }[];
+  learningRoadmap: { phase: string; title: string; details: string; duration: string }[];
+}
+
+export interface GamificationBadge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: string;
+  progress?: number; // 0 - 100
+}
+
+export interface DocumentHealthCheck {
+  id: string;
+  docId: string;
+  fileName: string;
+  status: 'healthy' | 'warning' | 'error';
+  issues: string[];
+}
+
+export interface AIRecommendation {
+  id: string;
+  category: 'Course' | 'Certification' | 'Project' | 'Internship' | 'Resume' | 'Portfolio';
+  title: string;
+  reason: string;
+  impact: 'High' | 'Medium' | 'Essential';
+}
+
+export interface GeneratedPortfolio {
+  professionalBio: string;
+  portfolioSummary: string;
+  projectSummaries: { name: string; description: string; tech: string[] }[];
+  linkedinAbout: string;
+  resumeSummary: string;
+  careerObjective: string;
+}
 

@@ -12,20 +12,35 @@ import {
   GraphEdge 
 } from '../types';
 
+export const DEFAULT_STUDENT_AVATAR = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400';
+
 // Male photo for student Dineshkumar M
 export const INITIAL_USER: UserProfile = {
   id: 'usr_dinesh_01',
   name: 'Dineshkumar M',
   email: 'dineshguru0609@gmail.com',
-  avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400',
+  regNo: '922524106001',
+  avatarUrl: DEFAULT_STUDENT_AVATAR,
   college: 'VSB Engineering College, Karur',
-  department: 'Electronics & Communication Engineering',
+  department: 'ECE',
+  section: 'A',
+  currentYear: 2,
   degree: 'B.E. – Electronics & Communication Engineering',
   graduationYear: 2028,
   phone: '+91 7904554720',
   github: 'https://github.com/dinesh37518',
   linkedin: 'https://www.linkedin.com/in/dineshkumar-m-9a6ba2312',
   portfolio: 'https://github.com/dinesh37518',
+
+  // Compulsory Coding & Social Profile URLs
+  githubUrl: 'https://github.com/dinesh37518',
+  linkedinUrl: 'https://www.linkedin.com/in/dineshkumar-m-9a6ba2312',
+  leetcodeUrl: 'https://leetcode.com/u/dinesh37518',
+
+  // Optional Coding Profiles
+  gfgUrl: 'https://auth.geeksforgeeks.org/user/dinesh37518',
+  codechefUrl: 'https://www.codechef.com/users/dinesh37518',
+
   bio: 'Electronics & Communication Engineering student at VSB Engineering College passionate about Full-Stack Web Development, Embedded Systems, IoT, Data Analytics, and AI platforms.',
   role: 'student',
   createdAt: '2023-09-01T08:00:00Z',

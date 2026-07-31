@@ -13,7 +13,6 @@ import {
   GraphEdge,
   DocumentCategory,
   FileType,
-  ExperienceLevel,
   JobApplication
 } from '../types';
 import { 
@@ -29,8 +28,16 @@ import {
   INITIAL_NOTIFICATIONS, 
   INITIAL_NODES, 
   INITIAL_EDGES,
-  INITIAL_JOBS
+  INITIAL_JOBS,
+  DEFAULT_STUDENT_AVATAR
 } from '../data/initialData';
+
+interface RegisteredStudentSummary extends UserProfile {
+  docsCount: number;
+  certsCount: number;
+  projectsCount: number;
+  internshipsCount: number;
+}
 
 interface AppContextType {
   user: UserProfile;
@@ -45,6 +52,7 @@ interface AppContextType {
   nodes: GraphNode[];
   edges: GraphEdge[];
   jobs: JobApplication[];
+  registeredStudents: RegisteredStudentSummary[];
   activeTab: string;
   setActiveTab: (tab: string) => void;
   activeRole: 'student' | 'admin';
@@ -52,7 +60,7 @@ interface AppContextType {
   globalSearchQuery: string;
   setGlobalSearchQuery: (query: string) => void;
   auth: { isAuthenticated: boolean; email: string };
-  login: (email: string) => void;
+  login: (email: string, userDetails?: Partial<UserProfile>) => void;
   logout: () => void;
   
   // Handlers
@@ -65,6 +73,9 @@ interface AppContextType {
   clearAllNotifications: () => void;
   exportAllUserData: () => void;
   resetToDefaultData: () => void;
+
+  // Admin student inspection by RegNo
+  inspectStudentByRegNo: (regNo: string) => void;
 
   // Job Tracker Handlers
   addJob: (job: Omit<JobApplication, 'id' | 'appliedDate'>) => void;
@@ -79,179 +90,225 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'memoryverse_ai_state_v9';
+const USER_STORES_PREFIX = 'memoryverse_user_store_v10_';
+const REGISTRY_KEY = 'memoryverse_registered_students_v10';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
 
-  // Purge any stale legacy memoryverse storage keys on boot
-  useEffect(() => {
-    try {
-      ['memoryverse_ai_state_v1', 'memoryverse_ai_state_v2', 'memoryverse_ai_state_v3', 'memoryverse_ai_state_v4', 'memoryverse_ai_state_v5', 'memoryverse_ai_state_v6', 'memoryverse_ai_state_v7', 'memoryverse_ai_state_v8'].forEach(key => {
-        ['user', 'documents', 'skills', 'projects', 'internships', 'certifications', 'achievements', 'timeline', 'notifications'].forEach(sub => {
-          localStorage.removeItem(`${key}_${sub}`);
-        });
-      });
-    } catch (e) {}
-  }, []);
+  const [auth, setAuth] = useState<{ isAuthenticated: boolean; email: string }>(() => {
+    const saved = localStorage.getItem('memoryverse_auth_session');
+    return saved ? JSON.parse(saved) : { isAuthenticated: false, email: '' };
+  });
 
-  const [user, setUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_user');
+  const [user, setUser] = useState<UserProfile>(INITIAL_USER);
+  const [documents, setDocuments] = useState<DocumentItem[]>(INITIAL_DOCUMENTS);
+  const [skills, setSkills] = useState<SkillItem[]>(INITIAL_SKILLS);
+  const [projects, setProjects] = useState<ProjectItem[]>(INITIAL_PROJECTS);
+  const [internships, setInternships] = useState<InternshipItem[]>(INITIAL_INTERNSHIPS);
+  const [certifications, setCertifications] = useState<CertificationItem[]>(INITIAL_CERTIFICATIONS);
+  const [achievements, setAchievements] = useState<AchievementItem[]>(INITIAL_ACHIEVEMENTS);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>(INITIAL_TIMELINE);
+  const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
+  const [nodes, setNodes] = useState<GraphNode[]>(INITIAL_NODES);
+  const [edges, setEdges] = useState<GraphEdge[]>(INITIAL_EDGES);
+  const [jobs, setJobs] = useState<JobApplication[]>(INITIAL_JOBS);
+
+  const [registeredStudents, setRegisteredStudents] = useState<RegisteredStudentSummary[]>(() => {
+    const saved = localStorage.getItem(REGISTRY_KEY);
     if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && parsed.graduationYear !== 2028) {
-        return { ...parsed, graduationYear: 2028 };
-      }
-      return parsed;
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
     }
-    return INITIAL_USER;
-  });
-
-  const [documents, setDocuments] = useState<DocumentItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_documents');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.some((d: any) => d.url && d.url.includes('w3.org')) || parsed.some((d: any) => d.id === 'doc_intern_manfree' && d.uploadDate !== '2026-06-24'))) {
-        return INITIAL_DOCUMENTS;
+    return [
+      {
+        ...INITIAL_USER,
+        docsCount: INITIAL_DOCUMENTS.length,
+        certsCount: INITIAL_CERTIFICATIONS.length,
+        projectsCount: INITIAL_PROJECTS.length,
+        internshipsCount: INITIAL_INTERNSHIPS.length
       }
-      return parsed;
-    }
-    return INITIAL_DOCUMENTS;
-  });
-
-  const [skills, setSkills] = useState<SkillItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_skills');
-    return saved ? JSON.parse(saved) : INITIAL_SKILLS;
-  });
-
-  const [projects, setProjects] = useState<ProjectItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_projects');
-    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
-  });
-
-  const [internships, setInternships] = useState<InternshipItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_internships');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.some((i: any) => i.id === 'int_manfree' && i.startDate !== '2026-06-08')) {
-        return INITIAL_INTERNSHIPS;
-      }
-      return parsed;
-    }
-    return INITIAL_INTERNSHIPS;
-  });
-
-  const [certifications, setCertifications] = useState<CertificationItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_certifications');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.length < INITIAL_CERTIFICATIONS.length || parsed.some((c: any) => c.id === 'cert_embedded_intern' && c.date !== '2026-06-24'))) {
-        return INITIAL_CERTIFICATIONS;
-      }
-      return parsed;
-    }
-    return INITIAL_CERTIFICATIONS;
-  });
-
-  const [achievements, setAchievements] = useState<AchievementItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_achievements');
-    return saved ? JSON.parse(saved) : INITIAL_ACHIEVEMENTS;
-  });
-
-  const [timeline, setTimeline] = useState<TimelineEvent[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_timeline');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
-        const sslcItem = parsed.find((t: any) => t.id === 'tl_sslc');
-        const hscItem = parsed.find((t: any) => t.id === 'tl_hsc');
-        const enrollItem = parsed.find((t: any) => t.id === 'tl_college_enroll');
-        const manfreeItem = parsed.find((t: any) => t.id === 'tl_manfree_intern');
-        if (!sslcItem || sslcItem.year !== 2022 || !hscItem || hscItem.year !== 2024 || !enrollItem || enrollItem.date !== '2024-09-16' || !manfreeItem || manfreeItem.date !== '2026-06-24') {
-          return INITIAL_TIMELINE;
-        }
-        return parsed;
-      }
-    }
-    return INITIAL_TIMELINE;
-  });
-
-  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_notifications');
-    return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
-  });
-
-  const [nodes, setNodes] = useState<GraphNode[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_nodes');
-    return saved ? JSON.parse(saved) : INITIAL_NODES;
-  });
-
-  const [edges, setEdges] = useState<GraphEdge[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_edges');
-    return saved ? JSON.parse(saved) : INITIAL_EDGES;
-  });
-
-  const [jobs, setJobs] = useState<JobApplication[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_jobs');
-    return saved ? JSON.parse(saved) : INITIAL_JOBS;
+    ];
   });
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
-  const [auth, setAuth] = useState<{ isAuthenticated: boolean; email: string }>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY + '_auth');
-    return saved ? JSON.parse(saved) : { isAuthenticated: false, email: '' };
-  });
   const [previewDoc, setPreviewDoc] = useState<DocumentItem | null>(null);
 
-  // Sync active profile when role switches
-  useEffect(() => {
-    if (activeRole === 'admin') {
-      setUser(ADMIN_USER);
-    } else {
-      setUser(INITIAL_USER);
-    }
-  }, [activeRole]);
+  // Load store for specific user email
+  const loadUserStore = (email: string, userDetails?: Partial<UserProfile>) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const storeKey = USER_STORES_PREFIX + cleanEmail;
+    const saved = localStorage.getItem(storeKey);
 
-  // Sync state to LocalStorage
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const mergedUser = { ...parsed.user, ...userDetails };
+        setUser(mergedUser);
+        setDocuments(parsed.documents || []);
+        setSkills(parsed.skills || []);
+        setProjects(parsed.projects || []);
+        setInternships(parsed.internships || []);
+        setCertifications(parsed.certifications || []);
+        setAchievements(parsed.achievements || []);
+        setTimeline(parsed.timeline || []);
+        setNotifications(parsed.notifications || []);
+        setNodes(parsed.nodes || []);
+        setEdges(parsed.edges || []);
+        setJobs(parsed.jobs || []);
+        return;
+      } catch (e) {}
+    }
+
+    // Default for demo student (Dineshkumar M)
+    if (cleanEmail === 'dineshguru0609@gmail.com' || cleanEmail.includes('dineshkumar')) {
+      const dineshUser = { ...INITIAL_USER, email: cleanEmail, ...userDetails };
+      setUser(dineshUser);
+      setDocuments(INITIAL_DOCUMENTS);
+      setSkills(INITIAL_SKILLS);
+      setProjects(INITIAL_PROJECTS);
+      setInternships(INITIAL_INTERNSHIPS);
+      setCertifications(INITIAL_CERTIFICATIONS);
+      setAchievements(INITIAL_ACHIEVEMENTS);
+      setTimeline(INITIAL_TIMELINE);
+      setNotifications(INITIAL_NOTIFICATIONS);
+      setNodes(INITIAL_NODES);
+      setEdges(INITIAL_EDGES);
+      setJobs(INITIAL_JOBS);
+    } else {
+      // BRAND NEW STUDENT (e.g. Angu abhishek)!
+      // Clean, empty vault asking student to upload their separated certificates
+      const newUser: UserProfile = {
+        id: `usr_${Date.now()}`,
+        name: userDetails?.name || 'New Student',
+        email: cleanEmail,
+        regNo: userDetails?.regNo || `922524106${Math.floor(100 + Math.random() * 899)}`,
+        section: userDetails?.section || 'A',
+        currentYear: userDetails?.currentYear || 1,
+        department: userDetails?.department || 'ECE',
+        degree: `B.E. – ${userDetails?.department || 'ECE'}`,
+        college: 'VSB Engineering College, Karur',
+        graduationYear: 2028,
+        avatarUrl: userDetails?.avatarUrl || DEFAULT_STUDENT_AVATAR,
+        phone: '+91 9000000000',
+        github: '',
+        linkedin: '',
+        portfolio: '',
+        bio: `${userDetails?.department || 'ECE'} student at VSB Engineering College. Upload your separated certificates & marksheets to build your AI Digital Twin.`,
+        role: 'student',
+        createdAt: new Date().toISOString(),
+        profileCompletionPercent: 30,
+        ...userDetails
+      };
+
+      setUser(newUser);
+      setDocuments([]);
+      setSkills([]);
+      setProjects([]);
+      setInternships([]);
+      setCertifications([]);
+      setAchievements([]);
+      setTimeline([]);
+      setNotifications([
+        {
+          id: 'notif_welcome',
+          type: 'ai_analysis_complete',
+          title: `Welcome to MemoryVerse AI, ${newUser.name}!`,
+          message: 'Your isolated student vault is ready. Please upload your separated certificates and marksheets.',
+          date: new Date().toISOString(),
+          read: false
+        }
+      ]);
+      setNodes([]);
+      setEdges([]);
+      setJobs([]);
+    }
+  };
+
+  // Sync state to LocalStorage for active student
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY + '_user', JSON.stringify(user));
-    localStorage.setItem(STORAGE_KEY + '_documents', JSON.stringify(documents));
-    localStorage.setItem(STORAGE_KEY + '_skills', JSON.stringify(skills));
-    localStorage.setItem(STORAGE_KEY + '_projects', JSON.stringify(projects));
-    localStorage.setItem(STORAGE_KEY + '_internships', JSON.stringify(internships));
-    localStorage.setItem(STORAGE_KEY + '_certifications', JSON.stringify(certifications));
-    localStorage.setItem(STORAGE_KEY + '_achievements', JSON.stringify(achievements));
-    localStorage.setItem(STORAGE_KEY + '_timeline', JSON.stringify(timeline));
-    localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(notifications));
-    localStorage.setItem(STORAGE_KEY + '_nodes', JSON.stringify(nodes));
-    localStorage.setItem(STORAGE_KEY + '_edges', JSON.stringify(edges));
-    localStorage.setItem(STORAGE_KEY + '_jobs', JSON.stringify(jobs));
-  }, [user, documents, skills, projects, internships, certifications, achievements, timeline, notifications, nodes, edges, jobs]);
+    if (!auth.isAuthenticated || activeRole === 'admin') return;
+
+    const cleanEmail = user.email.trim().toLowerCase();
+    const storeKey = USER_STORES_PREFIX + cleanEmail;
+    
+    const studentStoreData = {
+      user,
+      documents,
+      skills,
+      projects,
+      internships,
+      certifications,
+      achievements,
+      timeline,
+      notifications,
+      nodes,
+      edges,
+      jobs
+    };
+
+    localStorage.setItem(storeKey, JSON.stringify(studentStoreData));
+
+    // Update global registered students registry for Admin view
+    setRegisteredStudents(prev => {
+      const existingIdx = prev.findIndex(s => s.email.toLowerCase() === cleanEmail || (s.regNo && s.regNo === user.regNo));
+      const summary: RegisteredStudentSummary = {
+        ...user,
+        docsCount: documents.length,
+        certsCount: certifications.length,
+        projectsCount: projects.length,
+        internshipsCount: internships.length
+      };
+
+      let updatedList: RegisteredStudentSummary[];
+      if (existingIdx >= 0) {
+        updatedList = [...prev];
+        updatedList[existingIdx] = summary;
+      } else {
+        updatedList = [summary, ...prev];
+      }
+
+      localStorage.setItem(REGISTRY_KEY, JSON.stringify(updatedList));
+      return updatedList;
+    });
+
+  }, [user, documents, skills, projects, internships, certifications, achievements, timeline, notifications, nodes, edges, jobs, auth.isAuthenticated, activeRole]);
 
   // Auth Methods
-  const login = (email: string) => {
+  const login = (email: string, userDetails?: Partial<UserProfile>) => {
     const cleanEmail = email.trim().toLowerCase();
     const newAuth = { isAuthenticated: true, email: cleanEmail };
     setAuth(newAuth);
-    localStorage.setItem(STORAGE_KEY + '_auth', JSON.stringify(newAuth));
-    
-    if (cleanEmail === 'adminofmemoryverse@gmail.com') {
+    localStorage.setItem('memoryverse_auth_session', JSON.stringify(newAuth));
+
+    if (cleanEmail === 'adminofmemoryverse@gmail.com' || userDetails?.role === 'admin') {
       setActiveRole('admin');
-      setUser(ADMIN_USER);
+      setUser({ ...ADMIN_USER, email: cleanEmail, ...userDetails });
     } else {
       setActiveRole('student');
-      setUser({ ...INITIAL_USER, email: cleanEmail });
+      loadUserStore(cleanEmail, userDetails);
     }
   };
 
   const logout = () => {
     const newAuth = { isAuthenticated: false, email: '' };
     setAuth(newAuth);
-    localStorage.setItem(STORAGE_KEY + '_auth', JSON.stringify(newAuth));
+    localStorage.removeItem('memoryverse_auth_session');
   };
 
-  // Helper function to auto-categorize file by title/content
+  // Inspect student by RegNo for Admin
+  const inspectStudentByRegNo = (regNo: string) => {
+    const student = registeredStudents.find(s => s.regNo === regNo);
+    if (student) {
+      loadUserStore(student.email, student);
+      setActiveRole('student');
+      setActiveTab('dashboard');
+    }
+  };
+
+  // Auto-categorize file
   const autoCategorizeFile = (filename: string): DocumentCategory => {
     const lower = filename.toLowerCase();
     if (lower.includes('cert') || lower.includes('nptel') || lower.includes('infosys') || lower.includes('course')) return 'Certifications';
@@ -265,96 +322,95 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return 'Certifications';
   };
 
-  // Simulated AI Document Processing Engine
+  // Upload document for current logged-in student
   const uploadDocument = async (file: File, overrideCategory?: DocumentCategory): Promise<DocumentItem> => {
     const category = overrideCategory || autoCategorizeFile(file.name);
     const ext = file.name.split('.').pop()?.toLowerCase() as FileType || 'pdf';
     
     const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
-    const inferredSkills: string[] = ['Full Stack Development', 'Problem Solving', 'Data Analytics'];
+    const inferredSkills: string[] = ['Full Stack Development', 'Problem Solving', 'Technical Competency'];
     
-    const newDocId = 'doc_' + Date.now();
+    let fileDataUrl = '';
+    try {
+      fileDataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string || '');
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+    } catch (e) {
+      fileDataUrl = '';
+    }
+
     const newDoc: DocumentItem = {
-      id: newDocId,
-      title: cleanName.charAt(0).toUpperCase() + cleanName.slice(1),
+      id: 'doc_' + Date.now(),
+      title: cleanName,
       fileName: file.name,
+      originalName: file.name,
       fileType: ext,
-      fileSize: file.size || 1540000,
+      fileSize: file.size,
       uploadDate: new Date().toISOString().split('T')[0],
       category,
-      url: URL.createObjectURL(file),
-      hash: 'hash_' + Math.random().toString(36).substring(2, 12),
+      url: fileDataUrl || URL.createObjectURL(file),
+      hash: 'hash_' + Math.random().toString(36).substring(2, 10),
       status: 'analyzed',
-      originalName: file.name,
       extractedMetadata: {
         category,
-        organization: 'VSB Engineering College',
-        institution: 'Verified Academic Institution',
-        certificateName: category === 'Certifications' ? cleanName : undefined,
-        issueDate: new Date().toISOString().split('T')[0],
+        organization: user.college,
+        institution: user.college,
         skills: inferredSkills,
-        technologies: ['Angular', 'Node.js', 'Python', 'Arduino'],
-        languages: ['Tamil', 'English', 'Hindi'],
-        keywords: [category, cleanName, 'Verified Document', 'MemoryVerse AI'],
-        summary: `Parsed document "${file.name}". Extracted skills and classified under ${category}.`,
-        experienceLevel: 'Advanced' as ExperienceLevel
+        technologies: ['React', 'JavaScript', 'Python'],
+        languages: ['English', 'Tamil'],
+        certificateName: category === 'Certifications' ? cleanName : undefined,
+        projectName: category === 'Projects' ? cleanName : undefined,
+        issueDate: new Date().toISOString().split('T')[0],
+        keywords: [category, cleanName, user.department],
+        summary: `Preserved original ${ext.toUpperCase()} document "${file.name}" for ${user.name} (RegNo: ${user.regNo}). Metadata automatically indexed.`
       }
     };
 
     setDocuments(prev => [newDoc, ...prev]);
 
-    const newTimelineEvent: TimelineEvent = {
-      id: 'tl_' + Date.now(),
-      year: new Date().getFullYear(),
-      month: new Date().toLocaleString('default', { month: 'short' }),
-      date: new Date().toISOString().split('T')[0],
-      title: `Uploaded ${cleanName}`,
-      category,
-      description: `Indexed ${file.name} into Dineshkumar M's knowledge graph.`,
-      documentId: newDocId,
-      relatedIds: [newDocId],
-      type: category === 'Certifications' ? 'cert' : category === 'Internships' ? 'internship' : category === 'Projects' ? 'project' : 'academic',
-      impactScore: 90
+    // Generate auto skill
+    const newSkill: SkillItem = {
+      id: 'sk_' + Date.now(),
+      name: `${cleanName} Skill`,
+      category: 'Technical',
+      level: 'Advanced',
+      score: 88,
+      sourceDocumentIds: [newDoc.id],
+      relatedProjectIds: [],
+      relatedCertificateIds: [newDoc.id],
+      relatedInternshipIds: [],
+      verifiedCount: 1
     };
-    setTimeline(prev => [newTimelineEvent, ...prev]);
+    setSkills(prev => [newSkill, ...prev]);
 
-    const newNode: GraphNode = {
-      id: 'n_' + newDocId,
-      label: cleanName,
-      type: 'document',
-      category: category,
-      docId: newDocId,
-      details: `Document (${category})`,
-      x: 350 + Math.floor(Math.random() * 200),
-      y: 200 + Math.floor(Math.random() * 200)
-    };
-    const newEdge: GraphEdge = {
-      id: 'e_' + Date.now(),
-      source: 'n_dinesh',
-      target: 'n_' + newDocId,
-      relationship: 'OWNED_BY'
-    };
-    setNodes(prev => [...prev, newNode]);
-    setEdges(prev => [...prev, newEdge]);
-
-    const successNotif: AppNotification = {
+    // Generate notification
+    const newNotif: AppNotification = {
       id: 'notif_' + Date.now(),
-      type: 'ai_analysis_complete',
-      title: 'Document Processing Complete',
-      message: `Indexed "${file.name}" under ${category}.`,
+      type: 'upload_success',
+      title: 'Document Uploaded & Parsed',
+      message: `Document "${file.name}" uploaded to ${user.name}'s vault and indexed.`,
       date: new Date().toISOString(),
       read: false
     };
-    setNotifications(prev => [successNotif, ...prev]);
+    setNotifications(prev => [newNotif, ...prev]);
+
+    // Recalculate completion
+    const newDocCount = documents.length + 1;
+    const newCompletion = Math.min(100, Math.max(35, Math.round(newDocCount * 12)));
+    setUser(prev => ({ ...prev, profileCompletionPercent: newCompletion }));
 
     return newDoc;
   };
 
   const deleteDocument = (id: string) => {
     setDocuments(prev => prev.filter(d => d.id !== id));
-    setTimeline(prev => prev.filter(t => t.documentId !== id));
-    setNodes(prev => prev.filter(n => n.docId !== id));
-    if (previewDoc?.id === id) setPreviewDoc(null);
+    setSkills(prev => prev.filter(s => !s.sourceDocumentIds.includes(id)));
+    if (previewDoc?.id === id) {
+      setPreviewDoc(null);
+    }
   };
 
   const renameDocument = (id: string, newTitle: string) => {
@@ -370,10 +426,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateProfile = (updates: Partial<UserProfile>) => {
-    setUser(prev => {
-      const updated = { ...prev, ...updates };
-      return updated;
-    });
+    setUser(prev => ({ ...prev, ...updates }));
   };
 
   const markNotificationAsRead = (id: string) => {
@@ -399,7 +452,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', jsonString);
-    downloadAnchor.setAttribute('download', `MemoryVerse_AI_Export_${user.name.replace(/\s+/g, '_')}_2026.json`);
+    downloadAnchor.setAttribute('download', `MemoryVerse_AI_${user.name.replace(/\s+/g, '_')}_${user.regNo || 'RegNo'}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -447,16 +500,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setPreviewDoc(updatedDoc);
     }
 
-    const successNotif: AppNotification = {
-      id: 'notif_' + Date.now(),
-      type: 'upload_success',
-      title: 'Original File Attached',
-      message: `Attached "${file.name}" to document.`,
-      date: new Date().toISOString(),
-      read: false
-    };
-    setNotifications(prev => [successNotif, ...prev]);
-
     return updatedDoc || documents.find(d => d.id === docId)!;
   };
 
@@ -491,6 +534,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       nodes,
       edges,
       jobs,
+      registeredStudents,
       activeTab,
       setActiveTab,
       activeRole,
@@ -509,6 +553,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       clearAllNotifications,
       exportAllUserData,
       resetToDefaultData,
+      inspectStudentByRegNo,
       addJob,
       updateJobStatus,
       deleteJob,

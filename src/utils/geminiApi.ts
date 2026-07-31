@@ -1,6 +1,7 @@
 import { UserProfile, DocumentItem, SkillItem, ProjectItem, CertificationItem, InternshipItem } from '../types';
 
 const STORAGE_KEY = 'memoryverse_gemini_api_key';
+const PROMPT_STORAGE_KEY = 'memoryverse_custom_gemini_prompt';
 
 export const getStoredApiKey = (): string => {
   if (typeof window !== 'undefined') {
@@ -20,6 +21,23 @@ export const setStoredApiKey = (key: string): void => {
   }
 };
 
+export const getStoredCustomPrompt = (): string => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(PROMPT_STORAGE_KEY) || '';
+  }
+  return '';
+};
+
+export const setStoredCustomPrompt = (prompt: string): void => {
+  if (typeof window !== 'undefined') {
+    if (prompt) {
+      localStorage.setItem(PROMPT_STORAGE_KEY, prompt.trim());
+    } else {
+      localStorage.removeItem(PROMPT_STORAGE_KEY);
+    }
+  }
+};
+
 interface ContextData {
   user: UserProfile;
   documents: DocumentItem[];
@@ -31,6 +49,7 @@ interface ContextData {
 
 export function buildSystemPrompt(context: ContextData): string {
   const { user, documents, skills, projects, certifications, internships } = context;
+  const customPrompt = getStoredCustomPrompt();
 
   const skillsList = skills.map(s => `${s.name} (${s.category}, Level: ${s.level}, Score: ${s.score}%)`).join(', ');
   const projectsList = projects.map(p => `• Project "${p.name}": ${p.description} [Tech: ${p.technologies.join(', ')}] (GitHub: ${p.githubLink || 'N/A'})`).join('\n');
@@ -38,11 +57,12 @@ export function buildSystemPrompt(context: ContextData): string {
   const internshipsList = internships.map(i => `• Internship: ${i.position} at ${i.company} (${i.duration}) - Skills: ${i.skillsLearned.join(', ')}`).join('\n');
   const docsList = documents.map(d => `• Vault Document: ${d.title} [Category: ${d.category}, File: ${d.fileName}]`).join('\n');
 
-  return `You are MemoryVerse AI, the dedicated Career & Placement Growth Advisor for ${user.name}.
+  let basePrompt = `You are MemoryVerse AI, the dedicated Career & Placement Growth Advisor for ${user.name}.
 You have full access to ${user.name}'s verified career vault, academic background, certifications, internships, projects, and skills matrix.
 
 STRICT TRUTH CONSTRAINTS:
-- ONLY reference real items from ${user.name}'s profile below. NEVER invent fake projects, fake company experiences, or fictitious platform names like "SkillBridge".
+- ONLY reference real items from ${user.name}'s profile below. NEVER invent fake projects, fake company experiences, or fictitious platform names.
+- If the user asks about an experience, certificate, project, or document that DOES NOT exist in their profile data, you MUST reply: "I couldn't find that information in your uploaded documents."
 - ${user.name}'s ONLY 2 projects are: 
   1) WhatsApp Agriculture & Polyhouse IoT System (dinesh37518/PROJECT-1)
   2) CAREER BRIDGE Student Record Management System (dinesh37518/PROJECT-2)
@@ -53,6 +73,13 @@ Candidate Profile Summary:
 - Email: ${user.email}
 - Degree: ${user.degree} (${user.department}) at ${user.college}
 - Batch: Class of ${user.graduationYear}
+- Compulsory Coding & Professional Links:
+  - GitHub: ${user.githubUrl || user.github || 'Not provided'}
+  - LinkedIn: ${user.linkedinUrl || user.linkedin || 'Not provided'}
+  - LeetCode: ${user.leetcodeUrl || 'https://leetcode.com/u/dinesh37518'}
+- Optional Coding Links:
+  - GeeksforGeeks: ${user.gfgUrl || 'Not provided'}
+  - CodeChef: ${user.codechefUrl || 'Not provided'}
 
 Verified Skills Matrix:
 ${skillsList || 'No skills listed.'}
@@ -60,7 +87,7 @@ ${skillsList || 'No skills listed.'}
 Verified Engineering Projects:
 ${projectsList || 'No projects listed.'}
 
-Verified Industry Certifications (9 Total):
+Verified Industry Certifications:
 ${certsList || 'No certifications listed.'}
 
 Completed Internships & In-Plant Trainings:
@@ -71,9 +98,15 @@ ${docsList || 'No documents listed.'}
 
 Core Mission & Instructions:
 1. ANSWER ALL CAREER & PLACEMENT QUESTIONS ACCURATELY: Provide concise, realistic, high-impact guidance for campus and off-campus placements at companies like Cisco, Zoho, Infosys, Accenture, TCS, and ECE/IoT engineering firms.
-2. TAILORED REASONING: Focus directly on ${user.name}'s real projects (PROJECT-1 and PROJECT-2), verified certifications (Infosys Angular 14/07/2025, Cisco IoT 30/11/2025, HP LIFE 31/08/2025, Freedom AI 02/11/2024), and internships (Neura Global 30.06.2026, Manfree Technologies 22.06.2026, TNEB Karur).
-3. STRUCTURE & FORMATTING: Use clean, professional Markdown with clear headings and concise bullet points. Avoid fake boilerplate tables or hallucinated company roles.
+2. TAILORED REASONING: Focus directly on ${user.name}'s real projects, verified certifications, and internships.
+3. STRUCTURE & FORMATTING: Use clean, professional Markdown with clear headings and concise bullet points.
 4. TONE: Professional, encouraging, realistic, strategic, and placement-oriented.`;
+
+  if (customPrompt) {
+    basePrompt += `\n\nUSER'S CUSTOM SYSTEM PROMPT OVERRIDE:\n${customPrompt}\nFollow the above custom instructions strictly!`;
+  }
+
+  return basePrompt;
 }
 
 export async function generateGeminiResponse(

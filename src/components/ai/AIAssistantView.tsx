@@ -15,7 +15,13 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { generateGeminiResponse, getStoredApiKey, setStoredApiKey } from '../../utils/geminiApi';
+import { 
+  generateGeminiResponse, 
+  getStoredApiKey, 
+  setStoredApiKey, 
+  getStoredCustomPrompt, 
+  setStoredCustomPrompt 
+} from '../../utils/geminiApi';
 
 export const AIAssistantView: React.FC = () => {
   const { user, documents, skills, projects, internships, certifications, achievements, setPreviewDoc } = useApp();
@@ -24,6 +30,17 @@ export const AIAssistantView: React.FC = () => {
   const [apiKey, setApiKey] = useState(() => getStoredApiKey() || DEFAULT_KEY);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [showKeyText, setShowKeyText] = useState(false);
+
+  // Custom Gemini Prompt State
+  const [customPrompt, setCustomPrompt] = useState(() => getStoredCustomPrompt());
+  const [showPromptEditor, setShowPromptEditor] = useState(false);
+  const [promptSavedNotice, setPromptSavedNotice] = useState('');
+
+  const handleSaveCustomPrompt = () => {
+    setStoredCustomPrompt(customPrompt);
+    setPromptSavedNotice('Custom Gemini Prompt saved successfully! Active for all AI responses.');
+    setTimeout(() => setPromptSavedNotice(''), 3500);
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -134,6 +151,14 @@ export const AIAssistantView: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowPromptEditor(!showPromptEditor)}
+            className="px-3.5 py-2 rounded-2xl bg-purple-600/30 text-purple-200 border border-purple-500/40 hover:bg-purple-600/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <span>{customPrompt ? '✏️ Custom Prompt Active' : '✏️ Set Custom Prompt'}</span>
+          </button>
+
+          <button
             onClick={() => setShowApiKeyInput(!showApiKeyInput)}
             className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all ${
               apiKey 
@@ -154,6 +179,54 @@ export const AIAssistantView: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Custom Prompt Drawer */}
+      {showPromptEditor && (
+        <div className="p-4 bg-purple-950/90 border-b border-purple-500/40 space-y-3 animate-in slide-in-from-top duration-300">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-purple-200 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-400" /> Gemini Agent Custom Prompt Editor
+            </h4>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+              Ready for your prompt
+            </span>
+          </div>
+
+          <p className="text-xs text-purple-300">
+            Paste or customize your prompt instructions below. When saved, Gemini will process all responses using your prompt guidelines:
+          </p>
+
+          {promptSavedNotice && (
+            <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>{promptSavedNotice}</span>
+            </div>
+          )}
+
+          <textarea
+            rows={4}
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="Paste your custom Gemini prompt instructions here..."
+            className="w-full rounded-xl bg-slate-900 border border-purple-500/40 p-3 text-xs text-slate-100 font-mono focus:outline-none focus:border-purple-400"
+          />
+
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => { setCustomPrompt(''); setStoredCustomPrompt(''); setPromptSavedNotice('Custom prompt cleared. Default agent active.'); }}
+              className="py-1.5 px-3 rounded-xl bg-slate-900 text-slate-400 hover:text-white text-xs font-semibold"
+            >
+              Clear Custom Prompt
+            </button>
+            <button
+              onClick={handleSaveCustomPrompt}
+              className="py-1.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold shadow-lg"
+            >
+              Save Custom Gemini Prompt
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* API Key Modal / Drawer Bar */}
       {showApiKeyInput && (

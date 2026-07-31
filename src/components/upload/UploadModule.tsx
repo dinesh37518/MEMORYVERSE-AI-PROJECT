@@ -116,8 +116,13 @@ export const UploadModule: React.FC = () => {
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.zip"
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.zip,.txt,.ppt,.pptx"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              handleFiles(e.target.files);
+              e.target.value = '';
+            }
+          }}
           className="hidden"
         />
 

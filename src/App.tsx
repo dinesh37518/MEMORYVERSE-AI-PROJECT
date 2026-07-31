@@ -21,6 +21,9 @@ import { LoginPageView } from './components/auth/LoginPageView';
 
 import { ResumeBuilderView } from './components/resume/ResumeBuilderView';
 import { JobTrackerView } from './components/jobs/JobTrackerView';
+import { DigitalTwinView } from './components/twin/DigitalTwinView';
+import { CareerInsightsView } from './components/insights/CareerInsightsView';
+import { PortfolioGeneratorView } from './components/portfolio/PortfolioGeneratorView';
 
 export function App() {
   const { activeTab, activeRole, auth, previewDoc, setPreviewDoc } = useApp();
@@ -41,6 +44,12 @@ export function App() {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardView />;
+      case 'digital-twin':
+        return <DigitalTwinView />;
+      case 'career-insights':
+        return <CareerInsightsView />;
+      case 'portfolio-generator':
+        return <PortfolioGeneratorView />;
       case 'vault':
         return <UploadModule />;
       case 'quick-upload':
