@@ -1,18 +1,21 @@
--- MEMORYVERSE AI – SUPABASE DATABASE SCHEMA (FEATURE 15)
--- Run this SQL in your Supabase SQL Editor to initialize all tables, RLS policies, and triggers.
+-- MEMORYVERSE AI – SUPABASE DATABASE SCHEMA (MULTI-TENANT REGISTER NUMBER IDENTIFIED)
+-- Run this SQL in your Supabase SQL Editor: https://supabase.com/dashboard/project/witsvurabxsfnznsoydn/sql/new
 
--- 1. User Profiles Table
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 1. User Profiles Table (Primary key identified by Reg No)
 CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  reg_no TEXT UNIQUE NOT NULL,
   email TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
-  reg_no TEXT,
-  department TEXT,
-  section TEXT,
-  current_year INT,
-  degree TEXT,
-  college TEXT,
-  graduation_year INT,
+  department TEXT NOT NULL,
+  section TEXT DEFAULT 'A',
+  current_year INT DEFAULT 1,
+  degree TEXT DEFAULT 'B.E.',
+  college TEXT DEFAULT 'VSB Engineering College, Karur',
+  graduation_year INT DEFAULT 2028,
   phone TEXT,
   github TEXT,
   linkedin TEXT,
@@ -24,9 +27,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Document Vault Records Table
+-- Index for instant lookup by Register Number
+CREATE INDEX IF NOT EXISTS idx_profiles_reg_no ON public.profiles(reg_no);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+
+-- 2. Document Vault Records Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.documents (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   file_name TEXT NOT NULL,
@@ -41,9 +49,12 @@ CREATE TABLE IF NOT EXISTS public.documents (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Verified Skills Matrix Table
+CREATE INDEX IF NOT EXISTS idx_documents_reg_no ON public.documents(reg_no);
+
+-- 3. Verified Skills Matrix Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.skills (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   category TEXT NOT NULL,
@@ -54,9 +65,12 @@ CREATE TABLE IF NOT EXISTS public.skills (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Engineering Projects Table
+CREATE INDEX IF NOT EXISTS idx_skills_reg_no ON public.skills(reg_no);
+
+-- 4. Engineering Projects Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.projects (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -71,9 +85,12 @@ CREATE TABLE IF NOT EXISTS public.projects (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Internships Table
+CREATE INDEX IF NOT EXISTS idx_projects_reg_no ON public.projects(reg_no);
+
+-- 5. Internships Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.internships (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   company TEXT NOT NULL,
   position TEXT NOT NULL,
@@ -87,9 +104,12 @@ CREATE TABLE IF NOT EXISTS public.internships (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Certifications Table
+CREATE INDEX IF NOT EXISTS idx_internships_reg_no ON public.internships(reg_no);
+
+-- 6. Certifications Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.certifications (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   issuing_organization TEXT NOT NULL,
@@ -101,9 +121,12 @@ CREATE TABLE IF NOT EXISTS public.certifications (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. Achievements Table
+CREATE INDEX IF NOT EXISTS idx_certifications_reg_no ON public.certifications(reg_no);
+
+-- 7. Achievements Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.achievements (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   type TEXT NOT NULL,
@@ -114,9 +137,12 @@ CREATE TABLE IF NOT EXISTS public.achievements (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 8. Digital Journey Timeline Table
+CREATE INDEX IF NOT EXISTS idx_achievements_reg_no ON public.achievements(reg_no);
+
+-- 8. Digital Journey Timeline Table (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.timeline_events (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   year INT NOT NULL,
   month TEXT NOT NULL,
@@ -131,9 +157,12 @@ CREATE TABLE IF NOT EXISTS public.timeline_events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. Knowledge Graph Nodes & Edges Tables
+CREATE INDEX IF NOT EXISTS idx_timeline_events_reg_no ON public.timeline_events(reg_no);
+
+-- 9. Knowledge Graph Nodes & Edges Tables (Keyed by reg_no)
 CREATE TABLE IF NOT EXISTS public.knowledge_graph_nodes (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   label TEXT NOT NULL,
   node_type TEXT NOT NULL,
@@ -145,8 +174,11 @@ CREATE TABLE IF NOT EXISTS public.knowledge_graph_nodes (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_kg_nodes_reg_no ON public.knowledge_graph_nodes(reg_no);
+
 CREATE TABLE IF NOT EXISTS public.knowledge_graph_edges (
   id TEXT PRIMARY KEY,
+  reg_no TEXT NOT NULL REFERENCES public.profiles(reg_no) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   source TEXT NOT NULL,
   target TEXT NOT NULL,
@@ -154,29 +186,9 @@ CREATE TABLE IF NOT EXISTS public.knowledge_graph_edges (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 10. AI Chat History & Turn Memory
-CREATE TABLE IF NOT EXISTS public.chat_messages (
-  id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  sender TEXT NOT NULL,
-  text TEXT NOT NULL,
-  timestamp TIMESTAMPTZ DEFAULT NOW(),
-  suggested_actions TEXT[],
-  context_doc_ids TEXT[]
-);
+CREATE INDEX IF NOT EXISTS idx_kg_edges_reg_no ON public.knowledge_graph_edges(reg_no);
 
--- 11. System Notifications
-CREATE TABLE IF NOT EXISTS public.notifications (
-  id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  type TEXT NOT NULL,
-  title TEXT NOT NULL,
-  message TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Row Level Security (RLS) Enablement
+-- Row Level Security (RLS) Configuration
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.skills ENABLE ROW LEVEL SECURITY;
@@ -185,10 +197,11 @@ ALTER TABLE public.internships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.certifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 
--- Basic User Ownership RLS Policies
-CREATE POLICY "Users can read own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Allow Public Access / Custom RLS for Student Identification by Reg No
+CREATE POLICY "Public read profiles by reg_no" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Public insert profiles" ON public.profiles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update profiles" ON public.profiles FOR UPDATE USING (true);
 
-CREATE POLICY "Users can read own documents" ON public.documents FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own documents" ON public.documents FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own documents" ON public.documents FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Public read documents by reg_no" ON public.documents FOR SELECT USING (true);
+CREATE POLICY "Public insert documents" ON public.documents FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public delete documents" ON public.documents FOR DELETE USING (true);

@@ -31,6 +31,7 @@ import {
   INITIAL_JOBS,
   DEFAULT_STUDENT_AVATAR
 } from '../data/initialData';
+import { syncStudentProfileToSupabase, syncDocumentToSupabase } from '../lib/supabase';
 
 interface RegisteredStudentSummary extends UserProfile {
   docsCount: number;
@@ -274,6 +275,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return updatedList;
     });
 
+    // Cloud sync to Supabase database (indexed by reg_no)
+    syncStudentProfileToSupabase(user);
+
   }, [user, documents, skills, projects, internships, certifications, achievements, timeline, notifications, nodes, edges, jobs, auth.isAuthenticated, activeRole]);
 
   // Auth Methods
@@ -401,6 +405,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newDocCount = documents.length + 1;
     const newCompletion = Math.min(100, Math.max(35, Math.round(newDocCount * 12)));
     setUser(prev => ({ ...prev, profileCompletionPercent: newCompletion }));
+
+    // Sync uploaded document record to Supabase database (indexed by reg_no)
+    syncDocumentToSupabase(newDoc, user.regNo);
 
     return newDoc;
   };
