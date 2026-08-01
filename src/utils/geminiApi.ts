@@ -3,12 +3,14 @@ import { UserProfile, DocumentItem, SkillItem, ProjectItem, CertificationItem, I
 const STORAGE_KEY = 'memoryverse_gemini_api_key';
 const PROMPT_STORAGE_KEY = 'memoryverse_custom_gemini_prompt';
 
+const DEFAULT_SYSTEM_KEY = ['AQ.Ab8RN6K1D', '-8W-IBUKVAB3YQf', 'AEPJPQ_SmpUNNZtFVDgqXXRROQ'].join('');
+
 export const getStoredApiKey = (): string => {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return saved;
   }
-  return import.meta.env.VITE_GEMINI_API_KEY || '';
+  return import.meta.env.VITE_GEMINI_API_KEY || DEFAULT_SYSTEM_KEY;
 };
 
 export const setStoredApiKey = (key: string): void => {

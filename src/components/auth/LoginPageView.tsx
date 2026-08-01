@@ -98,7 +98,11 @@ export const LoginPageView: React.FC = () => {
     const emailResult = await sendVerificationEmail(cleanEmail, generated, name || 'Student');
     setIsSendingEmail(false);
 
-    setSuccessMessage(`Verification code sent to ${cleanEmail}! [Verification Code: ${generated}]`);
+    if (emailResult.isRealEmail) {
+      setSuccessMessage(`Verification code sent to ${cleanEmail}! Please check your email inbox.`);
+    } else {
+      setSuccessMessage(`Verification code sent to ${cleanEmail}! Check your email inbox. (If not received, ensure EmailJS credentials are configured).`);
+    }
   };
 
   // Handle code verification for Account Registration
@@ -188,10 +192,14 @@ export const LoginPageView: React.FC = () => {
     setSentCode(generated);
 
     const recipientName = foundStudent?.name || 'Student';
-    await sendVerificationEmail(cleanEmail, generated, recipientName);
+    const emailResult = await sendVerificationEmail(cleanEmail, generated, recipientName);
     setIsSendingEmail(false);
 
-    setSuccessMessage(`Password reset verification code sent to ${cleanEmail}! [Reset Code: ${generated}]`);
+    if (emailResult.isRealEmail) {
+      setSuccessMessage(`Password reset verification code sent to ${cleanEmail}! Check your email inbox.`);
+    } else {
+      setSuccessMessage(`Password reset verification code sent to ${cleanEmail}! Check your email inbox.`);
+    }
     setStudentMode('forgot_verify_otp');
   };
 
@@ -685,6 +693,17 @@ export const LoginPageView: React.FC = () => {
                       <Send className="w-4 h-4" />
                       <span>{isSendingEmail ? 'Sending via EmailJS...' : 'Send Verification Code via Email.js'}</span>
                     </button>
+
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setShowEmailJsSetup(true)}
+                        className="text-[11px] text-indigo-400 hover:text-indigo-300 underline font-semibold inline-flex items-center gap-1"
+                      >
+                        <Settings className="w-3.5 h-3.5" />
+                        <span>Configure EmailJS Live API Keys</span>
+                      </button>
+                    </div>
                   </form>
                 )}
 
@@ -692,11 +711,8 @@ export const LoginPageView: React.FC = () => {
                 {!isEmailVerified && sentCode && (
                   <form onSubmit={handleVerifyCode} className="space-y-4">
                     <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 space-y-1">
-                      <div className="flex items-center justify-between font-bold">
-                        <span>Step 2: Enter 6-Digit Verification Code</span>
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">Code: {sentCode}</span>
-                      </div>
-                      <p className="text-[11px] text-indigo-300">Verification code sent to: <span className="font-mono text-white font-bold">{studentEmail}</span></p>
+                      <p className="font-bold text-white">Step 2: Enter 6-Digit Verification Code</p>
+                      <p className="text-[11px] text-indigo-300">Verification code sent to: <span className="font-mono text-white font-bold">{studentEmail}</span>. Please check your email inbox.</p>
                     </div>
 
                     <div>
@@ -925,6 +941,71 @@ export const LoginPageView: React.FC = () => {
         )}
 
       </div>
+
+      {/* EmailJS Live API Credentials Modal Drawer */}
+      {showEmailJsSetup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md glass-panel p-6 rounded-3xl border border-indigo-500/40 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Settings className="w-4 h-4 text-indigo-400" /> EmailJS Live API Credentials
+              </h3>
+              <button onClick={() => setShowEmailJsSetup(false)} className="p-1 rounded-lg hover:bg-slate-800 text-slate-400">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300">
+              Enter your free EmailJS account API keys from <a href="https://www.emailjs.com/" target="_blank" rel="noreferrer" className="text-indigo-400 underline">emailjs.com</a> to send live verification emails directly to student inboxes:
+            </p>
+
+            <form onSubmit={handleSaveEmailJsKeys} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">EmailJS Service ID</label>
+                <input
+                  type="text"
+                  required
+                  value={serviceIdInput}
+                  onChange={(e) => setServiceIdInput(e.target.value)}
+                  placeholder="e.g. service_abc123"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-slate-200 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">EmailJS Template ID</label>
+                <input
+                  type="text"
+                  required
+                  value={templateIdInput}
+                  onChange={(e) => setTemplateIdInput(e.target.value)}
+                  placeholder="e.g. template_xyz456"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-slate-200 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">EmailJS Public Key (User ID)</label>
+                <input
+                  type="text"
+                  required
+                  value={publicKeyInput}
+                  onChange={(e) => setPublicKeyInput(e.target.value)}
+                  placeholder="e.g. pub_123456789"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-slate-200 font-mono"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl gradient-button text-white text-xs font-bold shadow-lg mt-2"
+              >
+                Save API Keys & Enable Live EmailJS
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
