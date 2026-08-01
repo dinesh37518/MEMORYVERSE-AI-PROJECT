@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DocumentItem, DocumentCategory } from '../../types';
-import { downloadDocumentFile } from '../../utils/downloadHelper';
+import { downloadDocumentFile, getOriginalDocumentViewUrl } from '../../utils/downloadHelper';
 import { 
   X, 
   FileText, 
@@ -31,44 +31,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editCategory, setEditCategory] = useState<DocumentCategory>('Certifications');
-  
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [loadingPdf, setLoadingPdf] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  React.useEffect(() => {
-    let active = true;
-    if (doc && (doc.fileType === 'pdf' || (doc.url && doc.url.toLowerCase().endsWith('.pdf')))) {
-      if (doc.url.startsWith('blob:') || doc.url.startsWith('data:')) {
-        setPdfBlobUrl(doc.url);
-        setLoadingPdf(false);
-      } else {
-        setLoadingPdf(true);
-        fetch(doc.url)
-          .then(res => res.arrayBuffer())
-          .then(buffer => {
-            if (!active) return;
-            const blob = new Blob([buffer], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            setPdfBlobUrl(url);
-            setLoadingPdf(false);
-          })
-          .catch(err => {
-            if (!active) return;
-            console.error("Error creating PDF blob:", err);
-            setLoadingPdf(false);
-          });
-      }
-    } else {
-      setPdfBlobUrl(null);
-      setLoadingPdf(false);
-    }
-
-    return () => {
-      active = false;
-    };
-  }, [doc]);
 
   if (!doc) return null;
 
@@ -95,7 +59,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
     await attachOriginalFileToDocument(doc.id, file);
   };
 
-  const isBlobOrDataUrl = doc.url && (doc.url.startsWith('blob:') || doc.url.startsWith('data:'));
+  const isBlobOrDataUrl = doc.url && (doc.url.startsWith('blob:') || doc.url.startsWith('data:')) && !doc.url.includes('dummy.pdf');
+  const viewUrl = getOriginalDocumentViewUrl(doc, user?.name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
@@ -115,7 +80,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 </span>
                 {isBlobOrDataUrl && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
-                    Original File Attached
+                    Original User File Attached
                   </span>
                 )}
               </div>
@@ -189,134 +154,34 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
           <div className="lg:col-span-7 flex flex-col gap-4">
             {doc.fileType === 'png' || doc.fileType === 'jpg' || doc.fileType === 'jpeg' ? (
               <div className="w-full h-80 lg:h-full min-h-[380px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
-                <img src={doc.url} alt={doc.title} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
+                <img src={viewUrl} alt={doc.title} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
               </div>
-            ) : doc.url && (doc.url.startsWith('http') || doc.url.startsWith('blob') || doc.url.startsWith('data')) ? (
+            ) : (
               <div className="w-full h-full min-h-[420px] rounded-2xl bg-slate-950 border border-slate-800 flex flex-col overflow-hidden relative">
-                {/* Header Action Bar for Original PDF */}
+                {/* Header Action Bar for Original PDF / Document */}
                 <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
                   <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-indigo-400" /> Original Certificate PDF
+                    <FileText className="w-4 h-4 text-indigo-400" /> Original Verified Document
                   </span>
 
                   <div className="flex items-center gap-2">
                     <a
-                      href={doc.url}
+                      href={viewUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-md"
                     >
-                      <span>Open PDF in New Tab</span>
+                      <span>Open Document in New Tab</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
-
-                    {doc.extractedMetadata.verificationUrl && (
-                      <a
-                        href={doc.extractedMetadata.verificationUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-300 border border-purple-500/30 text-[11px] font-bold flex items-center gap-1"
-                      >
-                        <span>GitHub Source</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
                   </div>
                 </div>
 
-                {loadingPdf ? (
-                  <div className="w-full h-full min-h-[380px] flex flex-col items-center justify-center p-8 text-center space-y-3 bg-slate-950">
-                    <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                    <p className="text-xs font-bold text-slate-300">Loading Original Certificate PDF...</p>
-                  </div>
-                ) : pdfBlobUrl ? (
-                  <iframe
-                    src={pdfBlobUrl}
-                    title={doc.title}
-                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0 bg-slate-950"
-                  />
-                ) : (
-                  <iframe
-                    src={`https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`}
-                    title={doc.title}
-                    className="w-full h-full min-h-[380px] rounded-b-2xl border-0 bg-slate-950"
-                  />
-                )}
-              </div>
-            ) : (
-              /* High Resolution Formal Printable Certificate View */
-              <div className="w-full h-full min-h-[380px] rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-indigo-500/40 p-6 flex flex-col justify-between relative shadow-2xl overflow-y-auto">
-                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center font-extrabold text-xs shadow-inner">
-                      MV
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-extrabold text-indigo-300 uppercase tracking-widest">
-                        {doc.extractedMetadata.organization || doc.extractedMetadata.institution || 'Verified Credential'}
-                      </p>
-                      <p className="text-[9px] text-slate-400 font-mono">Authenticated MemoryVerse Record</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Authenticated Certificate
-                  </span>
-                </div>
-
-                {/* Certificate Body */}
-                <div className="my-4 text-center space-y-3">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400">CERTIFICATE OF ACHIEVEMENT</span>
-                  <h2 className="text-xl lg:text-2xl font-black text-white leading-snug px-2">{doc.title}</h2>
-                  <p className="text-xs text-slate-400 italic">This is to certify that</p>
-                  
-                  <div className="py-2 px-6 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 inline-block shadow-lg">
-                    <h3 className="text-xl font-black text-indigo-300 tracking-wide">{user?.name || 'Dineshkumar M'}</h3>
-                  </div>
-
-                  <p className="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed pt-1">
-                    {doc.extractedMetadata.summary}
-                  </p>
-                </div>
-
-                {/* Credential Details & Skills Chips */}
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3 text-left bg-slate-900/90 p-3 rounded-xl border border-slate-800 text-[11px]">
-                    <div>
-                      <span className="text-slate-500 block text-[9px] font-bold uppercase tracking-wider">Issue / Upload Date</span>
-                      <span className="text-slate-200 font-semibold">{doc.extractedMetadata.issueDate || doc.uploadDate}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block text-[9px] font-bold uppercase tracking-wider">Credential ID</span>
-                      <span className="text-indigo-300 font-mono font-bold">{doc.extractedMetadata.credentialId || doc.hash.substring(0, 14)}</span>
-                    </div>
-                  </div>
-
-                  {doc.extractedMetadata.skills && doc.extractedMetadata.skills.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-1.5 pt-1">
-                      {doc.extractedMetadata.skills.map((sk, i) => (
-                        <span key={i} className="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">
-                          {sk}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Action */}
-                <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> SHA-256 Verified
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleDownload}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
-                    >
-                      <Download className="w-4 h-4" /> Download Official File
-                    </button>
-                  </div>
-                </div>
+                <iframe
+                  src={viewUrl}
+                  title={doc.title}
+                  className="w-full h-full min-h-[400px] rounded-b-2xl border-0 bg-slate-950"
+                />
               </div>
             )}
 

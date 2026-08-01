@@ -45,14 +45,14 @@ export const AIAssistantView: React.FC = () => {
     {
       id: 'msg_init',
       sender: 'ai',
-      text: `Hello ${user.name}! I am your MemoryVerse AI Placement & Career Growth Advisor. I have analyzed your complete academic & professional profile including your ${user.degree} degree at ${user.college} (Graduation: ${user.graduationYear}), ${certifications.length} verified certifications, ${internships.length} internships, and ${projects.length} engineering projects. How can I help boost your placement readiness today?`,
+      text: `Hello ${user.name}! I am your MemoryVerse AI Placement & Career Growth Advisor. I have been trained specifically on placement strategies, company interview rounds (Zoho, Cisco, Infosys, TCS, Core ECE firms), aptitude preparation, and your verified engineering credentials. How can I guide your placement success today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedActions: [
-        'How do I prepare for Full Stack & IoT placement interviews?',
-        'Analyze my career growth & target salary range.',
+        'How do I get placed in a good company?',
+        'Give me a step-by-step placement preparation roadmap.',
+        'How do I clear technical interviews at Zoho & Cisco?',
         'What questions will recruiters ask about my WhatsApp Agri IoT project?',
-        'Suggest resume improvements for ECE & Full-Stack roles.',
-        'Summarize my 9 certifications and 3 internships for recruiters.'
+        'Summarize my certifications & internships for recruiters.'
       ]
     }
   ]);
@@ -123,18 +123,21 @@ export const AIAssistantView: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-180px)] flex flex-col soft-3d-panel overflow-hidden animate-in fade-in duration-500">
+    <div className="soft-3d-panel flex flex-col h-[750px] overflow-hidden font-sans border-2 border-purple-500/30">
       
-      {/* Clean Top Header */}
+      {/* Header */}
       <div className="px-6 py-4 bg-[#080b11]/90 border-b border-white/10 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3.5">
           <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
             <Bot className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-              MemoryVerse AI Assistant
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-extrabold text-white">MemoryVerse AI Placement Advisor</h2>
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-indigo-400" /> Trained Placement AI
+              </span>
+            </div>
             <p className="text-xs text-slate-400">Indexed {documents.length} credentials & {skills.length} extracted skills for {user.name}</p>
           </div>
         </div>

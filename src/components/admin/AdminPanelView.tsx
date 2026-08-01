@@ -51,9 +51,13 @@ export const AdminPanelView: React.FC = () => {
   const totalVaultCerts = registeredStudents.reduce((sum, s) => sum + (s.certsCount || 0), 0);
 
   // Scroll smoothly to Student Directory table
-  const scrollToDirectory = () => {
-    const el = document.getElementById('student-directory-table');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleSelectStudent = (stRegNo: string) => {
+    setSelectedRegNo(stRegNo);
+    inspectStudentByRegNo(stRegNo);
+    const el = document.getElementById('vault-inspection-card');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
@@ -366,16 +370,16 @@ export const AdminPanelView: React.FC = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-lg font-black text-white flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-purple-400" /> Student Directory (Identified by Register Number)
+              <GraduationCap className="w-5 h-5 text-purple-400" /> Student Directory
             </h2>
-            <p className="text-xs text-slate-400">Search student accounts by Reg No, Name, or Department to inspect separated document vaults</p>
+            <p className="text-xs text-slate-400">Click a student name to inspect their uploaded files and certificates</p>
           </div>
 
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search Reg No (e.g. 922524106058), Name, Dept..."
+              placeholder="Search Student Name, Year..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full soft-3d-input rounded-2xl pl-10 pr-4 py-2 text-xs text-slate-200"
@@ -383,68 +387,70 @@ export const AdminPanelView: React.FC = () => {
           </div>
         </div>
 
-        {/* Table View */}
+        {/* Table View - Simplified to Student Name, Year, and No. of Files Uploaded */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">Register Number (Reg No)</th>
                 <th className="py-3 px-4">Student Name</th>
-                <th className="py-3 px-4">Dept / Sec / Year</th>
-                <th className="py-3 px-4">Email Address</th>
-                <th className="py-3 px-4 text-center">Docs</th>
-                <th className="py-3 px-4 text-center">Certs</th>
-                <th className="py-3 px-4 text-right">Inspect Vault</th>
+                <th className="py-3 px-4 text-center">Year</th>
+                <th className="py-3 px-4 text-center">No. of Files Uploaded</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs font-medium">
-              {filteredUsers.map((st) => (
-                <tr 
-                  key={st.regNo || st.email} 
-                  className={`hover:bg-purple-950/20 transition-colors ${selectedRegNo === st.regNo ? 'bg-purple-950/40 border-l-4 border-purple-500' : ''}`}
-                >
-                  <td className="py-3.5 px-4 font-mono font-bold text-purple-300">
-                    <span className="px-2.5 py-1 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                      {st.regNo || 'N/A'}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-bold text-white flex items-center gap-2">
-                    <img src={st.avatarUrl} alt={st.name} className="w-7 h-7 rounded-xl object-cover border border-white/20" />
-                    <span>{st.name}</span>
-                  </td>
-                  <td className="py-3.5 px-4 text-slate-300 font-semibold">
-                    {st.department} • Sec {st.section} • Year {st.currentYear}
-                  </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-400">
-                    {st.email}
-                  </td>
-                  <td className="py-3.5 px-4 text-center font-mono font-bold text-emerald-400">
-                    {st.docsCount || 0}
-                  </td>
-                  <td className="py-3.5 px-4 text-center font-mono font-bold text-pink-400">
-                    {st.certsCount || 0}
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <button
-                      onClick={() => {
-                        setSelectedRegNo(st.regNo);
-                        inspectStudentByRegNo(st.regNo);
-                      }}
-                      className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] shadow flex items-center gap-1.5 ml-auto"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Inspect Vault</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filteredUsers.map((st) => {
+                const isSelected = selectedRegNo === st.regNo;
+                return (
+                  <tr 
+                    key={st.regNo || st.email} 
+                    onClick={() => handleSelectStudent(st.regNo)}
+                    className={`cursor-pointer transition-all hover:bg-purple-950/30 ${
+                      isSelected ? 'bg-purple-950/50 border-l-4 border-purple-500' : ''
+                    }`}
+                  >
+                    <td className="py-3.5 px-4 font-bold text-white">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectStudent(st.regNo);
+                        }}
+                        className="flex items-center gap-3 text-left group"
+                      >
+                        <img src={st.avatarUrl} alt={st.name} className="w-8 h-8 rounded-xl object-cover border border-white/20 shadow-sm" />
+                        <div>
+                          <div className="font-extrabold text-sm text-white group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                            <span>{st.name}</span>
+                            {isSelected && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/40 font-normal">
+                                Active Target
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-purple-400 group-hover:underline flex items-center gap-1 font-semibold mt-0.5">
+                            <Eye className="w-3 h-3" /> Click to view files
+                          </span>
+                        </div>
+                      </button>
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-200 font-mono text-xs">
+                      Year {st.currentYear || '2'}
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <span className="px-3.5 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 font-mono font-black text-purple-300 text-xs inline-block">
+                        {st.docsCount || 0} Files
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Vault Inspection Detail Card */}
-      <div className="soft-3d-card p-6 border-2 border-purple-500/30">
+      <div id="vault-inspection-card" className="soft-3d-card p-6 border-2 border-purple-500/30">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
           <div>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">Active Inspection Target</span>
@@ -501,3 +507,4 @@ export const AdminPanelView: React.FC = () => {
     </div>
   );
 };
+

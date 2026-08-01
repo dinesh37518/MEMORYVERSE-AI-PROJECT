@@ -53,7 +53,7 @@ export function buildSystemPrompt(context: ContextData): string {
 
   const skillsList = skills.map(s => `${s.name} (${s.category}, Level: ${s.level}, Score: ${s.score}%)`).join(', ');
   const projectsList = projects.map(p => `• Project "${p.name}": ${p.description} [Tech: ${p.technologies.join(', ')}] (GitHub: ${p.githubLink || 'N/A'})`).join('\n');
-  const certsList = certifications.map(c => `• Certificate "${c.name}" issued by ${c.issuingOrganization} (Date: ${c.date}, Credential ID: ${c.credentialId})`).join('\n');
+  const certsList = certifications.map(c => `• Certificate "${c.name}" issued by ${c.issuingOrganization} (Date: ${c.date}, Credential ID: ${c.credentialId || 'N/A'})`).join('\n');
   const internshipsList = internships.map(i => `• Internship: ${i.position} at ${i.company} (${i.duration}) - Skills: ${i.skillsLearned.join(', ')}`).join('\n');
   const docsList = documents.map(d => `• Vault Document: ${d.title} [Category: ${d.category}, File: ${d.fileName}]`).join('\n');
 
@@ -61,44 +61,38 @@ export function buildSystemPrompt(context: ContextData): string {
 You have full access to ${user.name}'s verified career vault, academic background, certifications, internships, projects, and skills matrix.
 
 STRICT TRUTH CONSTRAINTS:
-- ONLY reference real items from ${user.name}'s profile below. NEVER invent fake projects, fake company experiences, or fictitious platform names.
-- If the user asks about an experience, certificate, project, or document that DOES NOT exist in their profile data, you MUST reply: "I couldn't find that information in your uploaded documents."
-- ${user.name}'s ONLY 2 projects are: 
-  1) WhatsApp Agriculture & Polyhouse IoT System (dinesh37518/PROJECT-1)
-  2) CAREER BRIDGE Student Record Management System (dinesh37518/PROJECT-2)
-- ${user.name}'s verified education: SSLC in May 2022 (86%), HSC in May 2024 (77%), B.E. ECE at VSB Engineering College enrolled 16/09/2024 (Class of 2028).
+- ONLY reference real items from ${user.name}'s profile data below. NEVER invent fake projects, fake company experiences, or fictitious credentials.
+- If the user asks about an experience, certificate, project, or document that DOES NOT exist in their profile data, reply accurately based on their uploaded data.
 
 Candidate Profile Summary:
 - Name: ${user.name}
 - Email: ${user.email}
-- Degree: ${user.degree} (${user.department}) at ${user.college}
-- Batch: Class of ${user.graduationYear}
-- Compulsory Coding & Professional Links:
+- Degree: ${user.degree || 'Engineering'} (${user.department || 'General'}) at ${user.college || 'Institution'}
+- Registration No: ${user.regNo || 'N/A'}
+- Batch: Class of ${user.graduationYear || '2028'} (Current Year: ${user.currentYear || 3})
+- Coding & Professional Links:
   - GitHub: ${user.githubUrl || user.github || 'Not provided'}
   - LinkedIn: ${user.linkedinUrl || user.linkedin || 'Not provided'}
-  - LeetCode: ${user.leetcodeUrl || 'https://leetcode.com/u/dinesh37518'}
-- Optional Coding Links:
-  - GeeksforGeeks: ${user.gfgUrl || 'Not provided'}
-  - CodeChef: ${user.codechefUrl || 'Not provided'}
+  - LeetCode: ${user.leetcodeUrl || 'Not provided'}
 
-Verified Skills Matrix:
+Verified Skills Matrix (${skills.length} Total):
 ${skillsList || 'No skills listed.'}
 
-Verified Engineering Projects:
+Verified Engineering Projects (${projects.length} Total):
 ${projectsList || 'No projects listed.'}
 
-Verified Industry Certifications:
+Verified Industry Certifications (${certifications.length} Total):
 ${certsList || 'No certifications listed.'}
 
-Completed Internships & In-Plant Trainings:
+Completed Internships & In-Plant Trainings (${internships.length} Total):
 ${internshipsList || 'No internships listed.'}
 
-Document Vault Records:
+Document Vault Records (${documents.length} Total):
 ${docsList || 'No documents listed.'}
 
 Core Mission & Instructions:
-1. ANSWER ALL CAREER & PLACEMENT QUESTIONS ACCURATELY: Provide concise, realistic, high-impact guidance for campus and off-campus placements at companies like Cisco, Zoho, Infosys, Accenture, TCS, and ECE/IoT engineering firms.
-2. TAILORED REASONING: Focus directly on ${user.name}'s real projects, verified certifications, and internships.
+1. ANSWER ALL CAREER & PLACEMENT QUESTIONS ACCURATELY: Provide concise, realistic, high-impact guidance for campus and off-campus placements tailored specifically to ${user.name}'s degree, department, projects, and certifications.
+2. TAILORED REASONING: Focus directly on ${user.name}'s real projects, verified certifications, and internships listed above.
 3. STRUCTURE & FORMATTING: Use clean, professional Markdown with clear headings and concise bullet points.
 4. TONE: Professional, encouraging, realistic, strategic, and placement-oriented.`;
 
@@ -186,15 +180,116 @@ function generateOfflineRAGResponse(prompt: string, context: ContextData): strin
   const query = prompt.trim().toLowerCase();
   const { user, documents, skills, projects, certifications, internships } = context;
 
-  // 1. Specific Projects
-  if (query.includes('project') || query.includes('whatsapp') || query.includes('agri') || query.includes('polyhouse') || query.includes('bridge') || query.includes('record')) {
+  // Dynamic candidate descriptors
+  const studentName = user.name || 'Student';
+  const studentDept = user.department || 'Engineering';
+  const studentCollege = user.college || 'Institution';
+  const studentDegree = user.degree || 'B.E./B.Tech';
+  const studentYear = user.currentYear ? `Year ${user.currentYear}` : 'Current Student';
+  const studentRegNo = user.regNo || 'N/A';
+
+  // Dynamic project string list
+  const projectListFormatted = projects.length > 0
+    ? projects.map(p => `• **${p.name}**: ${p.description} [Tech: ${p.technologies.join(', ')}]${p.githubLink ? ` ([GitHub](${p.githubLink}))` : ''}`).join('\n')
+    : '• No projects uploaded yet.';
+
+  // Dynamic certs string list
+  const certListFormatted = certifications.length > 0
+    ? certifications.map(c => `• **${c.name}** (Issuer: ${c.issuingOrganization}, Date: ${c.date})`).join('\n')
+    : '• No certifications uploaded yet.';
+
+  // Dynamic internships string list
+  const internshipListFormatted = internships.length > 0
+    ? internships.map(i => `• **${i.position}** at **${i.company}** (${i.duration}) - Skills: ${i.skillsLearned.join(', ')}`).join('\n')
+    : '• No internships recorded yet.';
+
+  // Top extracted skills
+  const topSkillsFormatted = skills.slice(0, 8).map(s => s.name).join(', ') || 'General Engineering';
+
+  // 1. Placement, Job, Hiring & Placement Preparation Strategy (Highest Priority)
+  const isPlacementQuery = 
+    query.includes('placed') || 
+    query.includes('placement') || 
+    query.includes('good company') || 
+    query.includes('top company') || 
+    query.includes('job') || 
+    query.includes('hire') || 
+    query.includes('hired') || 
+    query.includes('interview') || 
+    query.includes('prepare') || 
+    query.includes('preparation') || 
+    query.includes('roadmap') || 
+    query.includes('salary') || 
+    query.includes('ctc') || 
+    query.includes('recruiter') || 
+    query.includes('zoho') || 
+    query.includes('cisco') || 
+    query.includes('infosys') || 
+    query.includes('tcs') || 
+    query.includes('accenture') || 
+    query.includes('career');
+
+  if (isPlacementQuery) {
+    if (query.includes('zoho')) {
+      return `🏢 **Zoho Placement Preparation Strategy for ${studentName}**\n\n` +
+        `### Candidate Context:\n` +
+        `• **Student**: ${studentName} (${studentDegree} ${studentDept}, ${studentCollege})\n` +
+        `• **Top Extracted Skills**: ${topSkillsFormatted}\n\n` +
+        `### Round 1: C / C++ / Java Logic & Screening\n` +
+        `• Focus heavily on pointers, loops, recursion, array manipulations, and string parsing.\n` +
+        `• Practice 50+ basic-to-intermediate coding problems on C/Java.\n\n` +
+        `### Round 2: Advanced Coding & Problem Solving\n` +
+        `• Data Structures (LinkedLists, Stacks, Queues, Trees, Hashing).\n\n` +
+        `### Round 3: System / Application Design Round\n` +
+        `• Be prepared to design mini-systems using your real verified projects:\n` +
+        `${projectListFormatted}\n\n` +
+        `### Round 4 & 5: Tech & HR Interview\n` +
+        `• Pitch your verified projects and certifications:\n` +
+        `${certListFormatted}`;
+    }
+
+    if (query.includes('cisco')) {
+      return `🌐 **Cisco Placement Preparation Strategy for ${studentName}**\n\n` +
+        `### Candidate Context:\n` +
+        `• **Student**: ${studentName} (${studentDept} Dept at ${studentCollege})\n` +
+        `• **Verified Assets**: ${certifications.length} Certifications & ${projects.length} Engineering Projects\n\n` +
+        `### Round 1: Online Technical Test\n` +
+        `• Computer Networks (TCP/IP, OSI, Subnetting), Operating Systems, and Coding.\n\n` +
+        `### Round 2: Technical Interview (Core & Projects)\n` +
+        `• Explain your real verified engineering projects:\n${projectListFormatted}\n` +
+        `• Highlight your verified credentials:\n${certListFormatted}\n\n` +
+        `### Round 3: Executive HR & Culture Fit\n` +
+        `• Demonstrate team collaboration, adaptability, and clear communication.`;
+    }
+
+    // Dynamic Master Placement Roadmap for ANY Student
+    return `🚀 **Complete Placement Preparation Roadmap for ${studentName}**\n` +
+      `*(Tailored for ${studentName} • ${studentDegree} ${studentDept} at ${studentCollege})*\n\n` +
+      `### 1️⃣ Phase 1: Strong Technical & Coding Foundation\n` +
+      `• **Extracted Skills**: ${topSkillsFormatted}.\n` +
+      `• **Data Structures & Algorithms**: Practice Arrays, Strings, HashMaps, and Searching daily on ${user.leetcodeUrl ? `[Your LeetCode Profile](${user.leetcodeUrl})` : 'LeetCode / HackerRank'}.\n` +
+      `• **Core Fundamentals**: Master DBMS (SQL Queries), Operating Systems, and Computer Networks.\n\n` +
+      `### 2️⃣ Phase 2: Highlight Verified Engineering Projects (${projects.length} Total)\n` +
+      `${projectListFormatted}\n` +
+      `• *Action*: Ensure repositories are updated on your ${user.githubUrl || user.github ? `[GitHub Profile](${user.githubUrl || user.github})` : 'GitHub profile'}.\n\n` +
+      `### 3️⃣ Phase 3: Verified Industry Credentials & Internships\n` +
+      `• **Certifications (${certifications.length} Total)**:\n${certListFormatted}\n` +
+      `• **Internships (${internships.length} Total)**:\n${internshipListFormatted}\n\n` +
+      `### 4️⃣ Phase 4: Aptitude & Screening Test Preparation\n` +
+      `• **Quantitative & Logical Reasoning**: Practice 30 minutes daily on IndiaBIX / GeeksforGeeks.\n\n` +
+      `### 5️⃣ Phase 5: Technical & HR Interview Mastery\n` +
+      `• Use the **STAR Technique** (Situation, Task, Action, Result) to explain your actual projects and internships during interview rounds.`;
+  }
+
+  // 2. Specific Projects
+  if (query.includes('project') || query.includes('github') || projects.some(p => query.includes(p.name.toLowerCase()))) {
     const matchedProjects = projects.filter(p => 
       query.includes(p.name.toLowerCase()) || 
       p.technologies.some(t => query.includes(t.toLowerCase())) ||
       query.includes('project')
     );
 
-    let res = `🛠️ **Engineering Projects Summary for ${user.name}**\n\n`;
+    let res = `🛠️ **Engineering Projects Summary for ${studentName}** (${projects.length} Total):\n\n`;
     const projList = matchedProjects.length > 0 ? matchedProjects : projects;
     projList.forEach(p => {
       res += `### • ${p.name}\n`;
@@ -203,29 +298,34 @@ function generateOfflineRAGResponse(prompt: string, context: ContextData): strin
       if (p.githubLink) res += `**GitHub Repo**: [${p.githubLink}](${p.githubLink})\n`;
       res += `\n`;
     });
-    res += `💡 **Recruiter Tip**: Be prepared to explain system architecture, API authentication (JWT), hardware-to-cloud integration, and database query performance.`;
+    res += `💡 **Recruiter Tip**: Be prepared to explain system architecture, API authentication, database query performance, and your personal contribution.`;
     return res;
   }
 
-  // 2. Certifications & Credentials
-  if (query.includes('certif') || query.includes('badge') || query.includes('cisco') || query.includes('infosys') || query.includes('hp') || query.includes('freedom') || query.includes('credential')) {
-    let res = `📜 **Verified Industry Certifications for ${user.name}** (${certifications.length} Total):\n\n`;
+  // 3. Certifications & Credentials
+  if (query.includes('certif') || query.includes('badge') || query.includes('credential')) {
+    let res = `📜 **Verified Industry Certifications for ${studentName}** (${certifications.length} Total):\n\n`;
+    if (certifications.length === 0) {
+      return `📜 **Certifications for ${studentName}**:\nNo certifications have been uploaded to your vault yet. Upload certificates in the Upload section to index them for recruiters!`;
+    }
     certifications.forEach(c => {
-      res += `• **${c.name}**\n  - **Issuer**: ${c.issuingOrganization}\n  - **Date**: ${c.date}\n  - **Credential ID**: ${c.credentialId || 'Verified Vault Record'}\n  - **Skills**: ${c.skillsGained.join(', ')}\n\n`;
+      res += `• **${c.name}**\n  - **Issuer**: ${c.issuingOrganization}\n  - **Date**: ${c.date}\n  - **Credential ID**: ${c.credentialId || 'Verified Vault Record'}\n  - **Skills**: ${c.skillsGained ? c.skillsGained.join(', ') : 'N/A'}\n\n`;
     });
     return res;
   }
 
-  // 3. Skills Matrix
-  if (query.includes('skill') || query.includes('python') || query.includes('angular') || query.includes('java') || query.includes('c++') || query.includes('mysql') || query.includes('stack') || query.includes('matrix') || query.includes('know')) {
-    let res = `⚡ **Verified Technical Skills & Competency Matrix for ${user.name}**:\n\n`;
+  // 4. Skills Matrix
+  if (query.includes('skill') || query.includes('stack') || query.includes('matrix') || skills.some(s => query.includes(s.name.toLowerCase()))) {
+    let res = `⚡ **Verified Technical Skills & Competency Matrix for ${studentName}** (${skills.length} Extracted Skills):\n\n`;
     const techSkills = skills.filter(s => s.category !== 'Soft Skills');
     const softSkills = skills.filter(s => s.category === 'Soft Skills');
 
-    res += `### Technical & Engineering Skills:\n`;
-    techSkills.forEach(s => {
-      res += `• **${s.name}** (${s.category}) – Level: *${s.level}* (${s.score}% Competency)\n`;
-    });
+    if (techSkills.length > 0) {
+      res += `### Technical & Engineering Skills:\n`;
+      techSkills.forEach(s => {
+        res += `• **${s.name}** (${s.category}) – Level: *${s.level}* (${s.score}% Competency)\n`;
+      });
+    }
 
     if (softSkills.length > 0) {
       res += `\n### Soft Skills & Leadership:\n`;
@@ -233,53 +333,45 @@ function generateOfflineRAGResponse(prompt: string, context: ContextData): strin
         res += `• **${s.name}** – *${s.level}*\n`;
       });
     }
+
+    if (skills.length === 0) {
+      res += `No skills extracted yet. Upload certificates or marksheets to automatically extract skills into your competency matrix!`;
+    }
     return res;
   }
 
-  // 4. Internships & Work Experience
-  if (query.includes('intern') || query.includes('company') || query.includes('experience') || query.includes('neura') || query.includes('manfree') || query.includes('tneb') || query.includes('work')) {
-    let res = `💼 **Industry Internships & Work Experience for ${user.name}** (${internships.length} Completed):\n\n`;
+  // 5. Internships & Work Experience
+  if (query.includes('intern') || query.includes('experience') || query.includes('work')) {
+    let res = `💼 **Industry Internships & Work Experience for ${studentName}** (${internships.length} Completed):\n\n`;
+    if (internships.length === 0) {
+      return `💼 **Internships for ${studentName}**:\nNo internship completion certificates recorded yet. You can add internships in the Internships section!`;
+    }
     internships.forEach(i => {
-      res += `• **${i.position}** at **${i.company}**\n  - **Duration**: ${i.duration}\n  - **Skills Learned**: ${i.skillsLearned.join(', ')}\n  - **Key Contributions**: ${i.description}\n\n`;
+      const desc = i.description || (i.skillsLearned && i.skillsLearned.length > 0 ? `Gained practical expertise in ${i.skillsLearned.join(', ')}.` : 'Completed hands-on technical training.');
+      res += `• **${i.position}** at **${i.company}**\n  - **Duration**: ${i.duration}\n  - **Skills Learned**: ${i.skillsLearned.join(', ')}\n  - **Key Contributions**: ${desc}\n\n`;
     });
     return res;
   }
 
-  // 5. Education & Academics
-  if (query.includes('education') || query.includes('college') || query.includes('degree') || query.includes('mark') || query.includes('sslc') || query.includes('hsc') || query.includes('gpa') || query.includes('cgpa') || query.includes('vsb') || query.includes('ece') || query.includes('reg') || query.includes('percentage')) {
-    return `🎓 **Academic Record & Educational Identity for ${user.name}**\n\n` +
-      `• **Degree**: ${user.degree} (${user.department})\n` +
-      `• **Institution**: ${user.college}\n` +
-      `• **Registration No**: ${user.regNo || '922524106001'}\n` +
-      `• **Batch**: Class of ${user.graduationYear} (Year ${user.currentYear || 3}, Section ${user.section || 'B'})\n\n` +
-      `### Verified Academic Milestones:\n` +
-      `• **HSC (Class XII)**: 77% (May 2024)\n` +
-      `• **SSLC (Class X)**: 86% (May 2022)\n` +
-      `• **Enrolled Date**: 16/09/2024 at VSB Engineering College, Karur.`;
+  // 6. Education & Academics
+  if (query.includes('education') || query.includes('college') || query.includes('degree') || query.includes('mark') || query.includes('gpa') || query.includes('cgpa') || query.includes('reg') || query.includes('percentage')) {
+    return `🎓 **Academic Record & Educational Identity for ${studentName}**\n\n` +
+      `• **Student Name**: ${studentName}\n` +
+      `• **Degree**: ${studentDegree} (${studentDept})\n` +
+      `• **Institution**: ${studentCollege}\n` +
+      `• **Registration No**: ${studentRegNo}\n` +
+      `• **Batch**: Class of ${user.graduationYear || '2028'} (${studentYear})\n` +
+      `• **Email**: ${user.email}`;
   }
 
-  // 6. Resume, Profile & Social Links
-  if (query.includes('resume') || query.includes('github') || query.includes('linkedin') || query.includes('leetcode') || query.includes('profile') || query.includes('link')) {
-    return `📄 **Professional Profile & Coding Links for ${user.name}**\n\n` +
-      `• **GitHub**: [https://github.com/dinesh37518](https://github.com/dinesh37518)\n` +
-      `• **LeetCode**: [https://leetcode.com/u/dinesh37518](https://leetcode.com/u/dinesh37518)\n` +
-      `• **LinkedIn**: [https://linkedin.com/in/dineshkumar-m](https://linkedin.com/in/dineshkumar-m)\n` +
+  // 7. Resume, Profile & Social Links
+  if (query.includes('resume') || query.includes('linkedin') || query.includes('leetcode') || query.includes('profile') || query.includes('link')) {
+    return `📄 **Professional Profile & Coding Links for ${studentName}**\n\n` +
+      `• **GitHub**: ${user.githubUrl || user.github ? `[${user.githubUrl || user.github}](${user.githubUrl || user.github})` : 'Not provided'}\n` +
+      `• **LeetCode**: ${user.leetcodeUrl ? `[${user.leetcodeUrl}](${user.leetcodeUrl})` : 'Not provided'}\n` +
+      `• **LinkedIn**: ${user.linkedinUrl || user.linkedin ? `[${user.linkedinUrl || user.linkedin}](${user.linkedinUrl || user.linkedin})` : 'Not provided'}\n` +
       `• **Email**: ${user.email}\n` +
-      `• **Degree**: B.E. ECE at VSB Engineering College (Class of 2028)`;
-  }
-
-  // 7. Placements & Technical Interviews
-  if (query.includes('placement') || query.includes('interview') || query.includes('salary') || query.includes('ctc') || query.includes('recruiter') || query.includes('job') || query.includes('prepare')) {
-    return `🎯 **Placement Action Plan & Recruiter Focus for ${user.name}**\n\n` +
-      `### 1. Dual Track Placement Readiness\n` +
-      `• **Full Stack Web Track**: Target roles like SDE-1 / Software Developer at companies like **Zoho, Infosys, Accenture, TCS (Digital)**.\n` +
-      `  - *Key Evidence*: **CAREER BRIDGE** Web App ([PROJECT-2](https://github.com/dinesh37518/PROJECT-2)), Infosys Springboard Angular Certification, and Neura Global Full Stack Internship.\n\n` +
-      `• **IoT & Embedded Track**: Target roles like Technical Engineer at companies like **Cisco, Bosch, L&T Technology Services**.\n` +
-      `  - *Key Evidence*: **WhatsApp Agriculture IoT System** ([PROJECT-1](https://github.com/dinesh37518/PROJECT-1)), Cisco IoT Badge, and Manfree Technologies Internship.\n\n` +
-      `### 2. High-Frequency Interview Questions for Your Projects:\n` +
-      `1. *"Explain how your NodeMCU sensors send real-time data to WhatsApp via cloud webhooks."*\n` +
-      `2. *"How does Angular handle state management and REST API communication in CAREER BRIDGE?"*\n` +
-      `3. *"How do you design secure relational MySQL tables for multi-tenant student records?"*`;
+      `• **Degree**: ${studentDegree} (${studentDept}) at ${studentCollege}`;
   }
 
   // 8. Dynamic Search Fallback across Vault Documents
@@ -295,14 +387,14 @@ function generateOfflineRAGResponse(prompt: string, context: ContextData): strin
     });
     searchRes += `\n`;
   } else {
-    searchRes += `Based on ${user.name}'s verified vault data (${documents.length} credentials, ${skills.length} skills, ${projects.length} engineering projects, ${certifications.length} certifications, and ${internships.length} internships):\n\n`;
+    searchRes += `Based on ${studentName}'s verified vault data (${documents.length} credentials, ${skills.length} skills, ${projects.length} engineering projects, ${certifications.length} certifications, and ${internships.length} internships):\n\n`;
   }
 
-  searchRes += `**Summary of Profile Assets:**\n`;
-  searchRes += `• **Student**: ${user.name} (${user.degree}, ${user.college}, Class of ${user.graduationYear})\n`;
-  searchRes += `• **Projects**: WhatsApp Agriculture IoT & CAREER BRIDGE Web App\n`;
-  searchRes += `• **Certifications**: Infosys Angular, Cisco IoT, HP LIFE, Freedom AI\n`;
-  searchRes += `• **Internships**: Neura Global, Manfree Technologies, TNEB Karur\n\n`;
+  searchRes += `**Summary of ${studentName}'s Profile Assets:**\n`;
+  searchRes += `• **Student**: ${studentName} (${studentDegree}, ${studentCollege}, Class of ${user.graduationYear || '2028'})\n`;
+  searchRes += `• **Projects**: ${projects.map(p => p.name).join(', ') || 'None uploaded yet'}\n`;
+  searchRes += `• **Certifications**: ${certifications.map(c => c.name).join(', ') || 'None uploaded yet'}\n`;
+  searchRes += `• **Internships**: ${internships.map(i => `${i.position} at ${i.company}`).join(', ') || 'None recorded yet'}\n\n`;
   searchRes += `Feel free to ask specific questions about your projects, certifications, skills, internships, or placement strategy!`;
 
   return searchRes;

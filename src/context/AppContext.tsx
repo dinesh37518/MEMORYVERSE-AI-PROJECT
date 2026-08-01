@@ -331,7 +331,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const ext = file.name.split('.').pop()?.toLowerCase() as FileType || 'pdf';
     
     const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
-    const inferredSkills: string[] = ['Full Stack Development', 'Problem Solving', 'Technical Competency'];
+    
+    // Smart Skill & Technology Extractor based on filename
+    const lowerName = cleanName.toLowerCase();
+    const inferredSkills: string[] = [];
+    if (lowerName.includes('python')) inferredSkills.push('Python');
+    if (lowerName.includes('java')) inferredSkills.push('Java Programming');
+    if (lowerName.includes('c++') || lowerName.includes('cpp')) inferredSkills.push('C++');
+    if (lowerName.includes('angular')) inferredSkills.push('Angular Framework');
+    if (lowerName.includes('react')) inferredSkills.push('React.js');
+    if (lowerName.includes('node')) inferredSkills.push('Node.js & Express');
+    if (lowerName.includes('sql') || lowerName.includes('dbms')) inferredSkills.push('Database Systems & SQL');
+    if (lowerName.includes('aws') || lowerName.includes('cloud')) inferredSkills.push('AWS Cloud Computing');
+    if (lowerName.includes('cisco') || lowerName.includes('network')) inferredSkills.push('Cisco Computer Networks');
+    if (lowerName.includes('iot') || lowerName.includes('embedded') || lowerName.includes('arduino')) inferredSkills.push('IoT & Embedded Microcontrollers');
+    if (lowerName.includes('ml') || lowerName.includes('ai') || lowerName.includes('machine')) inferredSkills.push('Machine Learning & AI');
+    if (inferredSkills.length === 0) {
+      inferredSkills.push('Technical Competency', 'Problem Solving', `${category} Expertise`);
+    }
     
     let fileDataUrl = '';
     try {
@@ -362,39 +379,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         organization: user.college,
         institution: user.college,
         skills: inferredSkills,
-        technologies: ['React', 'JavaScript', 'Python'],
+        technologies: inferredSkills.slice(0, 3),
         languages: ['English', 'Tamil'],
         certificateName: category === 'Certifications' ? cleanName : undefined,
         projectName: category === 'Projects' ? cleanName : undefined,
         issueDate: new Date().toISOString().split('T')[0],
         keywords: [category, cleanName, user.department],
-        summary: `Preserved original ${ext.toUpperCase()} document "${file.name}" for ${user.name} (RegNo: ${user.regNo}). Metadata automatically indexed.`
+        summary: `Preserved original ${ext.toUpperCase()} document "${file.name}" for ${user.name} (RegNo: ${user.regNo}). Analyzed and indexed by MemoryVerse AI Parser.`
       }
     };
 
     setDocuments(prev => [newDoc, ...prev]);
 
-    // Generate auto skill
-    const newSkill: SkillItem = {
-      id: 'sk_' + Date.now(),
-      name: `${cleanName} Skill`,
+    // Add extracted skills to Skills Matrix
+    const newSkillItems: SkillItem[] = inferredSkills.map((skName, i) => ({
+      id: `sk_${Date.now()}_${i}`,
+      name: skName,
       category: 'Technical',
       level: 'Advanced',
-      score: 88,
+      score: 85 + (i * 3) % 15,
       sourceDocumentIds: [newDoc.id],
       relatedProjectIds: [],
       relatedCertificateIds: [newDoc.id],
       relatedInternshipIds: [],
       verifiedCount: 1
-    };
-    setSkills(prev => [newSkill, ...prev]);
+    }));
+    setSkills(prev => [...newSkillItems, ...prev]);
+
+    // If it's a Certification, add to Certifications array
+    if (category === 'Certifications' || lowerName.includes('cert') || lowerName.includes('nptel') || lowerName.includes('infosys')) {
+      const newCert: CertificationItem = {
+        id: 'cert_' + Date.now(),
+        name: cleanName,
+        issuingOrganization: user.college || 'Industry Authority',
+        date: new Date().toISOString().split('T')[0],
+        credentialId: `CRED-${newDoc.hash.substring(0, 10).toUpperCase()}`,
+        verificationLink: newDoc.url,
+        skillsGained: inferredSkills,
+        documentId: newDoc.id
+      };
+      setCertifications(prev => [newCert, ...prev]);
+    }
 
     // Generate notification
     const newNotif: AppNotification = {
       id: 'notif_' + Date.now(),
       type: 'upload_success',
-      title: 'Document Uploaded & Parsed',
-      message: `Document "${file.name}" uploaded to ${user.name}'s vault and indexed.`,
+      title: 'Document Uploaded & AI Parsed',
+      message: `Document "${file.name}" analyzed for ${user.name}. ${inferredSkills.length} new skills indexed into Vault.`,
       date: new Date().toISOString(),
       read: false
     };
@@ -404,6 +436,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newDocCount = documents.length + 1;
     const newCompletion = Math.min(100, Math.max(35, Math.round(newDocCount * 12)));
     setUser(prev => ({ ...prev, profileCompletionPercent: newCompletion }));
+
+    // Update registered students registry for Admin view
+    setRegisteredStudents(prev => {
+      return prev.map(s => {
+        if (s.email.toLowerCase() === user.email.toLowerCase() || s.regNo === user.regNo) {
+          return {
+            ...s,
+            docsCount: newDocCount,
+            certsCount: category === 'Certifications' ? (s.certsCount || 0) + 1 : (s.certsCount || 0)
+          };
+        }
+        return s;
+      });
+    });
 
     // Sync uploaded document record to Supabase database (indexed by reg_no)
     syncDocumentToSupabase(newDoc, user.regNo);

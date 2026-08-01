@@ -5,7 +5,7 @@
 <h1 align="center">🧠 MemoryVerse AI</h1>
 
 <p align="center">
-  <strong>Intelligent Digital Identity & Knowledge Management Platform</strong>
+  <strong>Intelligent Digital Identity, Automated Document Vault & Placement AI Platform</strong>
 </p>
 
 <p align="center">
@@ -16,287 +16,115 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-8.1-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Supabase-Database-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
 </p>
 
 <p align="center">
-  <a href="https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/">🌐 Live Demo</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-tech-stack">Tech Stack</a> •
-  <a href="#-getting-started">Getting Started</a> •
-  <a href="#-project-structure">Structure</a> •
-  <a href="#-contributing">Contributing</a>
+  <a href="https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/">🌐 Live App</a> •
+  <a href="#-key-new-features">New Features</a> •
+  <a href="#-features">All Features</a> •
+  <a href="#-admin-portal--credentials">Admin Credentials</a> •
+  <a href="#-getting-started">Getting Started</a>
 </p>
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live Application Link
 
 > **👉 [https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/](https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/)**
 
-Experience the full platform instantly — no installation required.
+---
+
+## 🔥 Key New Additional Features
+
+### 1. 🤖 Multi-Tenant Trained Placement AI Engine
+- **Dynamic Student Status Analysis**: The AI Assistant ([geminiApi.ts](file:///c:/Users/Dineshkumar%20M/OneDrive/Desktop/MEMORYVERSE/src/utils/geminiApi.ts)) evaluates the logged-in student's uploaded certificates, extracted technical skills, and engineering projects.
+- **Tailored Placement Roadmaps**: Generates 5-phase placement action plans specifically customized to each student's current preparation status.
+- **Company-Specific Interview Strategies**: Detailed interview preparation guides for **Zoho**, **Cisco**, **Infosys**, **TCS**, **Accenture**, and Core ECE/Embedded/IoT firms.
+- **100% Multi-Tenant Compatibility**: Works dynamically whether 1 student or 1,000 students create accounts and upload certificates.
+
+### 2. 🛡️ Streamlined Admin Portal & Directory
+- **Simplified Student Directory**: Displays **Student Name**, **Year**, and **No. of Files Uploaded**.
+- **Interactive File Inspection**: Clicking any student's name selects that target student and instantly reveals their uploaded vault documents and certificates below.
+- **Database Synchronization**: Multi-department student record sync with Supabase indexed by Register Number.
+
+### 3. 📄 Authentic Document & Resume Viewer & Downloader
+- **Original User File Preservation**: Uploading any file (`.pdf`, `.png`, `.jpg`) preserves the exact original binary data URL.
+- **Master Resume & Certificate Generator**: Viewing or downloading documents renders/downloads formal, high-resolution printable HTML/PDF documents with contact info, education marks, project details, credential IDs, and gold seal signatures (no dummy PDFs).
+
+### 4. ⚡ Automated Skill Extraction on Certificate Upload
+- **Smart OCR & File Parsing**: Uploading certificates automatically extracts domain skills (*Python*, *Java*, *Angular*, *AWS*, *Cisco*, *IoT*, *SQL*, etc.) into the student's Skills Matrix and updates profile metrics.
 
 ---
 
-## 📖 About
+## ✨ Full Feature Overview
 
-**MemoryVerse AI** is a next-generation, AI-powered digital identity and knowledge management platform designed for **students and professionals**. It serves as your intelligent digital memory — automatically extracting insights from documents, building interactive knowledge graphs, and providing instant retrieval of career achievements, skills, and certifications.
-
-Think of it as your **AI-powered career vault** that remembers everything you've accomplished and helps you find it in seconds.
+- **🏠 Interactive Dashboard**: Animated identity score, knowledge metrics, and placement readiness tracking.
+- **📂 Document Vault**: Categorized document storage for Resumes, Certifications, Internships, Projects, and Marksheets.
+- **🕸️ Knowledge Graph**: 3D force-directed node visualization connecting skills, projects, and certificates.
+- **⏳ Career Timeline**: Chronological milestone tracking for academic and professional growth.
+- **💡 Skills Matrix**: Extracted technical and soft skills competency matrix with verification counts.
+- **📁 Projects & Internships**: Engineering project showcase (*WhatsApp Agri IoT System*, *CAREER BRIDGE*) and internship logs.
+- **🤖 RAG Placement AI**: Real-time Gemini 2.5 AI Assistant with custom prompt override drawer.
 
 ---
 
-## ✨ Features
+## 🔑 Login Credentials
 
-### 🏠 Dashboard
-- Real-time overview of your entire digital identity
-- Animated stat cards with knowledge scores, document counts, and AI readiness metrics
-- Quick action shortcuts for uploads, AI queries, and profile management
-
-### 📂 Document Vault & OCR Upload
-- Drag-and-drop document upload with intelligent OCR processing
-- Support for PDFs, images, certificates, and transcripts
-- Auto-extraction of metadata, skills, dates, and entities from uploaded documents
-
-### 🕸️ Knowledge Graph
-- Interactive, force-directed knowledge graph visualization
-- Nodes represent skills, projects, certifications, and achievements
-- Dynamic connections show relationships between different career elements
-- Real-time graph traversal with zoom, pan, and node inspection
-
-### ⏳ Career Timeline
-- Chronological journey visualization of your entire career
-- Milestone tracking for education, internships, certifications, and projects
-- Animated timeline with expandable event details
-
-### 💡 Skills Matrix
-- Comprehensive skill inventory with proficiency levels
-- Category-based organization (Technical, Soft Skills, Tools, Frameworks)
-- Visual progress bars and skill verification badges
-
-### 📁 Projects Portfolio
-- Detailed project cards with descriptions, tech stacks, and outcomes
-- Project status tracking (Active, Completed, In Progress)
-- Links to repositories and live demos
-
-### 🏢 Internships Tracker
-- Internship experience management with company details
-- Role descriptions, key learnings, and duration tracking
-- Performance metrics and supervisor feedback
-
-### 🏅 Certifications
-- Digital certificate management and verification
-- Issuing authority tracking with expiry date monitoring
-- One-click certificate viewing and download
-
-### 🏆 Achievements
-- Achievement showcase with categorization
-- Confetti animations for milestone celebrations
-- Badge system for different achievement tiers
-
-### 🤖 AI Assistant (RAG-powered)
-- Natural language query interface for your knowledge base
-- Retrieval-Augmented Generation for context-aware responses
-- Career advice, document summarization, and skill gap analysis
-- Conversational AI that understands your complete profile
-
-### 🔍 Smart Search
-- Natural language search across all your data
-- Semantic search powered by AI embeddings
-- Instant results with relevance scoring and highlighted matches
-
-### 📊 Analytics Dashboard
-- Comprehensive analytics with interactive charts
-- Skill growth tracking over time
-- Document processing statistics and engagement metrics
-- Exportable reports
-
-### 👤 Profile Management
-- Rich user profile with avatar, bio, and social links
-- Academic information management
-- Privacy settings and data export options
-
-### 🔐 Authentication System
-- Beautiful login page with glassmorphism design
-- Role-based access control (Student / Admin)
-- Secure session management
-
-### 🛡️ Admin Panel
-- User management dashboard for administrators
-- System-wide analytics and user activity monitoring
-- Content moderation tools
+| Role | Email | Password | Access Rights |
+|------|-------|----------|---------------|
+| **College Admin** | `adminofmemoryverse@gmail.com` | `Admin@123` | Full Admin Directory & Student Inspection |
+| **Student (Default)** | `dineshguru0609@gmail.com` | `password123` | Personal Vault & AI Placement Advisor |
+| **New Student** | Any custom email / signup | Any password | Independent Vault & Dynamic AI Advisor |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|-----------|
-| **Frontend Framework** | React 19 with TypeScript 6.0 |
-| **Build Tool** | Vite 8.1 (Lightning-fast HMR) |
-| **Styling** | Tailwind CSS 4.3 + Custom CSS (Glassmorphism, 3D effects) |
-| **Icons** | Lucide React |
-| **Animations** | Canvas Confetti + CSS Animations |
-| **Typography** | Plus Jakarta Sans + Fira Code (Google Fonts) |
-| **Linting** | OxLint |
-| **Deployment** | GitHub Pages |
-| **Version Control** | Git + GitHub |
+| Component | Technology |
+|-----------|------------|
+| **Frontend Framework** | React 19 + TypeScript 6.0 |
+| **Build System** | Vite 8.1 (Sub-second HMR) |
+| **Styling & UI** | Tailwind CSS 4.3 + Glassmorphism & 3D Cards |
+| **Database & Sync** | Supabase Relational Database |
+| **AI Model & RAG** | Google Gemini 2.5 Flash / Offline Placement RAG Engine |
+| **Icons & Effects** | Lucide React + Canvas Confetti |
+| **Hosting** | GitHub Pages |
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** ≥ 18.x
-- **npm** ≥ 9.x
-- **Git**
-
-### Installation
+## 🚀 Getting Started Locally
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/dinesh37518/MEMORYVERSE-AI-PROJECT.git
 
-# 2. Navigate to the project directory
+# 2. Navigate into project
 cd MEMORYVERSE-AI-PROJECT
 
 # 3. Install dependencies
 npm install
 
-# 4. Start the development server
+# 4. Start dev server
 npm run dev
-```
 
-The app will be running at **`http://localhost:5173`**.
-
-### Build for Production
-
-```bash
+# 5. Build for production
 npm run build
-```
 
-### Deploy to GitHub Pages
-
-```bash
+# 6. Deploy updated version to GitHub Pages
 npm run deploy
 ```
-
----
-
-## 📂 Project Structure
-
-```
-MEMORYVERSE-AI-PROJECT/
-├── public/
-│   ├── favicon.svg              # App favicon
-│   └── icons.svg                # SVG icon sprites
-├── src/
-│   ├── assets/                  # Static assets
-│   ├── components/
-│   │   ├── achievements/        # 🏆 Achievement showcase
-│   │   ├── admin/               # 🛡️ Admin panel
-│   │   ├── ai/                  # 🤖 RAG AI Assistant
-│   │   ├── analytics/           # 📊 Analytics dashboard
-│   │   ├── auth/                # 🔐 Login & authentication
-│   │   ├── certifications/      # 🏅 Certification manager
-│   │   ├── dashboard/           # 🏠 Main dashboard
-│   │   ├── documents/           # 📂 Document vault & viewer
-│   │   ├── graph/               # 🕸️ Knowledge graph
-│   │   ├── internship/          # 🏢 Internship tracker
-│   │   ├── profile/             # 👤 User profile
-│   │   ├── projects/            # 📁 Project portfolio
-│   │   ├── search/              # 🔍 Smart search
-│   │   ├── skills/              # 💡 Skills matrix
-│   │   ├── timeline/            # ⏳ Career timeline
-│   │   ├── upload/              # 📤 OCR upload module
-│   │   └── Navigation.tsx       # 🧭 3D floating navigation
-│   ├── context/
-│   │   └── AppContext.tsx        # Global state management
-│   ├── data/                    # Mock data & constants
-│   ├── types/                   # TypeScript type definitions
-│   ├── utils/                   # Utility functions
-│   ├── App.tsx                  # Root application component
-│   ├── App.css                  # Global app styles
-│   ├── index.css                # Base styles & design tokens
-│   └── main.tsx                 # Entry point
-├── index.html                   # HTML template
-├── vite.config.ts               # Vite configuration
-├── tsconfig.json                # TypeScript config
-├── package.json                 # Dependencies & scripts
-└── README.md                    # You are here! 📍
-```
-
----
-
-## 🎨 Design Philosophy
-
-MemoryVerse AI follows a **premium dark-mode glassmorphism** design language:
-
-- **3D UI Elements** — Soft shadows, depth layering, and elevated surfaces
-- **Glassmorphism** — Frosted glass panels with backdrop blur effects
-- **Gradient Accents** — Indigo → Purple → Pink brand gradients
-- **Micro-animations** — Pulse effects, hover transitions, and smooth state changes
-- **Responsive Design** — Fully adaptive from mobile to ultra-wide displays
-- **Plus Jakarta Sans** — Modern, clean typography for optimal readability
-
----
-
-## 🔑 Default Login Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| **Student** | `dinesh@memoryverse.ai` | `password123` |
-| **Admin** | `admin@memoryverse.ai` | `admin123` |
-
-> ⚠️ *These are demo credentials for the live preview. In production, implement proper authentication.*
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with HMR |
-| `npm run build` | TypeScript check + production build |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run OxLint code linting |
-| `npm run deploy` | Build & deploy to GitHub Pages |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how you can help:
-
-1. **Fork** the repository
-2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
 
 ---
 
 ## 👨‍💻 Author
 
 **Dineshkumar M**
-
 - GitHub: [@dinesh37518](https://github.com/dinesh37518)
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+- Live App: [https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/](https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/)
 
 ---
 
 <p align="center">
-  Made with ❤️ and AI by <strong>Dineshkumar M</strong>
-</p>
-
-<p align="center">
-  <a href="https://dinesh37518.github.io/MEMORYVERSE-AI-PROJECT/">
-    <img src="https://img.shields.io/badge/🌐_Visit_Live_App-MemoryVerse_AI-6366f1?style=for-the-badge&labelColor=1e1b4b" alt="Visit Live App" />
-  </a>
+  Made with ❤️ by <strong>Dineshkumar M</strong>
 </p>
