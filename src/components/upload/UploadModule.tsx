@@ -10,7 +10,10 @@ import {
   Trash2, 
   Download, 
   Eye, 
-  Layers
+  Layers,
+  StopCircle,
+  AlertTriangle,
+  XCircle
 } from 'lucide-react';
 
 export const UploadModule: React.FC = () => {
@@ -22,29 +25,48 @@ export const UploadModule: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentProcessingStep, setCurrentProcessingStep] = useState('');
   const [lastUploadedDoc, setLastUploadedDoc] = useState<DocumentItem | null>(null);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTimersRef = useRef<any[]>([]);
 
   const categories: (DocumentCategory | 'Auto')[] = [
     'Auto', 'Certifications', 'Resume', 'Internships', 'Projects', 
     'Research', 'Academics', 'Achievements', 'Portfolio', 'Employment', 'Other'
   ];
 
+  const clearUploadTimers = () => {
+    uploadTimersRef.current.forEach(t => clearTimeout(t));
+    uploadTimersRef.current = [];
+  };
+
+  const handleStopUploading = () => {
+    clearUploadTimers();
+    setIsUploading(false);
+    setUploadProgress(0);
+    setCurrentProcessingStep('');
+    setUploadMessage('Upload process stopped by user. File processing aborted.');
+  };
+
   const handleFiles = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
+
+    clearUploadTimers();
+    setUploadMessage(null);
+    setLastUploadedDoc(null);
     setIsUploading(true);
     setUploadProgress(15);
     setCurrentProcessingStep('Step 1: Reading binary file data & SHA-256 hash check...');
 
-    setTimeout(async () => {
+    const timer1 = setTimeout(async () => {
       setUploadProgress(50);
-      setCurrentProcessingStep('Step 2: Simulated AI OCR & NLP Text Extraction...');
+      setCurrentProcessingStep('Step 2: AI OCR & Text Parsing...');
 
-      setTimeout(async () => {
+      const timer2 = setTimeout(async () => {
         setUploadProgress(85);
         setCurrentProcessingStep('Step 3: Extracting skills & updating 3D Knowledge Graph...');
 
-        setTimeout(async () => {
+        const timer3 = setTimeout(async () => {
           const catOverride = selectedCategory === 'Auto' ? undefined : selectedCategory;
           const fileToUpload = files[0];
           const newDoc = await uploadDocument(fileToUpload, catOverride);
@@ -53,14 +75,21 @@ export const UploadModule: React.FC = () => {
           setCurrentProcessingStep('Step 4: Indexed into MemoryVerse AI Store!');
           setLastUploadedDoc(newDoc);
           
-          setTimeout(() => {
+          const timer4 = setTimeout(() => {
             setIsUploading(false);
             setUploadProgress(0);
           }, 1200);
 
+          uploadTimersRef.current.push(timer4);
         }, 800);
+
+        uploadTimersRef.current.push(timer3);
       }, 700);
+
+      uploadTimersRef.current.push(timer2);
     }, 600);
+
+    uploadTimersRef.current.push(timer1);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -150,9 +179,9 @@ export const UploadModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Progress Bar Overlay */}
+      {/* Progress Bar Overlay with Stop Uploading Action */}
       {isUploading && (
-        <div className="p-6 rounded-3xl soft-3d-panel border border-indigo-500/40 space-y-3 animate-in fade-in">
+        <div className="p-6 rounded-3xl soft-3d-panel border border-indigo-500/40 space-y-4 animate-in fade-in">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-indigo-300 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-indigo-400 animate-spin" /> {currentProcessingStep}
@@ -166,6 +195,42 @@ export const UploadModule: React.FC = () => {
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
+
+          {/* STOP UPLOADING BUTTON */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-white/10">
+            <span className="text-[11px] text-amber-300 flex items-center gap-1.5 font-medium">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+              If any error occurs or you wish to cancel, click Stop Uploading below.
+            </span>
+            <button
+              type="button"
+              onClick={handleStopUploading}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-red-600/30 transition-all hover:scale-105 active:scale-95 border border-red-400/40"
+            >
+              <StopCircle className="w-4 h-4 text-white" />
+              <span>Stop Uploading</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Stopped / Error Banner */}
+      {uploadMessage && !isUploading && (
+        <div className="p-4 rounded-3xl bg-amber-950/40 border border-amber-500/40 flex items-center justify-between gap-4 animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <XCircle className="w-6 h-6 text-amber-400 shrink-0" />
+            <div>
+              <p className="text-xs font-bold text-amber-200">{uploadMessage}</p>
+              <p className="text-[11px] text-amber-300/80 mt-0.5">You can select another document or retry uploading.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setUploadMessage(null)}
+            className="text-xs font-bold text-slate-400 hover:text-white px-3 py-1 rounded-lg bg-slate-900 border border-white/10"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -178,113 +243,94 @@ export const UploadModule: React.FC = () => {
               <p className="text-xs font-bold text-emerald-200">
                 "{lastUploadedDoc.title}" successfully processed & added to 3D Knowledge Graph!
               </p>
-              <p className="text-[11px] text-emerald-400/80">
-                Extracted skills: {lastUploadedDoc.extractedMetadata.skills.join(', ')}
+              <p className="text-[11px] text-emerald-400/80 font-mono mt-0.5">
+                Category: {lastUploadedDoc.category} • Size: {(lastUploadedDoc.fileSize / 1024).toFixed(1)} KB
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setPreviewDoc(lastUploadedDoc)}
-            className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shrink-0 shadow-lg"
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md flex items-center gap-1.5"
           >
-            View Extracted Data
+            <Eye className="w-3.5 h-3.5" /> Inspect Document
           </button>
         </div>
       )}
 
-      {/* Preserved File Vault Table */}
-      <div className="soft-3d-panel p-6 rounded-3xl border border-white/10 space-y-4">
+      {/* Preserved File Vault List */}
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-400" /> Preserved Original File Vault ({documents.length})
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Original binary files preserved with separate AI extracted metadata</p>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Layers className="w-5 h-5 text-indigo-400" /> Preserved Original File Vault ({documents.length})
+          </h2>
+          <span className="text-xs text-slate-400 font-mono">
+            Total Stored: {documents.length} Files
+          </span>
+        </div>
+
+        {documents.length === 0 ? (
+          <div className="p-10 rounded-3xl soft-3d-panel text-center text-slate-400 text-xs border border-white/10">
+            <FileText className="w-10 h-10 text-slate-500 mx-auto mb-2 opacity-50" />
+            <p className="font-bold text-slate-300">Your student file vault is empty.</p>
+            <p className="mt-1 text-slate-400">Upload your separated certificates, marksheets, and resumes above.</p>
           </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-white/10 text-slate-400 font-bold">
-                <th className="py-3 px-3">Document Title</th>
-                <th className="py-3 px-3">Category</th>
-                <th className="py-3 px-3">Format & Size</th>
-                <th className="py-3 px-3">Upload Date</th>
-                <th className="py-3 px-3">Skills Parsed</th>
-                <th className="py-3 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {documents.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-900/40 transition-colors group">
-                  
-                  <td className="py-3.5 px-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">{doc.title}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">{doc.fileName}</p>
-                      </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {documents.map((doc) => (
+              <div 
+                key={doc.id}
+                className="p-5 rounded-2xl soft-3d-card border border-white/10 space-y-3 relative group"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300">
+                      <FileText className="w-5 h-5" />
                     </div>
-                  </td>
-
-                  <td className="py-3.5 px-3">
-                    <span className="text-[10px] px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 shadow-inner">
-                      {doc.category}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-3 font-mono text-slate-400">
-                    {doc.fileType.toUpperCase()} • {(doc.fileSize / 1024 / 1024).toFixed(2)} MB
-                  </td>
-
-                  <td className="py-3.5 px-3 text-slate-400">{doc.uploadDate}</td>
-
-                  <td className="py-3.5 px-3">
-                    <div className="flex flex-wrap gap-1 max-w-xs">
-                      {doc.extractedMetadata.skills.slice(0, 3).map((s, idx) => (
-                        <span key={idx} className="text-[9px] px-2 py-0.5 rounded-md bg-slate-900 text-slate-300 border border-slate-700 font-semibold">
-                          {s}
-                        </span>
-                      ))}
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white truncate max-w-[170px]" title={doc.title}>
+                        {doc.title}
+                      </h4>
+                      <span className="inline-block text-[9px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 mt-0.5">
+                        {doc.category}
+                      </span>
                     </div>
-                  </td>
+                  </div>
+                </div>
 
-                  <td className="py-3.5 px-3 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => setPreviewDoc(doc)}
-                        className="p-2 rounded-xl soft-3d-button-secondary text-indigo-400"
-                        title="Preview & Metadata"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => downloadDocumentFile(doc, user?.name)}
-                        className="p-2 rounded-xl soft-3d-button-secondary text-slate-300"
-                        title="Download File"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => deleteDocument(doc.id)}
-                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
-                        title="Delete Document"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
+                <div className="text-[10px] text-slate-400 space-y-1 font-mono pt-1 border-t border-white/5">
+                  <p>Uploaded: {doc.uploadDate}</p>
+                  <p>Extracted Skills: {doc.extractedSkills?.length || 0} skills</p>
+                </div>
 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                <div className="flex items-center justify-between gap-2 pt-2">
+                  <button
+                    onClick={() => setPreviewDoc(doc)}
+                    className="flex-1 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow"
+                  >
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </button>
 
+                  <button
+                    onClick={() => downloadDocumentFile(doc)}
+                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
+                    title="Download"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => deleteDocument(doc.id)}
+                    className="p-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-red-400 text-xs border border-red-500/30"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

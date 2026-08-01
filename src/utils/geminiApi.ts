@@ -183,56 +183,127 @@ export async function generateGeminiResponse(
 }
 
 function generateOfflineRAGResponse(prompt: string, context: ContextData): string {
-  const lower = prompt.toLowerCase();
-  const { user } = context;
+  const query = prompt.trim().toLowerCase();
+  const { user, documents, skills, projects, certifications, internships } = context;
 
-  // 1. Placements, Salary, Companies
-  if (lower.includes('placement') || lower.includes('job') || lower.includes('company') || lower.includes('mnc') || lower.includes('salary') || lower.includes('ctc') || lower.includes('achieve') || lower.includes('target')) {
-    return `🎯 **Placement Action Plan for ${user.name}**\n\n` +
-      `As a **B.E. ECE** student at **${user.college}** (Class of ${user.graduationYear}):\n\n` +
-      `### 1. Target Recruitment Streams & Roles\n` +
-      `• **Full Stack Web Development Track**: Target roles like Software Development Engineer (SDE-1) or Systems Engineer at companies such as **Zoho, Infosys, Accenture, TCS (Digital), and Cognizant**.\n` +
-      `  - *Key Asset*: **CAREER BRIDGE** Web App ([PROJECT-2](https://github.com/dinesh37518/PROJECT-2)), Infosys Springboard Angular Web Certification, and Neura Global Full Stack Internship.\n\n` +
-      `• **IoT & Embedded Engineering Track**: Target roles like Technical Solutions Engineer or Embedded Engineer at companies like **Cisco, Robert Bosch, and L&T Technology Services**.\n` +
-      `  - *Key Asset*: **WhatsApp Agriculture & Polyhouse IoT System** ([PROJECT-1](https://github.com/dinesh37518/PROJECT-1)), Cisco Introduction to IoT Certification & Badge, Manfree Technologies Training, and TNEB Substation Training.\n\n` +
-      `### 2. High-Impact Preparation Steps\n` +
-      `1. **Data Structures & Problem Solving**: Master core DSA (Arrays, Strings, Hash Maps, Searching/Sorting) using C/C++ or Python.\n` +
-      `2. **Project Demonstrations**: Be prepared to explain the full architecture, API security (JWT/RBAC), and hardware-to-cloud integration of your 2 projects.\n` +
-      `3. **Core ECE & Web Fundamentals**: Revise Angular state management, Node.js REST APIs, MySQL query performance, and Embedded C interrupts/protocols.`;
+  // 1. Specific Projects
+  if (query.includes('project') || query.includes('whatsapp') || query.includes('agri') || query.includes('polyhouse') || query.includes('bridge') || query.includes('record')) {
+    const matchedProjects = projects.filter(p => 
+      query.includes(p.name.toLowerCase()) || 
+      p.technologies.some(t => query.includes(t.toLowerCase())) ||
+      query.includes('project')
+    );
+
+    let res = `🛠️ **Engineering Projects Summary for ${user.name}**\n\n`;
+    const projList = matchedProjects.length > 0 ? matchedProjects : projects;
+    projList.forEach(p => {
+      res += `### • ${p.name}\n`;
+      res += `**Tech Stack**: ${p.technologies.join(', ')}\n`;
+      res += `**Description**: ${p.description}\n`;
+      if (p.githubLink) res += `**GitHub Repo**: [${p.githubLink}](${p.githubLink})\n`;
+      res += `\n`;
+    });
+    res += `💡 **Recruiter Tip**: Be prepared to explain system architecture, API authentication (JWT), hardware-to-cloud integration, and database query performance.`;
+    return res;
   }
 
-  // 2. Full Stack / Web Development
-  if (lower.includes('full stack') || lower.includes('angular') || lower.includes('node') || lower.includes('express') || lower.includes('web') || lower.includes('mysql')) {
-    return `💻 **Full Stack Web Development Roadmap for ${user.name}**\n\n` +
-      `### Verified Credentials:\n` +
-      `• **Infosys Springboard Angular Web Certification** (Issued July 14, 2025)\n` +
-      `• **Neura Global Full Stack Internship** (Completed June 30, 2026)\n` +
-      `• **CAREER BRIDGE Web Application** ([dinesh37518/PROJECT-2](https://github.com/dinesh37518/PROJECT-2))\n\n` +
-      `### Key Interview Focus Areas:\n` +
-      `1. Angular Components, Services, RxJS Observables, and Dependency Injection.\n` +
-      `2. Node.js Express REST API endpoints, JWT authentication, and MySQL relational schemas.\n` +
-      `3. Responsive frontend UI design using HTML5, CSS3, and modern framework principles.`;
+  // 2. Certifications & Credentials
+  if (query.includes('certif') || query.includes('badge') || query.includes('cisco') || query.includes('infosys') || query.includes('hp') || query.includes('freedom') || query.includes('credential')) {
+    let res = `📜 **Verified Industry Certifications for ${user.name}** (${certifications.length} Total):\n\n`;
+    certifications.forEach(c => {
+      res += `• **${c.name}**\n  - **Issuer**: ${c.issuingOrganization}\n  - **Date**: ${c.date}\n  - **Credential ID**: ${c.credentialId || 'Verified Vault Record'}\n  - **Skills**: ${c.skillsGained.join(', ')}\n\n`;
+    });
+    return res;
   }
 
-  // 3. IoT & Embedded Systems
-  if (lower.includes('iot') || lower.includes('embedded') || lower.includes('arduino') || lower.includes('cisco') || lower.includes('tneb') || lower.includes('manfree')) {
-    return `⚡ **IoT & Embedded Systems Roadmap for ${user.name}**\n\n` +
-      `### Verified Credentials:\n` +
-      `• **Cisco Introduction to IoT Certification & Badge** (Issued Nov 30, 2025)\n` +
-      `• **Manfree Technologies Embedded Systems Internship** (Completed June 22, 2026)\n` +
-      `• **TNEB Karur Substation In-Plant Training** (Completed Dec 2025)\n` +
-      `• **WhatsApp Agriculture IoT System** ([dinesh37518/PROJECT-1](https://github.com/dinesh37518/PROJECT-1))\n\n` +
-      `### Key Technical Preparation:\n` +
-      `1. Sensor circuit interfacing with Arduino UNO and NodeMCU microcontrollers.\n` +
-      `2. Embedded C programming, hardware interrupts, and communication protocols (UART/SPI/I2C).\n` +
-      `3. Telemetry data flow from microcontrollers to cloud APIs and WhatsApp messaging services.`;
+  // 3. Skills Matrix
+  if (query.includes('skill') || query.includes('python') || query.includes('angular') || query.includes('java') || query.includes('c++') || query.includes('mysql') || query.includes('stack') || query.includes('matrix') || query.includes('know')) {
+    let res = `⚡ **Verified Technical Skills & Competency Matrix for ${user.name}**:\n\n`;
+    const techSkills = skills.filter(s => s.category !== 'Soft Skills');
+    const softSkills = skills.filter(s => s.category === 'Soft Skills');
+
+    res += `### Technical & Engineering Skills:\n`;
+    techSkills.forEach(s => {
+      res += `• **${s.name}** (${s.category}) – Level: *${s.level}* (${s.score}% Competency)\n`;
+    });
+
+    if (softSkills.length > 0) {
+      res += `\n### Soft Skills & Leadership:\n`;
+      softSkills.forEach(s => {
+        res += `• **${s.name}** – *${s.level}*\n`;
+      });
+    }
+    return res;
   }
 
-  // 4. General Fallback
-  return `🚀 **MemoryVerse Placement Guidance for ${user.name}**\n\n` +
-    `Welcome ${user.name}! Based on your verified ECE academic profile at ${user.college} (Class of ${user.graduationYear}):\n\n` +
-    `• **Projects**: WhatsApp Agriculture IoT (PROJECT-1) & CAREER BRIDGE Web App (PROJECT-2)\n` +
-    `• **Certifications**: Infosys Angular (14/07/2025), Cisco IoT (30/11/2025), HP LIFE (31/08/2025), Freedom AI (02/11/2024)\n` +
-    `• **Internships**: Neura Global, Manfree Technologies, TNEB Karur\n\n` +
-    `How can I assist you with your placement goals, technical interview preparation, or project presentations today?`;
+  // 4. Internships & Work Experience
+  if (query.includes('intern') || query.includes('company') || query.includes('experience') || query.includes('neura') || query.includes('manfree') || query.includes('tneb') || query.includes('work')) {
+    let res = `💼 **Industry Internships & Work Experience for ${user.name}** (${internships.length} Completed):\n\n`;
+    internships.forEach(i => {
+      res += `• **${i.position}** at **${i.company}**\n  - **Duration**: ${i.duration}\n  - **Skills Learned**: ${i.skillsLearned.join(', ')}\n  - **Key Contributions**: ${i.description}\n\n`;
+    });
+    return res;
+  }
+
+  // 5. Education & Academics
+  if (query.includes('education') || query.includes('college') || query.includes('degree') || query.includes('mark') || query.includes('sslc') || query.includes('hsc') || query.includes('gpa') || query.includes('cgpa') || query.includes('vsb') || query.includes('ece') || query.includes('reg') || query.includes('percentage')) {
+    return `🎓 **Academic Record & Educational Identity for ${user.name}**\n\n` +
+      `• **Degree**: ${user.degree} (${user.department})\n` +
+      `• **Institution**: ${user.college}\n` +
+      `• **Registration No**: ${user.regNo || '922524106001'}\n` +
+      `• **Batch**: Class of ${user.graduationYear} (Year ${user.currentYear || 3}, Section ${user.section || 'B'})\n\n` +
+      `### Verified Academic Milestones:\n` +
+      `• **HSC (Class XII)**: 77% (May 2024)\n` +
+      `• **SSLC (Class X)**: 86% (May 2022)\n` +
+      `• **Enrolled Date**: 16/09/2024 at VSB Engineering College, Karur.`;
+  }
+
+  // 6. Resume, Profile & Social Links
+  if (query.includes('resume') || query.includes('github') || query.includes('linkedin') || query.includes('leetcode') || query.includes('profile') || query.includes('link')) {
+    return `📄 **Professional Profile & Coding Links for ${user.name}**\n\n` +
+      `• **GitHub**: [https://github.com/dinesh37518](https://github.com/dinesh37518)\n` +
+      `• **LeetCode**: [https://leetcode.com/u/dinesh37518](https://leetcode.com/u/dinesh37518)\n` +
+      `• **LinkedIn**: [https://linkedin.com/in/dineshkumar-m](https://linkedin.com/in/dineshkumar-m)\n` +
+      `• **Email**: ${user.email}\n` +
+      `• **Degree**: B.E. ECE at VSB Engineering College (Class of 2028)`;
+  }
+
+  // 7. Placements & Technical Interviews
+  if (query.includes('placement') || query.includes('interview') || query.includes('salary') || query.includes('ctc') || query.includes('recruiter') || query.includes('job') || query.includes('prepare')) {
+    return `🎯 **Placement Action Plan & Recruiter Focus for ${user.name}**\n\n` +
+      `### 1. Dual Track Placement Readiness\n` +
+      `• **Full Stack Web Track**: Target roles like SDE-1 / Software Developer at companies like **Zoho, Infosys, Accenture, TCS (Digital)**.\n` +
+      `  - *Key Evidence*: **CAREER BRIDGE** Web App ([PROJECT-2](https://github.com/dinesh37518/PROJECT-2)), Infosys Springboard Angular Certification, and Neura Global Full Stack Internship.\n\n` +
+      `• **IoT & Embedded Track**: Target roles like Technical Engineer at companies like **Cisco, Bosch, L&T Technology Services**.\n` +
+      `  - *Key Evidence*: **WhatsApp Agriculture IoT System** ([PROJECT-1](https://github.com/dinesh37518/PROJECT-1)), Cisco IoT Badge, and Manfree Technologies Internship.\n\n` +
+      `### 2. High-Frequency Interview Questions for Your Projects:\n` +
+      `1. *"Explain how your NodeMCU sensors send real-time data to WhatsApp via cloud webhooks."*\n` +
+      `2. *"How does Angular handle state management and REST API communication in CAREER BRIDGE?"*\n` +
+      `3. *"How do you design secure relational MySQL tables for multi-tenant student records?"*`;
+  }
+
+  // 8. Dynamic Search Fallback across Vault Documents
+  const matchedDocs = documents.filter(d => 
+    query.split(' ').some(w => w.length > 3 && (d.title.toLowerCase().includes(w) || d.category.toLowerCase().includes(w) || d.fileName.toLowerCase().includes(w)))
+  );
+
+  let searchRes = `🤖 **MemoryVerse Assistant Analysis for "${prompt}"**\n\n`;
+  if (matchedDocs.length > 0) {
+    searchRes += `I found ${matchedDocs.length} matching document(s) in your vault:\n\n`;
+    matchedDocs.forEach(d => {
+      searchRes += `• **${d.title}** [Category: ${d.category}]\n  - File: \`${d.fileName}\` (Uploaded: ${d.uploadDate})\n`;
+    });
+    searchRes += `\n`;
+  } else {
+    searchRes += `Based on ${user.name}'s verified vault data (${documents.length} credentials, ${skills.length} skills, ${projects.length} engineering projects, ${certifications.length} certifications, and ${internships.length} internships):\n\n`;
+  }
+
+  searchRes += `**Summary of Profile Assets:**\n`;
+  searchRes += `• **Student**: ${user.name} (${user.degree}, ${user.college}, Class of ${user.graduationYear})\n`;
+  searchRes += `• **Projects**: WhatsApp Agriculture IoT & CAREER BRIDGE Web App\n`;
+  searchRes += `• **Certifications**: Infosys Angular, Cisco IoT, HP LIFE, Freedom AI\n`;
+  searchRes += `• **Internships**: Neura Global, Manfree Technologies, TNEB Karur\n\n`;
+  searchRes += `Feel free to ask specific questions about your projects, certifications, skills, internships, or placement strategy!`;
+
+  return searchRes;
 }

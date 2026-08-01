@@ -15,6 +15,7 @@ import { SmartSearchView } from './components/search/SmartSearchView';
 import { ProfileView } from './components/profile/ProfileView';
 import { AnalyticsView } from './components/analytics/AnalyticsView';
 import { AdminPanelView } from './components/admin/AdminPanelView';
+import { DocumentsVaultView } from './components/documents/DocumentsVaultView';
 import { DocumentViewerModal } from './components/documents/DocumentViewerModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { LoginPageView } from './components/auth/LoginPageView';
@@ -51,7 +52,7 @@ export function App() {
       case 'portfolio-generator':
         return <PortfolioGeneratorView />;
       case 'vault':
-        return <UploadModule />;
+        return <DocumentsVaultView />;
       case 'quick-upload':
         return <UploadModule />;
       case 'graph':

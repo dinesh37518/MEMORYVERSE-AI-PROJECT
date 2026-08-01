@@ -126,57 +126,18 @@ export const AIAssistantView: React.FC = () => {
   return (
     <div className="h-[calc(100vh-180px)] flex flex-col soft-3d-panel overflow-hidden animate-in fade-in duration-500">
       
-      {/* Top Header */}
+      {/* Clean Top Header */}
       <div className="px-6 py-4 bg-[#080b11]/90 border-b border-white/10 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3.5">
           <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
             <Bot className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white flex items-center gap-2 flex-wrap">
-              MemoryVerse AI Assistant 
-              {apiKey ? (
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Live Gemini AI ({activeModel || 'Connected'})
-                </span>
-              ) : (
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3 text-amber-400" /> Offline Contextual RAG
-                </span>
-              )}
+            <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+              MemoryVerse AI Assistant
             </h2>
             <p className="text-xs text-slate-400">Indexed {documents.length} credentials & {skills.length} extracted skills for {user.name}</p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowPromptEditor(!showPromptEditor)}
-            className="px-3.5 py-2 rounded-2xl bg-purple-600/30 text-purple-200 border border-purple-500/40 hover:bg-purple-600/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{customPrompt ? '✏️ Custom Prompt Active' : '✏️ Set Custom Prompt'}</span>
-          </button>
-
-          <button
-            onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-            className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-              apiKey 
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50' 
-                : 'bg-amber-500 text-slate-950 font-extrabold shadow-lg shadow-amber-500/20 hover:bg-amber-400'
-            }`}
-          >
-            <Key className="w-3.5 h-3.5" />
-            {apiKey ? 'Manage Gemini Key' : '🔑 Set Gemini API Key'}
-          </button>
-
-          <button
-            onClick={() => setMessages([messages[0]])}
-            className="p-2.5 rounded-2xl soft-3d-button-secondary text-slate-400 hover:text-white"
-            title="Reset Chat Session"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
         </div>
       </div>
 

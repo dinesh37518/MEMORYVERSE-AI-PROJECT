@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, Mail, Lock, User, GraduationCap, ArrowRight, CheckCircle2, ShieldCheck, X, AlertCircle } from 'lucide-react';
-import { ADMIN_USER, INITIAL_USER } from '../../data/initialData';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,13 +8,13 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { login, setActiveRole } = useApp();
+  const { login, setActiveRole, user, registeredStudents } = useApp();
   const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'verify'>('login');
   
   // Credentials
-  const [email, setEmail] = useState('dineshguru0609@gmail.com');
-  const [password, setPassword] = useState('Dinesh@123');
-  const [name, setName] = useState('Dineshkumar M');
+  const [email, setEmail] = useState(() => user?.email || registeredStudents[0]?.email || '');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [college, setCollege] = useState('VSB Engineering College, Karur');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -28,41 +27,73 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setErrorMessage('');
     setSuccessMessage('');
 
+    const cleanEmail = email.trim().toLowerCase();
+
     if (mode === 'login') {
       // Validate Admin Credentials
-      if (email.trim().toLowerCase() === 'adminofmemoryverse@gmail.com' && password === 'Admin@123') {
-        login('adminofmemoryverse@gmail.com');
-        setActiveRole('admin');
-        onClose();
+      if (cleanEmail === 'adminofmemoryverse@gmail.com') {
+        if (password === 'Admin@123') {
+          login('adminofmemoryverse@gmail.com', { role: 'admin' });
+          setActiveRole('admin');
+          onClose();
+          return;
+        } else {
+          setErrorMessage('Incorrect Admin password. Required: Admin@123');
+          return;
+        }
+      }
+
+      // Check student password
+      let expectedPassword: string | null = null;
+      try {
+        const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+        const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+        expectedPassword = passwordsMap[cleanEmail] || null;
+      } catch (e) {}
+
+      if (!expectedPassword) {
+        if (cleanEmail === 'dineshguru0609@gmail.com') expectedPassword = 'Dinesh@123';
+        else if (cleanEmail === 'anguabhishek@gmail.com' || cleanEmail === 'dineshdjrot@gmail.com') expectedPassword = 'Angu@123';
+      }
+
+      const foundStudent = registeredStudents.find(s => s.email.toLowerCase() === cleanEmail);
+
+      if (!foundStudent && !expectedPassword && cleanEmail !== 'dineshguru0609@gmail.com') {
+        setErrorMessage(`No account found for "${cleanEmail}".`);
         return;
       }
 
-      // Validate Student Credentials
-      if (email.trim().toLowerCase() === 'dineshguru0609@gmail.com' && password === 'Dinesh@123') {
-        login('dineshguru0609@gmail.com');
-        setActiveRole('student');
-        onClose();
+      if (expectedPassword && password !== expectedPassword) {
+        setErrorMessage('Incorrect password. Please enter the correct password for your account.');
         return;
       }
 
-      // Allow login for any custom entered user or show warning
-      login(email);
+      login(cleanEmail, foundStudent || { role: 'student' });
+      setActiveRole('student');
       onClose();
     } else if (mode === 'register') {
       setSuccessMessage('Verification email sent! Enter OTP to confirm account.');
       setMode('verify');
     } else if (mode === 'forgot') {
-      setSuccessMessage('Password reset link sent to registered email address.');
+      setSuccessMessage('Password reset instructions sent to your email address.');
     } else if (mode === 'verify') {
-      login(email);
+      login(cleanEmail);
       onClose();
     }
   };
 
   const handleStudentQuickLogin = () => {
-    setEmail('dineshguru0609@gmail.com');
-    setPassword('Dinesh@123');
-    login('dineshguru0609@gmail.com');
+    const activeEmail = user?.email || registeredStudents[0]?.email || 'dineshguru0609@gmail.com';
+    let pass = 'Dinesh@123';
+    try {
+      const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+      const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+      pass = passwordsMap[activeEmail.toLowerCase()] || (activeEmail === 'dineshguru0609@gmail.com' ? 'Dinesh@123' : 'Angu@123');
+    } catch (e) {}
+
+    setEmail(activeEmail);
+    setPassword(pass);
+    login(activeEmail);
     setActiveRole('student');
     onClose();
   };
@@ -70,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleAdminQuickLogin = () => {
     setEmail('adminofmemoryverse@gmail.com');
     setPassword('Admin@123');
-    login('adminofmemoryverse@gmail.com');
+    login('adminofmemoryverse@gmail.com', { role: 'admin' });
     setActiveRole('admin');
     onClose();
   };
@@ -109,7 +140,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               type="button"
               className="py-2 px-3 rounded-xl soft-3d-button text-white text-[11px] font-bold flex items-center justify-center gap-1.5"
             >
-              <span>Student</span>
+              <span>Student Account</span>
             </button>
 
             <button
@@ -171,7 +202,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Dineshkumar M"
+                    placeholder="e.g. Student Name"
                     className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200"
                   />
                 </div>
@@ -205,7 +236,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="dineshguru0609@gmail.com"
+                    placeholder="student@college.edu"
                     className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 font-mono"
                   />
                 </div>
@@ -232,7 +263,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
+                      placeholder="Enter password"
                       className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 font-mono"
                     />
                   </div>
@@ -252,7 +283,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   required
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="992014"
+                  placeholder="Enter code"
                   className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 tracking-widest font-mono text-center"
                 />
               </div>
@@ -270,12 +301,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="mt-6 pt-4 border-t border-white/10 text-center text-[10px] text-slate-400 space-y-1">
-          <p className="font-semibold text-slate-300">Default Auth Accounts:</p>
-          <p className="font-mono">Student: <span className="text-indigo-300">dineshguru0609@gmail.com</span> / <span className="text-indigo-300">Dinesh@123</span></p>
-          <p className="font-mono">Admin: <span className="text-purple-300">adminofmemoryverse@gmail.com</span> / <span className="text-purple-300">Admin@123</span></p>
-        </div>
 
       </div>
     </div>

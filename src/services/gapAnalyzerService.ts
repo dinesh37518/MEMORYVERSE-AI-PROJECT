@@ -7,11 +7,22 @@ export function analyzeCareerGap(
   projects: ProjectItem[],
   internships: InternshipItem[]
 ): CareerGapAnalysis {
-  const userSkillNames = skills.map(s => s.name.toLowerCase());
+  // Collect all verified tech keywords from user's vault with full null-safety
+  const safeSkills = skills || [];
+  const safeProjects = projects || [];
+  const safeCerts = certifications || [];
+  const safeInternships = internships || [];
+
+  const userSkillNames = safeSkills.map(s => (s?.name || '').toLowerCase()).filter(Boolean);
+  const projectTech = safeProjects.flatMap(p => [p?.title || '', ...(p?.technologies || []), p?.description || '']).map(t => (t || '').toLowerCase()).filter(Boolean);
+  const certSkills = safeCerts.flatMap(c => [c?.name || '', c?.issuingOrganization || '', ...(c?.skillsGained || [])]).map(s => (s || '').toLowerCase()).filter(Boolean);
+  const internshipSkills = safeInternships.flatMap(i => [i?.role || '', i?.company || '', ...(i?.skillsAcquired || [])]).map(s => (s || '').toLowerCase()).filter(Boolean);
+
   const userTechList = Array.from(new Set([
     ...userSkillNames,
-    ...projects.flatMap(p => p.technologies.map(t => t.toLowerCase())),
-    ...certifications.flatMap(c => c.skillsGained.map(s => s.toLowerCase()))
+    ...projectTech,
+    ...certSkills,
+    ...internshipSkills
   ]));
 
   let requiredSkills: string[] = [];
@@ -21,13 +32,14 @@ export function analyzeCareerGap(
 
   switch (targetRole) {
     case 'AI Engineer':
-      requiredSkills = ['python', 'machine learning', 'deep learning', 'tensorflow', 'pytorch', 'rag architecture', 'langchain', 'rest api'];
+      requiredSkills = ['python', 'machine learning', 'deep learning', 'tensorflow', 'pytorch', 'rag architecture', 'langchain', 'vector dbs', 'rest api'];
       recommendedCerts = [
         { title: 'TensorFlow Developer Certificate', provider: 'Google / DeepLearning.AI', reason: 'Industry gold standard for ML neural network modeling.' },
         { title: 'Generative AI & LLM Engineering', provider: 'DeepLearning.AI', reason: 'Essential for building enterprise AI agents & RAG applications.' }
       ];
       recommendedProjects = [
-        { title: 'Multi-Modal RAG Document Intelligence System', tech: ['Python', 'LangChain', 'Faiss', 'Gemini API'], description: 'Build an enterprise vector search engine for complex PDF documents.' }
+        { title: 'Multi-Modal RAG Document Intelligence System', tech: ['Python', 'LangChain', 'Faiss', 'Gemini API'], description: 'Build an enterprise vector search engine for complex PDF documents.' },
+        { title: 'Autonomous Multi-Agent AI System', tech: ['Python', 'PyTorch', 'LangChain', 'FastAPI'], description: 'Implement autonomous decision-making agents with tool-use capabilities.' }
       ];
       learningRoadmap = [
         { phase: 'Phase 1', title: 'Python & Math Foundations', details: 'Master Linear Algebra, Vector Embeddings, NumPy, and PyTorch tensors.', duration: '3 Weeks' },
@@ -53,7 +65,7 @@ export function analyzeCareerGap(
       break;
 
     case 'Embedded Engineer':
-      requiredSkills = ['embedded c', 'c/c++', 'arduino', 'microcontrollers', 'rtos', 'uart', 'spi', 'i2c', 'stm32'];
+      requiredSkills = ['embedded c', 'c/c++', 'arduino', 'microcontrollers', 'rtos', 'uart/spi/i2c', 'stm32', 'circuit design', 'matlab'];
       recommendedCerts = [
         { title: 'Embedded Systems & Real-Time Operating Systems (RTOS)', provider: 'ARM Education', reason: 'Essential for low-latency firmware design.' },
         { title: 'Cisco Certified Network Associate (CCNA)', provider: 'Cisco Systems', reason: 'Validates industrial networking and IoT edge architecture.' }
@@ -69,7 +81,7 @@ export function analyzeCareerGap(
       break;
 
     case 'Data Scientist':
-      requiredSkills = ['python', 'sql', 'data analytics', 'pandas', 'scikit-learn', 'data visualization', 'statistics', 'tableau'];
+      requiredSkills = ['python', 'sql', 'data analytics', 'pandas', 'scikit-learn', 'data visualization', 'statistics', 'tableau', 'machine learning'];
       recommendedCerts = [
         { title: 'Google Data Analytics Professional Certificate', provider: 'Google', reason: 'Validates SQL queries, R/Python modeling, and dashboard creation.' },
         { title: 'IBM Data Science Professional Certificate', provider: 'IBM', reason: 'Deep dive into predictive analytics and ML algorithms.' }
@@ -84,11 +96,28 @@ export function analyzeCareerGap(
       ];
       break;
 
-    default: // Software Engineer / Cyber Security Engineer
-      requiredSkills = ['c/c++', 'java', 'python', 'data structures', 'algorithms', 'git', 'sql', 'operating systems', 'computer networks'];
+    case 'Cyber Security Engineer':
+      requiredSkills = ['network security', 'ethical hacking', 'cryptography', 'wireshark', 'linux', 'firewalls & vpns', 'siem / soc', 'web security (owasp)', 'python'];
+      recommendedCerts = [
+        { title: 'Certified Ethical Hacker (CEH)', provider: 'EC-Council', reason: 'Industry credential for penetration testing and vulnerability auditing.' },
+        { title: 'CompTIA Security+ / CISSP', provider: 'CompTIA / ISC2', reason: 'Core benchmark for network defense & security architecture.' }
+      ];
+      recommendedProjects = [
+        { title: 'Network Intrusion Detection & Traffic Analyzer System', tech: ['Python', 'Wireshark / Scapy', 'Linux', 'Snort'], description: 'Analyze live packet streams, detect port scans, and log security anomalies.' },
+        { title: 'Automated Web Vulnerability & OWASP Audit Scanner', tech: ['Python', 'OWASP ZAP', 'Linux', 'Bash'], description: 'Build an automated pentesting script auditing SQLi and XSS vulnerabilities.' }
+      ];
+      learningRoadmap = [
+        { phase: 'Phase 1', title: 'Network Security & Linux Hardening', details: 'Master TCP/IP packet inspection, Linux command line, IPTables, and Wireshark traffic analysis.', duration: '3 Weeks' },
+        { phase: 'Phase 2', title: 'Penetration Testing & Web Security', details: 'Practice OWASP Top 10 vulnerabilities, Nmap scanning, Metasploit, and cryptography basics.', duration: '4 Weeks' },
+        { phase: 'Phase 3', title: 'SOC Monitoring & SIEM Incident Response', details: 'Deploy Splunk / ELK SIEM stack, configure intrusion detection (IDS), and audit security logs.', duration: '3 Weeks' }
+      ];
+      break;
+
+    default: // Software Engineer
+      requiredSkills = ['data structures', 'algorithms', 'c/c++', 'java', 'python', 'sql', 'operating systems', 'computer networks', 'git', 'system design'];
       recommendedCerts = [
         { title: 'AWS Certified Solutions Architect', provider: 'Amazon Web Services', reason: 'Industry gold standard for backend systems architecture.' },
-        { title: 'Certified Information Systems Security Professional (CISSP)', provider: 'ISC2', reason: 'Top-tier credential for security architecture.' }
+        { title: 'Oracle Certified Professional Java SE', provider: 'Oracle', reason: 'Validates enterprise object-oriented programming.' }
       ];
       recommendedProjects = [
         { title: 'High-Throughput Distributed Cache System', tech: ['C++', 'Java', 'TCP/IP Sockets', 'Multithreading'], description: 'Multi-threaded in-memory key-value store with LRU eviction.' }
@@ -100,12 +129,29 @@ export function analyzeCareerGap(
       ];
   }
 
-  // Calculate matching & missing skills
+  // Calculate matching & missing skills cleanly
   const matchedSkills: string[] = [];
   const missingSkills: string[] = [];
 
   requiredSkills.forEach(req => {
-    const found = userTechList.some(ut => ut.includes(req) || req.includes(ut));
+    // Check user's verified tech list
+    const found = userTechList.some(ut => {
+      const u = ut.toLowerCase();
+      const r = req.toLowerCase();
+      if (u === r) return true;
+      if (r === 'c/c++' && (u.includes('c++') || u.includes('c and c++') || u === 'c')) return true;
+      if (r === 'embedded c' && (u.includes('embedded c') || u.includes('c and c++'))) return true;
+      if (r === 'html/css' && (u.includes('html') || u.includes('css'))) return true;
+      if (r === 'uart/spi/i2c' && (u.includes('uart') || u.includes('spi') || u.includes('i2c') || u.includes('embedded'))) return true;
+      if (r === 'web security (owasp)' && (u.includes('security') || u.includes('owasp'))) return true;
+      if (r === 'firewalls & vpns' && (u.includes('firewall') || u.includes('vpn') || u.includes('network'))) return true;
+      if (r === 'siem / soc' && (u.includes('siem') || u.includes('soc') || u.includes('security'))) return true;
+      if (r === 'network security' && (u.includes('network') || u.includes('security'))) return true;
+      if (r === 'data analytics' && (u.includes('analytics') || u.includes('data'))) return true;
+      if (r === 'circuit design' && (u.includes('circuit') || u.includes('hardware') || u.includes('ece'))) return true;
+      return u.includes(r) || r.includes(u);
+    });
+
     if (found) {
       matchedSkills.push(req.toUpperCase());
     } else {
@@ -113,11 +159,40 @@ export function analyzeCareerGap(
     }
   });
 
-  const readinessScore = Math.round((matchedSkills.length / Math.max(requiredSkills.length, 1)) * 100);
+  // Calculate distinct scores per category
+  const skillsScore = Math.round((matchedSkills.length / Math.max(requiredSkills.length, 1)) * 100);
+
+  // Projects relevance calculation
+  const relevantProjects = safeProjects.filter(p => {
+    const projTechStr = [p?.title || '', ...(p?.technologies || []), p?.description || ''].join(' ').toLowerCase();
+    return requiredSkills.some(req => projTechStr.includes((req || '').toLowerCase()));
+  });
+  const projectsScore = safeProjects.length > 0
+    ? Math.min(100, Math.round((relevantProjects.length / safeProjects.length) * 100))
+    : 0;
+
+  // Certifications relevance calculation
+  const relevantCerts = safeCerts.filter(c => {
+    const certStr = [c?.name || '', c?.issuingOrganization || '', ...(c?.skillsGained || [])].join(' ').toLowerCase();
+    return requiredSkills.some(req => certStr.includes((req || '').toLowerCase()));
+  });
+  const certsScore = safeCerts.length > 0
+    ? Math.min(100, Math.round((relevantCerts.length / safeCerts.length) * 100))
+    : 0;
+
+  // Weighted overall Career Readiness Score:
+  // 60% Skills + 25% Projects + 15% Certifications
+  const rawWeightedScore = Math.round((skillsScore * 0.60) + (projectsScore * 0.25) + (certsScore * 0.15));
+  const readinessScore = Math.min(100, Math.max(10, rawWeightedScore));
 
   return {
     targetRole,
-    readinessScore: Math.min(Math.max(readinessScore, 65), 98), // Realistic score range based on verified docs
+    readinessScore,
+    skillsScore,
+    projectsScore,
+    certsScore,
+    totalRequiredCount: requiredSkills.length,
+    matchedCount: matchedSkills.length,
     currentSkills: matchedSkills,
     missingSkills,
     recommendedCertifications: recommendedCerts,

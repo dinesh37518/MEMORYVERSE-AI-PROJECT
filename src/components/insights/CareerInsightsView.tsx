@@ -101,7 +101,11 @@ export const CareerInsightsView: React.FC = () => {
                 r="60"
                 stroke="currentColor"
                 strokeWidth="12"
-                className="text-indigo-500 transition-all duration-1000"
+                className={`transition-all duration-1000 ${
+                  analysis.readinessScore >= 80 ? 'text-emerald-400' :
+                  analysis.readinessScore >= 50 ? 'text-indigo-500' :
+                  'text-amber-400'
+                }`}
                 fill="transparent"
                 strokeDasharray={377}
                 strokeDashoffset={377 - (377 * analysis.readinessScore) / 100}
@@ -153,6 +157,74 @@ export const CareerInsightsView: React.FC = () => {
 
         </div>
 
+      </div>
+
+      {/* CALCULATION BASIS & FORMULA BREAKDOWN BANNER */}
+      <div className="p-6 rounded-3xl soft-3d-panel border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-950 space-y-4 shadow-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2 text-indigo-300 font-extrabold text-sm">
+            <Gauge className="w-5 h-5 text-indigo-400" />
+            <span>Calculation Basis & Score Formula for {selectedRole}</span>
+          </div>
+          <span className="text-[11px] px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 font-mono font-bold border border-indigo-500/30">
+            Weighted Score: {analysis.readinessScore}% Match
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-300 leading-relaxed">
+          The <strong className="text-indigo-200">{analysis.readinessScore}% Verified Match</strong> score for <strong className="text-white">{selectedRole}</strong> is computed mathematically by evaluating your verified document vault against role specifications:
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          
+          {/* Component 1: Required Skills (60% Weight) */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-indigo-300 text-[11px] uppercase tracking-wider">1. Skills Competency (60% Weight)</span>
+              <span className="font-mono font-bold text-white text-xs">{analysis.skillsScore}% Match</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-white/10">
+              <div className="h-full bg-indigo-500 rounded-full transition-all duration-500" style={{ width: `${analysis.skillsScore}%` }} />
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Matched <strong className="text-white">{analysis.matchedCount}</strong> out of <strong className="text-white">{analysis.totalRequiredCount}</strong> required skills for {selectedRole}.
+            </p>
+          </div>
+
+          {/* Component 2: Project Portfolio Alignment (25% Weight) */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-purple-300 text-[11px] uppercase tracking-wider">2. Project Portfolio (25% Weight)</span>
+              <span className="font-mono font-bold text-white text-xs">{analysis.projectsScore}% Match</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-white/10">
+              <div className="h-full bg-purple-500 rounded-full transition-all duration-500" style={{ width: `${analysis.projectsScore}%` }} />
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Evaluates tech stacks used across your {projects.length} verified engineering project reports.
+            </p>
+          </div>
+
+          {/* Component 3: Verified Certifications (15% Weight) */}
+          <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-pink-300 text-[11px] uppercase tracking-wider">3. Certifications (15% Weight)</span>
+              <span className="font-mono font-bold text-white text-xs">{analysis.certsScore}% Match</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-white/10">
+              <div className="h-full bg-pink-500 rounded-full transition-all duration-500" style={{ width: `${analysis.certsScore}%` }} />
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Evaluates verified credentials & issuing organization domain relevance.
+            </p>
+          </div>
+
+        </div>
+
+        <div className="p-3 rounded-2xl bg-slate-950/80 border border-white/5 text-[11px] text-slate-400 flex items-center justify-between font-mono">
+          <span>Formula: Score = (60% × Skills: {analysis.skillsScore}%) + (25% × Projects: {analysis.projectsScore}%) + (15% × Certs: {analysis.certsScore}%)</span>
+          <span className="text-emerald-400 font-bold">= {analysis.readinessScore}% Match</span>
+        </div>
       </div>
 
       {/* Recommended Certifications & Recommended Projects */}

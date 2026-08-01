@@ -286,63 +286,60 @@ export const ProfileView: React.FC = () => {
               />
             </div>
 
-            {/* Compulsory Coding & Professional Profiles */}
+            {/* Coding & Professional Profiles (All Optional) */}
             <div className="sm:col-span-2 pt-2 border-t border-slate-800">
               <h4 className="text-xs font-extrabold text-indigo-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-indigo-400" /> Compulsory Coding & Professional Links
+                <Globe className="w-4 h-4 text-indigo-400" /> Coding & Professional Links (Optional)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-200 mb-1 flex items-center justify-between">
                     <span>GitHub Profile URL</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30">Compulsory</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">Optional</span>
                   </label>
                   <input
                     type="url"
-                    required
                     value={formData.githubUrl || formData.github || ''}
                     onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value, github: e.target.value })}
                     placeholder="https://github.com/username"
-                    className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-full glass-input rounded-xl px-3 py-2.5 text-xs text-white font-mono"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-200 mb-1 flex items-center justify-between">
                     <span>LinkedIn Profile URL</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30">Compulsory</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">Optional</span>
                   </label>
                   <input
                     type="url"
-                    required
                     value={formData.linkedinUrl || formData.linkedin || ''}
                     onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value, linkedin: e.target.value })}
                     placeholder="https://linkedin.com/in/username"
-                    className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-full glass-input rounded-xl px-3 py-2.5 text-xs text-white font-mono"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-200 mb-1 flex items-center justify-between">
                     <span>LeetCode Profile URL</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30">Compulsory</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">Optional</span>
                   </label>
                   <input
                     type="url"
-                    required
                     value={formData.leetcodeUrl || ''}
                     onChange={(e) => setFormData({ ...formData, leetcodeUrl: e.target.value })}
                     placeholder="https://leetcode.com/u/username"
-                    className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-full glass-input rounded-xl px-3 py-2.5 text-xs text-white font-mono"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Optional Coding Profiles */}
+            {/* Additional Competitive Coding Profiles (Optional) */}
             <div className="sm:col-span-2 pt-1">
               <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Code className="w-4 h-4 text-purple-400" /> Optional Competitive Coding Profiles
+                <Code className="w-4 h-4 text-purple-400" /> Competitive Coding Profiles (Optional)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -355,7 +352,7 @@ export const ProfileView: React.FC = () => {
                     value={formData.gfgUrl || ''}
                     onChange={(e) => setFormData({ ...formData, gfgUrl: e.target.value })}
                     placeholder="https://auth.geeksforgeeks.org/user/username"
-                    className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-full glass-input rounded-xl px-3 py-2.5 text-xs text-white font-mono"
                   />
                 </div>
 
@@ -369,7 +366,7 @@ export const ProfileView: React.FC = () => {
                     value={formData.codechefUrl || ''}
                     onChange={(e) => setFormData({ ...formData, codechefUrl: e.target.value })}
                     placeholder="https://www.codechef.com/users/username"
-                    className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-full glass-input rounded-xl px-3 py-2.5 text-xs text-white font-mono"
                   />
                 </div>
               </div>

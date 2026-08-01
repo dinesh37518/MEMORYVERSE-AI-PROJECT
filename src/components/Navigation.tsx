@@ -67,7 +67,6 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
     { id: 'resume', label: 'Resume Builder', icon: FileText, badge: 'PDF' },
     { id: 'jobs', label: 'Job Tracker', icon: Briefcase, badge: 'Match' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
     { id: 'profile', label: 'Profile', icon: Settings },
   ];
 
@@ -119,23 +118,27 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
           {/* Right Action Bar */}
           <div className="flex items-center gap-3">
             
-            {/* Ask AI Shortcut */}
-            <button
-              onClick={() => setActiveTab('assistant')}
-              className="hidden lg:flex items-center gap-2 px-3.5 py-2 rounded-2xl soft-3d-button-secondary text-indigo-300 text-xs font-semibold"
-            >
-              <Bot className="w-4 h-4 text-indigo-400" />
-              <span>Ask AI</span>
-            </button>
+            {/* Ask AI Shortcut (Hidden in Admin Mode) */}
+            {activeRole !== 'admin' && (
+              <button
+                onClick={() => setActiveTab('assistant')}
+                className="hidden lg:flex items-center gap-2 px-3.5 py-2 rounded-2xl soft-3d-button-secondary text-indigo-300 text-xs font-semibold"
+              >
+                <Bot className="w-4 h-4 text-indigo-400" />
+                <span>Ask AI</span>
+              </button>
+            )}
 
-            {/* Quick Upload Button */}
-            <button
-              onClick={() => setActiveTab('upload')}
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl soft-3d-button text-white text-xs font-bold shadow-lg"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Upload Docs</span>
-            </button>
+            {/* Quick Upload Button (Hidden in Admin Mode) */}
+            {activeRole !== 'admin' && (
+              <button
+                onClick={() => setActiveTab('upload')}
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl soft-3d-button text-white text-xs font-bold shadow-lg"
+              >
+                <Upload className="w-4 h-4" />
+                <span className="hidden sm:inline">Upload Docs</span>
+              </button>
+            )}
 
             {/* Notifications Menu */}
             <div className="relative">
@@ -153,19 +156,28 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
               </button>
 
               {showNotifMenu && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 soft-3d-panel rounded-3xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 soft-3d-panel rounded-3xl p-4 z-50 animate-in fade-in slide-in-from-top-2 border border-white/15 shadow-2xl">
                   <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
                     <h4 className="text-xs font-bold text-slate-100 flex items-center gap-2">
                       <Bell className="w-4 h-4 text-indigo-400" /> System Notifications
                     </h4>
-                    {notifications.length > 0 && (
-                      <button 
-                        onClick={clearAllNotifications}
-                        className="text-[10px] text-slate-400 hover:text-indigo-400"
+                    <div className="flex items-center gap-2">
+                      {notifications.length > 0 && (
+                        <button 
+                          onClick={clearAllNotifications}
+                          className="text-[10px] text-slate-400 hover:text-indigo-400 font-semibold"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setShowNotifMenu(false)}
+                        className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                        title="Close Notifications"
                       >
-                        Clear All
+                        <X className="w-4 h-4" />
                       </button>
-                    )}
+                    </div>
                   </div>
 
                   <div className="max-h-72 overflow-y-auto space-y-2.5 pr-1">
@@ -197,28 +209,18 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
               )}
             </div>
 
-            {/* Role Switcher */}
+            {/* Role Indicator Badge */}
             <div className="hidden sm:flex items-center p-1 rounded-2xl bg-slate-950/80 border border-white/10 shadow-inner">
-              <button
-                onClick={() => setActiveRole('student')}
-                className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
-                  activeRole === 'student'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Student
-              </button>
-              <button
-                onClick={() => setActiveRole('admin')}
-                className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
-                  activeRole === 'admin'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Admin
-              </button>
+              {activeRole === 'student' ? (
+                <div className="px-3.5 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md">
+                  Student Mode
+                </div>
+              ) : (
+                <div className="px-3.5 py-1 rounded-xl text-xs font-extrabold bg-purple-600 text-white shadow-md flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-purple-200" />
+                  <span>Admin Mode</span>
+                </div>
+              )}
             </div>
 
             {/* User Profile Avatar */}
@@ -286,39 +288,40 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
         </div>
       </header>
 
-      {/* Main Tab Navigation Bar */}
-      <nav className="w-full bg-[#080b11]/80 backdrop-blur-lg border-b border-white/10 overflow-x-auto scrollbar-none px-4">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 py-2 min-w-max">
-          {navItems.map((item) => {
-            if (item.adminOnly && activeRole !== 'admin') return null;
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-gradient-to-r from-indigo-600/30 to-purple-600/30 text-indigo-200 border border-indigo-500/40 shadow-lg shadow-indigo-500/15'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-indigo-500/30 text-indigo-200 font-bold border border-indigo-400/30">
-                    {item.badge}
-                  </span>
-                )}
-                {item.highlight && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      {/* Main Tab Navigation Bar (Visible in Student Mode) */}
+      {activeRole !== 'admin' && (
+        <nav className="w-full bg-[#080b11]/80 backdrop-blur-lg border-b border-white/10 overflow-x-auto scrollbar-none px-4">
+          <div className="max-w-7xl mx-auto flex items-center gap-2 py-2 min-w-max">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-gradient-to-r from-indigo-600/30 to-purple-600/30 text-indigo-200 border border-indigo-500/40 shadow-lg shadow-indigo-500/15'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-indigo-500/30 text-indigo-200 font-bold border border-indigo-400/30">
+                      {item.badge}
+                    </span>
+                  )}
+                  {item.highlight && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </>
   );
 };

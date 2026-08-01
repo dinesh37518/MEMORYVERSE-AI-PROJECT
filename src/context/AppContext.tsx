@@ -97,9 +97,9 @@ const REGISTRY_KEY = 'memoryverse_registered_students_v10';
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeRole, setActiveRole] = useState<'student' | 'admin'>('student');
 
-  const [auth, setAuth] = useState<{ isAuthenticated: boolean; email: string }>(() => {
-    const saved = localStorage.getItem('memoryverse_auth_session');
-    return saved ? JSON.parse(saved) : { isAuthenticated: false, email: '' };
+  const [auth, setAuth] = useState<{ isAuthenticated: boolean; email: string }>({ 
+    isAuthenticated: false, 
+    email: '' 
   });
 
   const [user, setUser] = useState<UserProfile>(INITIAL_USER);
@@ -307,8 +307,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const student = registeredStudents.find(s => s.regNo === regNo);
     if (student) {
       loadUserStore(student.email, student);
-      setActiveRole('student');
-      setActiveTab('dashboard');
+      // Keep activeRole as admin while inspecting in Admin Portal
     }
   };
 

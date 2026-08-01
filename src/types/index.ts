@@ -302,6 +302,11 @@ export type CareerTargetRole =
 export interface CareerGapAnalysis {
   targetRole: CareerTargetRole;
   readinessScore: number;
+  skillsScore: number;
+  projectsScore: number;
+  certsScore: number;
+  totalRequiredCount: number;
+  matchedCount: number;
   currentSkills: string[];
   missingSkills: string[];
   recommendedCertifications: { title: string; provider: string; reason: string }[];

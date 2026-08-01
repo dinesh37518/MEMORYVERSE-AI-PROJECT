@@ -40,6 +40,7 @@ export const DashboardView: React.FC = () => {
     achievements, 
     timeline, 
     setActiveTab, 
+    setActiveRole,
     setPreviewDoc 
   } = useApp();
 

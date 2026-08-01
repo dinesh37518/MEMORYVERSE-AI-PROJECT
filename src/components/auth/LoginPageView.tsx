@@ -18,26 +18,28 @@ import {
   AlertCircle, 
   ShieldCheck, 
   Send,
-  Building2,
   Hash,
-  KeyRound,
-  UserCheck,
   Settings,
-  Key
+  Key,
+  RotateCcw
 } from 'lucide-react';
 
 export const LoginPageView: React.FC = () => {
-  const { login, setActiveRole } = useApp();
+  const { login, setActiveRole, registeredStudents } = useApp();
   
   // Section tab: 'student' or 'admin'
   const [portal, setPortal] = useState<'student' | 'admin'>('student');
   
-  // Student flow modes: 'login' | 'verify_email' | 'student_details'
-  const [studentMode, setStudentMode] = useState<'login' | 'verify_email' | 'student_details'>('login');
+  // Student flow modes: 'login' | 'verify_email' | 'student_details' | 'forgot_send_otp' | 'forgot_verify_otp' | 'forgot_new_password'
+  const [studentMode, setStudentMode] = useState<
+    'login' | 'verify_email' | 'student_details' | 'forgot_send_otp' | 'forgot_verify_otp' | 'forgot_new_password'
+  >('login');
   
   // Student Form State
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPassword, setStudentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [name, setName] = useState('');
   const [regNo, setRegNo] = useState('');
   const [dept, setDept] = useState<DepartmentType>('ECE');
@@ -52,8 +54,8 @@ export const LoginPageView: React.FC = () => {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   
   // Admin Form State
-  const [adminEmail, setAdminEmail] = useState('adminofmemoryverse@gmail.com');
-  const [adminPassword, setAdminPassword] = useState('Admin@123');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
 
   // EmailJS Setup Drawer State
   const [showEmailJsSetup, setShowEmailJsSetup] = useState(false);
@@ -73,7 +75,7 @@ export const LoginPageView: React.FC = () => {
     setShowEmailJsSetup(false);
   };
 
-  // Handle sending OTP verification code to student email via EmailJS
+  // Handle sending OTP verification code for Account Registration
   const handleSendVerificationCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -87,11 +89,9 @@ export const LoginPageView: React.FC = () => {
 
     setIsSendingEmail(true);
 
-    // Generate random 6-digit OTP code
     const generated = Math.floor(100000 + Math.random() * 900000).toString();
     setSentCode(generated);
 
-    // Send code using EmailJS Service
     const emailResult = await sendVerificationEmail(cleanEmail, generated, name || 'Student');
     setIsSendingEmail(false);
 
@@ -102,7 +102,7 @@ export const LoginPageView: React.FC = () => {
     }
   };
 
-  // Handle code verification step
+  // Handle code verification for Account Registration
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -112,7 +112,7 @@ export const LoginPageView: React.FC = () => {
       setSuccessMessage('Email verified successfully! Now set your account password & student details.');
       setStudentMode('student_details');
     } else {
-      setErrorMessage('Invalid verification code. Please check and re-enter.');
+      setErrorMessage('Invalid verification code. Please check your inbox and re-enter.');
     }
   };
 
@@ -139,10 +139,17 @@ export const LoginPageView: React.FC = () => {
       return;
     }
 
-    // Successfully register student, save details & login
-    setSuccessMessage('Account & password created successfully! Redirecting to platform dashboard...');
+    const registeredUserEmail = studentEmail.trim().toLowerCase();
+    try {
+      const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+      const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+      passwordsMap[registeredUserEmail] = studentPassword;
+      localStorage.setItem('memoryverse_passwords_v1', JSON.stringify(passwordsMap));
+    } catch (e) {}
+
+    setSuccessMessage(`Account & password created for ${name.trim()}! Redirecting to student dashboard...`);
     setTimeout(() => {
-      login(studentEmail.trim().toLowerCase(), {
+      login(registeredUserEmail, {
         name: name.trim(),
         regNo: regNo.trim(),
         department: dept,
@@ -156,27 +163,162 @@ export const LoginPageView: React.FC = () => {
     }, 800);
   };
 
-  // Handle Student Login
-  const handleStudentLogin = (e: React.FormEvent) => {
+  // FORGOT PASSWORD STEP 1: Check Registered Email & Send Reset Code via EmailJS
+  const handleForgotSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
     const cleanEmail = studentEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setErrorMessage('Please enter a valid registered email address.');
+      return;
+    }
+
+    // Verify email exists in registry or defaults
+    const foundStudent = registeredStudents.find(s => s.email.toLowerCase() === cleanEmail);
+    const isDefaultAcc = cleanEmail === 'dineshguru0609@gmail.com' || cleanEmail === 'anguabhishek@gmail.com' || cleanEmail === 'dineshdjrot@gmail.com';
+
+    if (!foundStudent && !isDefaultAcc) {
+      setErrorMessage(`No registered student account found for "${cleanEmail}". Click 'Create New Account' to register.`);
+      return;
+    }
+
+    setIsSendingEmail(true);
+    const generated = Math.floor(100000 + Math.random() * 900000).toString();
+    setSentCode(generated);
+
+    const recipientName = foundStudent?.name || 'Student';
+    const emailResult = await sendVerificationEmail(cleanEmail, generated, recipientName);
+    setIsSendingEmail(false);
+
+    if (emailResult.success) {
+      setSuccessMessage(`Password reset verification code sent to ${cleanEmail} via EmailJS! Check your inbox.`);
+      setStudentMode('forgot_verify_otp');
+    } else {
+      setErrorMessage(emailResult.message);
+    }
+  };
+
+  // FORGOT PASSWORD STEP 2: Verify OTP Code
+  const handleForgotVerifyCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (inputCode.trim() === sentCode) {
+      setSuccessMessage('Reset code verified! Please type your new account password.');
+      setStudentMode('forgot_new_password');
+    } else {
+      setErrorMessage('Invalid verification code. Please check your email inbox and re-enter.');
+    }
+  };
+
+  // FORGOT PASSWORD STEP 3: Save New Password, Update Registry & Login to Dashboard
+  const handleForgotResetPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!newPassword || newPassword.length < 4) {
+      setErrorMessage('New password must be at least 4 characters long.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setErrorMessage('New passwords do not match. Please re-enter.');
+      return;
+    }
+
+    const cleanEmail = studentEmail.trim().toLowerCase();
+
+    // Replace old password in passwords map
+    try {
+      const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+      const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+      passwordsMap[cleanEmail] = newPassword;
+      localStorage.setItem('memoryverse_passwords_v1', JSON.stringify(passwordsMap));
+    } catch (e) {}
+
+    // Redirect back to login page so student enters their email & new password to sign in
+    setStudentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setSentCode('');
+    setInputCode('');
+    setStudentMode('login');
+    setSuccessMessage(`Password updated successfully for ${cleanEmail}! Please sign in below with your email and new password.`);
+  };
+
+  // Handle Student Login (Smart Email Normalization & Flexible Validation)
+  const handleStudentLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    let cleanEmail = studentEmail.trim().toLowerCase();
     if (!cleanEmail) {
-      setErrorMessage('Please enter your student email.');
+      setErrorMessage('Please enter your student email address.');
       return;
     }
 
-    if (cleanEmail === 'dineshguru0609@gmail.com' && studentPassword === 'Dinesh@123') {
-      login(cleanEmail);
-      setActiveRole('student');
+    // Auto-fix common email domain typos (e.g. @gmailcom -> @gmail.com)
+    if (cleanEmail.endsWith('@gmailcom')) {
+      cleanEmail = cleanEmail.replace('@gmailcom', '@gmail.com');
+    } else if (cleanEmail.endsWith('@yahoocom')) {
+      cleanEmail = cleanEmail.replace('@yahoocom', '@yahoo.com');
+    } else if (cleanEmail.endsWith('@outlookcom')) {
+      cleanEmail = cleanEmail.replace('@outlookcom', '@outlook.com');
+    }
+
+    // Sync fixed email back to input field
+    if (cleanEmail !== studentEmail) {
+      setStudentEmail(cleanEmail);
+    }
+
+    if (!studentPassword) {
+      setErrorMessage('Please enter your student account password.');
       return;
     }
 
-    // Login user
-    login(cleanEmail, { role: 'student' });
+    // Retrieve stored password for this email
+    let expectedPassword: string | null = null;
+    try {
+      const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+      const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+      expectedPassword = passwordsMap[cleanEmail] || null;
+    } catch (e) {}
+
+    // Fallbacks for default benchmark accounts
+    if (!expectedPassword) {
+      if (cleanEmail === 'dineshguru0609@gmail.com' || cleanEmail.includes('dineshguru')) expectedPassword = 'Dinesh@123';
+      else if (cleanEmail === 'anguabhishek@gmail.com' || cleanEmail === 'dineshdjrot@gmail.com') expectedPassword = 'Angu@123';
+    }
+
+    // Find student profile in registry
+    let foundStudent = registeredStudents.find(s => s.email.toLowerCase() === cleanEmail);
+    if (!foundStudent && (cleanEmail === 'dineshguru0609@gmail.com' || cleanEmail.includes('dineshguru'))) {
+      foundStudent = registeredStudents.find(s => s.email.toLowerCase().includes('dineshguru')) || registeredStudents[0];
+    }
+
+    // STRICT PASSWORD VERIFICATION if expectedPassword exists
+    if (expectedPassword && studentPassword !== expectedPassword) {
+      setErrorMessage('Incorrect password. Please enter the correct password for your student account.');
+      return;
+    }
+
+    // Save/update password map if first-time student login with a new email
+    if (!expectedPassword && studentPassword) {
+      try {
+        const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+        const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+        passwordsMap[cleanEmail] = studentPassword;
+        localStorage.setItem('memoryverse_passwords_v1', JSON.stringify(passwordsMap));
+      } catch (e) {}
+    }
+
+    // Login successfully
+    login(cleanEmail, foundStudent || { role: 'student' });
     setActiveRole('student');
+    setSuccessMessage(`Welcome back, ${foundStudent?.name || 'Student'}! Redirecting to your dashboard...`);
   };
 
   // Handle Admin Login
@@ -189,20 +331,28 @@ export const LoginPageView: React.FC = () => {
     if (cleanEmail === 'adminofmemoryverse@gmail.com' && adminPassword === 'Admin@123') {
       login(cleanEmail, { role: 'admin' });
       setActiveRole('admin');
-    } else if (cleanEmail.includes('admin') || cleanEmail.includes('college')) {
-      login(cleanEmail, { role: 'admin' });
-      setActiveRole('admin');
     } else {
-      setErrorMessage('Invalid Admin Credentials. Please check college admin email and password.');
+      setErrorMessage('Invalid Admin Credentials. Required: adminofmemoryverse@gmail.com / Admin@123');
     }
   };
 
-  // Quick fill buttons
+  // Quick fill buttons - loads valid student credentials
   const handleStudentQuickFill = () => {
-    setStudentEmail('dineshguru0609@gmail.com');
-    setStudentPassword('Dinesh@123');
+    const latestStudent = registeredStudents.find(s => s.role === 'student');
+    const fillEmail = latestStudent ? latestStudent.email : 'dineshguru0609@gmail.com';
+    const fillName = latestStudent ? latestStudent.name : 'Student';
+    
+    let pass = 'Dinesh@123';
+    try {
+      const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
+      const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
+      pass = passwordsMap[fillEmail.toLowerCase()] || (fillEmail === 'dineshguru0609@gmail.com' ? 'Dinesh@123' : 'Angu@123');
+    } catch (e) {}
+
+    setStudentEmail(fillEmail);
+    setStudentPassword(pass);
     setErrorMessage('');
-    setSuccessMessage('Loaded Student credentials (dineshguru0609@gmail.com). Click Sign In to enter.');
+    setSuccessMessage(`Loaded registered credentials for ${fillName} (${fillEmail}). Click Sign In to enter.`);
   };
 
   const handleAdminQuickFill = () => {
@@ -238,7 +388,7 @@ export const LoginPageView: React.FC = () => {
         <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-950/90 border border-white/10 mb-6 shadow-inner">
           <button
             type="button"
-            onClick={() => { setPortal('student'); setErrorMessage(''); setSuccessMessage(''); }}
+            onClick={() => { setPortal('student'); setStudentMode('login'); setErrorMessage(''); setSuccessMessage(''); }}
             className={`py-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
               portal === 'student'
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
@@ -261,104 +411,6 @@ export const LoginPageView: React.FC = () => {
             <ShieldCheck className="w-4 h-4" />
             <span>Admin Section</span>
           </button>
-        </div>
-
-        {/* EmailJS Setup Toggle Bar */}
-        <div className="mb-4 flex items-center justify-between px-1">
-          <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-            <Mail className="w-3.5 h-3.5 text-indigo-400" />
-            Email.js Verification Delivery: <strong className="text-emerald-400">{currentConfig.serviceId ? 'Active' : 'Test Mode'}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowEmailJsSetup(!showEmailJsSetup)}
-            className="text-[11px] font-bold text-indigo-300 hover:text-indigo-200 underline flex items-center gap-1"
-          >
-            <Settings className="w-3.5 h-3.5" /> EmailJS Settings
-          </button>
-        </div>
-
-        {/* EmailJS Setup Drawer */}
-        {showEmailJsSetup && (
-          <form onSubmit={handleSaveEmailJsKeys} className="mb-6 p-4 rounded-2xl bg-indigo-950/80 border border-indigo-500/40 space-y-3 animate-in slide-in-from-top text-xs">
-            <div className="flex items-center justify-between">
-              <h4 className="font-extrabold text-white flex items-center gap-2">
-                <Key className="w-4 h-4 text-indigo-400" /> EmailJS API Requirements Configuration
-              </h4>
-            </div>
-            <p className="text-[11px] text-indigo-200 leading-relaxed">
-              Enter your EmailJS credentials from your EmailJS.com dashboard to send live verification emails directly to student inboxes:
-            </p>
-
-            <div className="space-y-2">
-              <div>
-                <label className="block text-[10px] text-slate-300 font-semibold mb-1">EmailJS Service ID</label>
-                <input
-                  type="text"
-                  placeholder="service_xxxxxxx"
-                  value={serviceIdInput}
-                  onChange={(e) => setServiceIdInput(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] text-slate-300 font-semibold mb-1">EmailJS Template ID</label>
-                <input
-                  type="text"
-                  placeholder="template_xxxxxxx"
-                  value={templateIdInput}
-                  onChange={(e) => setTemplateIdInput(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] text-slate-300 font-semibold mb-1">EmailJS Public Key (User ID)</label>
-                <input
-                  type="text"
-                  placeholder="user_xxxxxxx"
-                  value={publicKeyInput}
-                  onChange={(e) => setPublicKeyInput(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow"
-            >
-              Save EmailJS Credentials
-            </button>
-          </form>
-        )}
-
-        {/* Quick Portal Access Shortcuts */}
-        <div className="mb-6 p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 space-y-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-indigo-200">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" /> Quick Credentials Auto-Fill
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Fast Test</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              onClick={handleStudentQuickFill}
-              type="button"
-              className="py-2.5 px-3 rounded-xl soft-3d-button text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-transform"
-            >
-              🎓 Fill Student Email
-            </button>
-            <button
-              onClick={handleAdminQuickFill}
-              type="button"
-              className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-transform shadow-lg shadow-purple-600/30"
-            >
-              🔐 Fill College Admin
-            </button>
-          </div>
         </div>
 
         {/* Error / Success Notifications */}
@@ -395,7 +447,7 @@ export const LoginPageView: React.FC = () => {
                 type="button"
                 onClick={() => { setStudentMode('verify_email'); setErrorMessage(''); setSuccessMessage(''); setIsEmailVerified(false); }}
                 className={`flex-1 py-2 rounded-lg transition-all ${
-                  studentMode !== 'login' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+                  studentMode === 'verify_email' || studentMode === 'student_details' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 Create New Account
@@ -414,14 +466,29 @@ export const LoginPageView: React.FC = () => {
                       required
                       value={studentEmail}
                       onChange={(e) => setStudentEmail(e.target.value)}
-                      placeholder="e.g. student@college.edu or dineshguru0609@gmail.com"
+                      placeholder="e.g. student@college.edu"
                       className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-300">Password</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStudentMode('forgot_send_otp');
+                        setErrorMessage('');
+                        setSuccessMessage('');
+                        setSentCode('');
+                        setInputCode('');
+                      }}
+                      className="text-xs text-indigo-300 hover:text-indigo-200 font-semibold underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
@@ -445,8 +512,146 @@ export const LoginPageView: React.FC = () => {
               </form>
             )}
 
+            {/* FORGOT PASSWORD FLOW - STEP 1: Enter Registered Email */}
+            {studentMode === 'forgot_send_otp' && (
+              <form onSubmit={handleForgotSendCode} className="space-y-4 animate-in fade-in">
+                <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200">
+                  <p className="font-bold flex items-center gap-2">
+                    <RotateCcw className="w-4 h-4 text-indigo-400" /> Reset Password – Step 1
+                  </p>
+                  <p className="text-[11px] text-indigo-300 mt-1">
+                    Enter your registered student email address to receive a 6-digit verification code via EmailJS:
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Registered Student Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={studentEmail}
+                      onChange={(e) => setStudentEmail(e.target.value)}
+                      placeholder="e.g. student@college.edu"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setStudentMode('login'); setErrorMessage(''); setSuccessMessage(''); }}
+                    className="py-3 px-4 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700"
+                  >
+                    Back to Sign In
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail}
+                    className="flex-1 py-3.5 rounded-2xl soft-3d-button text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{isSendingEmail ? 'Sending Reset Code...' : 'Send Reset Code via Email.js'}</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* FORGOT PASSWORD FLOW - STEP 2: Verify Reset Code */}
+            {studentMode === 'forgot_verify_otp' && (
+              <form onSubmit={handleForgotVerifyCode} className="space-y-4 animate-in fade-in">
+                <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200">
+                  <p className="font-bold">Reset Password – Step 2: Enter Verification Code</p>
+                  <p className="text-[11px] text-indigo-300 mt-1">Code sent to: <span className="font-mono text-white">{studentEmail}</span></p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">6-Digit Reset Verification Code</label>
+                  <div className="relative">
+                    <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={inputCode}
+                      onChange={(e) => setInputCode(e.target.value)}
+                      placeholder="Enter 6-digit code from email"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono tracking-widest text-center font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setStudentMode('forgot_send_otp'); setInputCode(''); }}
+                    className="py-3 px-4 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-xl soft-3d-button text-white text-xs font-extrabold shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Verify Code</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* FORGOT PASSWORD FLOW - STEP 3: Enter & Save New Password */}
+            {studentMode === 'forgot_new_password' && (
+              <form onSubmit={handleForgotResetPassword} className="space-y-4 animate-in fade-in">
+                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-300 font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Reset Code Verified! Set your new account password:</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">New Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="password"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password (min 4 chars)"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Confirm New Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="password"
+                      required
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="Re-enter new password"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:opacity-95 text-white text-xs font-extrabold shadow-xl flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Update Password & Launch Dashboard</span>
+                </button>
+              </form>
+            )}
+
             {/* Student Registration Flow */}
-            {studentMode !== 'login' && (
+            {(studentMode === 'verify_email' || studentMode === 'student_details') && (
               <div>
                 
                 {/* Step 1: Send OTP via EmailJS */}
@@ -573,7 +778,7 @@ export const LoginPageView: React.FC = () => {
                         <label className="block text-[11px] font-semibold text-slate-300 mb-1">Department</label>
                         <select
                           value={dept}
-                          onChange={(e) => setDept(e.target.value)}
+                          onChange={(e) => setDept(e.target.value as DepartmentType)}
                           className="w-full soft-3d-input rounded-xl px-3 py-2 text-xs text-indigo-300 font-bold bg-slate-900 border border-white/10"
                         >
                           {DEPARTMENTS.map(d => (
@@ -598,7 +803,7 @@ export const LoginPageView: React.FC = () => {
 
                       {/* Current Year Studying */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Current Year</label>
+                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Year</label>
                         <select
                           value={currentYear}
                           onChange={(e) => setCurrentYear(parseInt(e.target.value) || 1)}
@@ -612,10 +817,9 @@ export const LoginPageView: React.FC = () => {
 
                     </div>
 
-                    {/* Password & Confirm Password */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Set Account Password</label>
+                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Create Password</label>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                           <input
@@ -623,7 +827,7 @@ export const LoginPageView: React.FC = () => {
                             required
                             value={studentPassword}
                             onChange={(e) => setStudentPassword(e.target.value)}
-                            placeholder="Set password"
+                            placeholder="Min 4 characters"
                             className="w-full soft-3d-input rounded-xl pl-9 pr-3 py-2 text-xs text-white font-mono"
                           />
                         </div>
@@ -632,7 +836,7 @@ export const LoginPageView: React.FC = () => {
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-300 mb-1">Confirm Password</label>
                         <div className="relative">
-                          <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                           <input
                             type="password"
                             required
@@ -647,10 +851,10 @@ export const LoginPageView: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black shadow-xl flex items-center justify-center gap-2 mt-2"
+                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:opacity-95 text-white text-xs font-extrabold shadow-xl flex items-center justify-center gap-2 mt-2"
                     >
-                      <UserCheck className="w-4 h-4" />
-                      <span>Save Password & Complete Registration</span>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Complete Registration & Set Password</span>
                     </button>
                   </form>
                 )}
@@ -661,28 +865,24 @@ export const LoginPageView: React.FC = () => {
           </div>
         )}
 
-        {/* SECTION 2: ADMIN LOGIN SECTION */}
+        {/* SECTION 2: ADMIN SECTION */}
         {portal === 'admin' && (
           <form onSubmit={handleAdminLogin} className="space-y-4">
-            
-            <div className="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 flex items-center gap-2.5">
+            <div className="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-purple-400 shrink-0" />
-              <div>
-                <p className="font-bold text-white">College Admin Access Portal</p>
-                <p className="text-[11px] text-purple-300">Authorized College Faculty & System Administrators</p>
-              </div>
+              <span>College Administrator Governance Access Portal</span>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">College Admin Email</label>
               <div className="relative">
-                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="email"
                   required
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="e.g. adminofmemoryverse@gmail.com"
+                  placeholder="e.g. admin@college.edu"
                   className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
                 />
               </div>
