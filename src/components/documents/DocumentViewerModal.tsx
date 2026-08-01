@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DocumentItem, DocumentCategory } from '../../types';
-import { downloadDocumentFile, getOriginalDocumentViewUrl } from '../../utils/downloadHelper';
+import { downloadDocumentFile, getOriginalDocumentViewUrl, generateFormalResumeHtml, generateFormalCertificateHtml } from '../../utils/downloadHelper';
 import { 
   X, 
   FileText, 
@@ -59,8 +59,11 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
     await attachOriginalFileToDocument(doc.id, file);
   };
 
-  const isBlobOrDataUrl = doc.url && (doc.url.startsWith('blob:') || doc.url.startsWith('data:')) && !doc.url.includes('dummy.pdf');
+  const isRawFile = doc.url && !doc.url.includes('dummy.pdf') && (doc.url.startsWith('blob:') || doc.url.startsWith('data:') || doc.url.startsWith('http://') || doc.url.startsWith('https://'));
   const viewUrl = getOriginalDocumentViewUrl(doc, user?.name);
+  const htmlDocContent = (doc.category === 'Resume' || doc.title.toLowerCase().includes('resume'))
+    ? generateFormalResumeHtml(doc, user?.name)
+    : generateFormalCertificateHtml(doc, user?.name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
@@ -78,9 +81,9 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
                   {doc.category}
                 </span>
-                {isBlobOrDataUrl && (
+                {isRawFile && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
-                    Original User File Attached
+                    Original File Attached
                   </span>
                 )}
               </div>
@@ -103,7 +106,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
               title="Upload or Replace Original PDF/File"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>{isBlobOrDataUrl ? 'Replace File' : 'Upload Original File'}</span>
+              <span>{isRawFile ? 'Replace File' : 'Upload Original File'}</span>
             </button>
 
             <button
@@ -177,11 +180,19 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                   </div>
                 </div>
 
-                <iframe
-                  src={viewUrl}
-                  title={doc.title}
-                  className="w-full h-full min-h-[400px] rounded-b-2xl border-0 bg-slate-950"
-                />
+                {isRawFile ? (
+                  <iframe
+                    src={doc.url}
+                    title={doc.title}
+                    className="w-full h-full min-h-[400px] rounded-b-2xl border-0 bg-slate-950"
+                  />
+                ) : (
+                  <iframe
+                    srcDoc={htmlDocContent}
+                    title={doc.title}
+                    className="w-full h-full min-h-[400px] rounded-b-2xl border-0 bg-slate-950"
+                  />
+                )}
               </div>
             )}
 
