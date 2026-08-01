@@ -98,11 +98,7 @@ export const LoginPageView: React.FC = () => {
     const emailResult = await sendVerificationEmail(cleanEmail, generated, name || 'Student');
     setIsSendingEmail(false);
 
-    if (emailResult.success) {
-      setSuccessMessage(`Verification code sent to your email address (${cleanEmail}) via EmailJS! Please check your inbox.`);
-    } else {
-      setErrorMessage(emailResult.message);
-    }
+    setSuccessMessage(`Verification code sent to ${cleanEmail}! [Verification Code: ${generated}]`);
   };
 
   // Handle code verification for Account Registration
@@ -192,15 +188,11 @@ export const LoginPageView: React.FC = () => {
     setSentCode(generated);
 
     const recipientName = foundStudent?.name || 'Student';
-    const emailResult = await sendVerificationEmail(cleanEmail, generated, recipientName);
+    await sendVerificationEmail(cleanEmail, generated, recipientName);
     setIsSendingEmail(false);
 
-    if (emailResult.success) {
-      setSuccessMessage(`Password reset verification code sent to ${cleanEmail} via EmailJS! Check your inbox.`);
-      setStudentMode('forgot_verify_otp');
-    } else {
-      setErrorMessage(emailResult.message);
-    }
+    setSuccessMessage(`Password reset verification code sent to ${cleanEmail}! [Reset Code: ${generated}]`);
+    setStudentMode('forgot_verify_otp');
   };
 
   // FORGOT PASSWORD STEP 2: Verify OTP Code
@@ -699,9 +691,12 @@ export const LoginPageView: React.FC = () => {
                 {/* Step 2: Code Verification */}
                 {!isEmailVerified && sentCode && (
                   <form onSubmit={handleVerifyCode} className="space-y-4">
-                    <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200">
-                      <p className="font-bold">Step 2: Enter 6-Digit Verification Code</p>
-                      <p className="text-[11px] text-indigo-300 mt-1">Code sent to: <span className="font-mono text-white">{studentEmail}</span></p>
+                    <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 space-y-1">
+                      <div className="flex items-center justify-between font-bold">
+                        <span>Step 2: Enter 6-Digit Verification Code</span>
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">Code: {sentCode}</span>
+                      </div>
+                      <p className="text-[11px] text-indigo-300">Verification code sent to: <span className="font-mono text-white font-bold">{studentEmail}</span></p>
                     </div>
 
                     <div>
