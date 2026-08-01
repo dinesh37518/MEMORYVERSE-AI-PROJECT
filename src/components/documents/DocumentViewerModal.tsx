@@ -32,7 +32,36 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const [editTitle, setEditTitle] = useState('');
   const [editCategory, setEditCategory] = useState<DocumentCategory>('Certifications');
 
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [loadingPdf, setLoadingPdf] = useState<boolean>(false);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  React.useEffect(() => {
+    let active = true;
+    if (doc && doc.url && (doc.url.startsWith('http://') || doc.url.startsWith('https://')) && doc.fileType === 'pdf') {
+      setLoadingPdf(true);
+      fetch(doc.url)
+        .then(res => res.blob())
+        .then(blob => {
+          if (!active) return;
+          const url = URL.createObjectURL(blob);
+          setPdfBlobUrl(url);
+          setLoadingPdf(false);
+        })
+        .catch(err => {
+          if (!active) return;
+          console.error("PDF fetch error:", err);
+          setLoadingPdf(false);
+        });
+    } else {
+      setPdfBlobUrl(null);
+      setLoadingPdf(false);
+    }
+    return () => {
+      active = false;
+    };
+  }, [doc]);
 
   if (!doc) return null;
 
@@ -59,8 +88,9 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
     await attachOriginalFileToDocument(doc.id, file);
   };
 
-  const isRawFile = doc.url && !doc.url.includes('dummy.pdf') && (doc.url.startsWith('blob:') || doc.url.startsWith('data:') || doc.url.startsWith('http://') || doc.url.startsWith('https://'));
-  const viewUrl = getOriginalDocumentViewUrl(doc, user?.name);
+  const isLocalFile = doc.url && (doc.url.startsWith('blob:') || doc.url.startsWith('data:'));
+  const isImage = doc.fileType === 'png' || doc.fileType === 'jpg' || doc.fileType === 'jpeg' || (doc.url && (doc.url.endsWith('.png') || doc.url.endsWith('.jpg') || doc.url.endsWith('.jpeg')));
+  const viewUrl = pdfBlobUrl || getOriginalDocumentViewUrl(doc, user?.name);
   const htmlDocContent = (doc.category === 'Resume' || doc.title.toLowerCase().includes('resume'))
     ? generateFormalResumeHtml(doc, user?.name)
     : generateFormalCertificateHtml(doc, user?.name);
@@ -81,7 +111,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
                   {doc.category}
                 </span>
-                {isRawFile && (
+                {(isLocalFile || pdfBlobUrl) && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
                     Original File Attached
                   </span>
@@ -106,7 +136,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
               title="Upload or Replace Original PDF/File"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>{isRawFile ? 'Replace File' : 'Upload Original File'}</span>
+              <span>{isLocalFile ? 'Replace File' : 'Upload Original File'}</span>
             </button>
 
             <button
@@ -155,9 +185,9 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
           
           {/* File Preview Column (Left 7 Cols) */}
           <div className="lg:col-span-7 flex flex-col gap-4">
-            {doc.fileType === 'png' || doc.fileType === 'jpg' || doc.fileType === 'jpeg' ? (
+            {isImage ? (
               <div className="w-full h-80 lg:h-full min-h-[380px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
-                <img src={viewUrl} alt={doc.title} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
+                <img src={doc.url || viewUrl} alt={doc.title} className="max-h-full max-w-full object-contain rounded-xl shadow-2xl" />
               </div>
             ) : (
               <div className="w-full h-full min-h-[420px] rounded-2xl bg-slate-950 border border-slate-800 flex flex-col overflow-hidden relative">
@@ -180,7 +210,18 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                   </div>
                 </div>
 
-                {isRawFile ? (
+                {loadingPdf ? (
+                  <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center p-8 text-center space-y-3 bg-slate-950">
+                    <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                    <p className="text-xs font-bold text-slate-300">Loading Original Certificate PDF...</p>
+                  </div>
+                ) : pdfBlobUrl ? (
+                  <iframe
+                    src={pdfBlobUrl}
+                    title={doc.title}
+                    className="w-full h-full min-h-[400px] rounded-b-2xl border-0 bg-slate-950"
+                  />
+                ) : isLocalFile ? (
                   <iframe
                     src={doc.url}
                     title={doc.title}
