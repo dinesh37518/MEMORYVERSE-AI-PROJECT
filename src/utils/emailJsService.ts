@@ -12,9 +12,9 @@ export const getEmailJsConfig = () => {
   const envTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
   const envPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
-  const serviceId = envServiceId || localStorage.getItem(SERVICE_ID_KEY) || '';
-  const templateId = envTemplateId || localStorage.getItem(TEMPLATE_ID_KEY) || '';
-  const publicKey = envPublicKey || localStorage.getItem(PUBLIC_KEY_KEY) || '';
+  const serviceId = envServiceId || localStorage.getItem(SERVICE_ID_KEY) || 'service_jsoxu36';
+  const templateId = envTemplateId || localStorage.getItem(TEMPLATE_ID_KEY) || 'template_fikdtgi';
+  const publicKey = envPublicKey || localStorage.getItem(PUBLIC_KEY_KEY) || 'i1Wq-xCqrmrzM3xLx';
 
   return { serviceId, templateId, publicKey };
 };
