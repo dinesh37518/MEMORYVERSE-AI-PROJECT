@@ -26,8 +26,7 @@ import {
 export const AIAssistantView: React.FC = () => {
   const { user, documents, skills, projects, internships, certifications, achievements, setPreviewDoc } = useApp();
 
-  const DEFAULT_KEY = ['AQ.Ab8RN6K1D', '-8W-IBUKVAB3YQf', 'AEPJPQ_SmpUNNZtFVDgqXXRROQ'].join('');
-  const [apiKey, setApiKey] = useState(() => getStoredApiKey() || DEFAULT_KEY);
+  const [apiKey, setApiKey] = useState(() => getStoredApiKey());
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [showKeyText, setShowKeyText] = useState(false);
 
