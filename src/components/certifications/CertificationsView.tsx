@@ -81,7 +81,7 @@ export const CertificationsView: React.FC = () => {
               <div className="pt-3 border-t border-slate-800 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   {doc && (
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap w-full justify-between">
                       <button
                         onClick={() => setPreviewDoc(doc)}
                         className="text-xs text-white bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-md transition-all"
@@ -91,23 +91,12 @@ export const CertificationsView: React.FC = () => {
 
                       <button
                         onClick={() => downloadDocumentFile(doc, user?.name)}
-                        className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20"
+                        className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 bg-emerald-500/10 px-3.5 py-1.5 rounded-xl border border-emerald-500/20"
                         title="Download Certificate File"
                       >
                         <Download className="w-3.5 h-3.5" /> Download
                       </button>
                     </div>
-                  )}
-
-                  {cert.verificationLink && (
-                    <a
-                      href={cert.verificationLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-3 py-1.5 rounded-xl bg-purple-600/40 hover:bg-purple-600 text-purple-200 border border-purple-500/40 text-xs font-bold flex items-center gap-1 transition-all ml-auto"
-                    >
-                      <span>Verify</span> <ExternalLink className="w-3 h-3" />
-                    </a>
                   )}
                 </div>
 

@@ -427,8 +427,8 @@ export const generateFormalCertificateHtml = (doc: DocumentItem, userName: strin
 };
 
 export const getOriginalDocumentViewUrl = (doc: DocumentItem, userName: string = 'Dineshkumar M'): string => {
-  // If it is a real uploaded file (data: or blob:) and NOT dummy.pdf, return doc.url directly
-  if (doc.url && (doc.url.startsWith('data:') || doc.url.startsWith('blob:')) && !doc.url.includes('dummy.pdf')) {
+  // If it is a real file URL (data:, blob:, or http/https) and NOT dummy.pdf, return doc.url directly
+  if (doc.url && !doc.url.includes('dummy.pdf') && (doc.url.startsWith('data:') || doc.url.startsWith('blob:') || doc.url.startsWith('http://') || doc.url.startsWith('https://'))) {
     return doc.url;
   }
 
@@ -439,21 +439,21 @@ export const getOriginalDocumentViewUrl = (doc: DocumentItem, userName: string =
     return URL.createObjectURL(blob);
   }
 
-  // Generate authentic formal certificate document
+  // Generate authentic formal certificate document fallback
   const html = generateFormalCertificateHtml(doc, userName);
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   return URL.createObjectURL(blob);
 };
 
 export const downloadDocumentFile = (doc: DocumentItem, userName: string = 'Dineshkumar M') => {
-  const isDummyUrl = doc.url && doc.url.includes('dummy.pdf');
+  const isDummyUrl = !doc.url || doc.url.includes('dummy.pdf');
 
-  // If the doc has a direct user-uploaded file URL (blob: or data:) and NOT dummy.pdf, download it directly
-  if (doc.url && !isDummyUrl && (doc.url.startsWith('blob:') || doc.url.startsWith('data:'))) {
+  // If the doc has a direct file URL (blob:, data:, or http/https) and NOT dummy.pdf, download it directly
+  if (doc.url && !isDummyUrl && (doc.url.startsWith('blob:') || doc.url.startsWith('data:') || doc.url.startsWith('http://') || doc.url.startsWith('https://'))) {
     const link = document.createElement('a');
     link.href = doc.url;
     link.target = '_blank';
-    link.download = doc.fileName;
+    link.download = doc.fileName || doc.originalName || `${doc.title}.${doc.fileType}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -470,7 +470,7 @@ export const downloadDocumentFile = (doc: DocumentItem, userName: string = 'Dine
   const link = document.createElement('a');
   link.href = blobUrl;
   
-  const cleanName = doc.fileName.replace(/\.[^/.]+$/, "");
+  const cleanName = doc.fileName ? doc.fileName.replace(/\.[^/.]+$/, "") : doc.title.replace(/\s+/g, "_");
   const ext = doc.category === 'Resume' ? 'Resume' : 'Official_Certificate';
   link.download = `${cleanName}_${ext}.html`;
   
