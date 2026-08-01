@@ -11,7 +11,9 @@ import {
   ExternalLink, 
   ShieldCheck,
   Sparkles,
-  Upload
+  Upload,
+  Cpu,
+  Tag
 } from 'lucide-react';
 
 interface DocumentViewerModalProps {
