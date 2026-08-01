@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, Mail, Lock, User, GraduationCap, ArrowRight, CheckCircle2, ShieldCheck, X, AlertCircle } from 'lucide-react';
+import { Sparkles, Mail, Lock, User, GraduationCap, ArrowRight, CheckCircle2, ShieldCheck, X, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -12,8 +12,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'verify'>('login');
   
   // Credentials
-  const [email, setEmail] = useState(() => user?.email || registeredStudents[0]?.email || '');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [college, setCollege] = useState('VSB Engineering College, Karur');
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,14 +32,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     if (mode === 'login') {
       // Validate Admin Credentials
-      if (cleanEmail === 'adminofmemoryverse@gmail.com') {
-        if (password === 'Admin@123') {
-          login('adminofmemoryverse@gmail.com', { role: 'admin' });
+      if (cleanEmail === 'vsbkaruredu@gmail.com') {
+        if (password === 'VSBece@2024') {
+          login('vsbkaruredu@gmail.com', { role: 'admin' });
           setActiveRole('admin');
           onClose();
           return;
         } else {
-          setErrorMessage('Incorrect Admin password. Required: Admin@123');
+          setErrorMessage('Incorrect Admin password. Required: VSBece@2024');
           return;
         }
       }
@@ -48,20 +49,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       try {
         const passwordsJson = localStorage.getItem('memoryverse_passwords_v1');
         const passwordsMap = passwordsJson ? JSON.parse(passwordsJson) : {};
-        expectedPassword = passwordsMap[cleanEmail] || null;
+        expectedPassword = passwordsMap[cleanEmail];
       } catch (e) {}
 
-      if (!expectedPassword) {
-        if (cleanEmail === 'dineshguru0609@gmail.com') expectedPassword = 'Dinesh@123';
-        else if (cleanEmail === 'anguabhishek@gmail.com' || cleanEmail === 'dineshdjrot@gmail.com') expectedPassword = 'Angu@123';
-      }
-
-      const foundStudent = registeredStudents.find(s => s.email.toLowerCase() === cleanEmail);
-
-      if (!foundStudent && !expectedPassword && cleanEmail !== 'dineshguru0609@gmail.com') {
-        setErrorMessage(`No account found for "${cleanEmail}".`);
-        return;
-      }
 
       if (expectedPassword && password !== expectedPassword) {
         setErrorMessage('Incorrect password. Please enter the correct password for your account.');
@@ -99,9 +89,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleAdminQuickLogin = () => {
-    setEmail('adminofmemoryverse@gmail.com');
-    setPassword('Admin@123');
-    login('adminofmemoryverse@gmail.com', { role: 'admin' });
+    setEmail('vsbkaruredu@gmail.com');
+    setPassword('VSBece@2024');
+    login('vsbkaruredu@gmail.com', { role: 'admin' });
     setActiveRole('admin');
     onClose();
   };
@@ -259,13 +249,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter password"
-                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 font-mono"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-200 font-mono"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
+                      title={showPassword ? "Hide password" : "View password"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-indigo-400" />}
+                    </button>
                   </div>
                 </div>
               )}

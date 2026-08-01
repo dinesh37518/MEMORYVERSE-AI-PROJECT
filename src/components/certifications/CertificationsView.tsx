@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Award, ExternalLink, ShieldCheck, FileText, Calendar, CheckCircle2, Download, Upload, FileCheck } from 'lucide-react';
-import { downloadDocumentFile } from '../../utils/downloadHelper';
+import { Award, ExternalLink, ShieldCheck, FileText, Calendar, CheckCircle2, Upload, FileCheck } from 'lucide-react';
 
 export const CertificationsView: React.FC = () => {
   const { user, certifications, documents, setPreviewDoc, attachOriginalFileToDocument } = useApp();
@@ -81,22 +80,12 @@ export const CertificationsView: React.FC = () => {
               <div className="pt-3 border-t border-slate-800 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   {doc && (
-                    <div className="flex items-center gap-2 flex-wrap w-full justify-between">
-                      <button
-                        onClick={() => setPreviewDoc(doc)}
-                        className="text-xs text-white bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-md transition-all"
-                      >
-                        <FileText className="w-4 h-4" /> View & Inspect Certificate
-                      </button>
-
-                      <button
-                        onClick={() => downloadDocumentFile(doc, user?.name)}
-                        className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 bg-emerald-500/10 px-3.5 py-1.5 rounded-xl border border-emerald-500/20"
-                        title="Download Certificate File"
-                      >
-                        <Download className="w-3.5 h-3.5" /> Download
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => setPreviewDoc(doc)}
+                      className="w-full text-xs text-white bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md transition-all"
+                    >
+                      <FileText className="w-4 h-4" /> View & Inspect Certificate
+                    </button>
                   )}
                 </div>
 

@@ -9,16 +9,9 @@ import {
   Trash2, 
   Edit3, 
   ExternalLink, 
-  CheckCircle2, 
-  Tag, 
-  Award, 
-  Building2, 
-  Calendar, 
   ShieldCheck,
   Sparkles,
-  Cpu,
-  Upload,
-  Printer
+  Upload
 } from 'lucide-react';
 
 interface DocumentViewerModalProps {
@@ -45,13 +38,15 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
         .then(res => res.blob())
         .then(blob => {
           if (!active) return;
-          const url = URL.createObjectURL(blob);
+          const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+          const url = URL.createObjectURL(pdfBlob);
           setPdfBlobUrl(url);
           setLoadingPdf(false);
         })
         .catch(err => {
           if (!active) return;
-          console.error("PDF fetch error:", err);
+          console.error("PDF blob fetch error:", err);
+          setPdfBlobUrl(null);
           setLoadingPdf(false);
         });
     } else {
@@ -213,7 +208,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 {loadingPdf ? (
                   <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center p-8 text-center space-y-3 bg-slate-950">
                     <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                    <p className="text-xs font-bold text-slate-300">Loading Original Certificate PDF...</p>
+                    <p className="text-xs font-bold text-slate-300">Loading Original Verified PDF Document...</p>
                   </div>
                 ) : pdfBlobUrl ? (
                   <iframe

@@ -76,7 +76,7 @@ export const AdminPanelView: React.FC = () => {
               <h1 className="text-2xl font-black text-white tracking-tight">MemoryVerse Admin Portal</h1>
               <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">Registered Students Directory</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1 font-mono">Logged in as <span className="text-purple-300 font-bold">adminofmemoryverse@gmail.com</span></p>
+            <p className="text-xs text-slate-300 mt-1 font-mono">Logged in as <span className="text-purple-300 font-bold">vsbkaruredu@gmail.com</span></p>
           </div>
         </div>
 

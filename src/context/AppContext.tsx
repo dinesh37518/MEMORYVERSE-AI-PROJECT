@@ -287,7 +287,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuth(newAuth);
     localStorage.setItem('memoryverse_auth_session', JSON.stringify(newAuth));
 
-    if (cleanEmail === 'adminofmemoryverse@gmail.com' || userDetails?.role === 'admin') {
+    if (cleanEmail === 'vsbkaruredu@gmail.com' || userDetails?.role === 'admin') {
       setActiveRole('admin');
       setUser({ ...ADMIN_USER, email: cleanEmail, ...userDetails });
     } else {

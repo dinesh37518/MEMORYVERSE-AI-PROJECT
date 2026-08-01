@@ -1,14 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DocumentCategory, DocumentItem } from '../../types';
-import { downloadDocumentFile } from '../../utils/downloadHelper';
 import { 
   Upload, 
   FileText, 
   CheckCircle2, 
   Sparkles, 
   Trash2, 
-  Download, 
   Eye, 
   Layers,
   StopCircle,
@@ -308,15 +306,7 @@ export const UploadModule: React.FC = () => {
                     onClick={() => setPreviewDoc(doc)}
                     className="flex-1 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow"
                   >
-                    <Eye className="w-3.5 h-3.5" /> View
-                  </button>
-
-                  <button
-                    onClick={() => downloadDocumentFile(doc)}
-                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
-                    title="Download"
-                  >
-                    <Download className="w-4 h-4" />
+                    <Eye className="w-3.5 h-3.5" /> View & Inspect Document
                   </button>
 
                   <button

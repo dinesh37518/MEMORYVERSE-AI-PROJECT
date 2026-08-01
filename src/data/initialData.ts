@@ -51,7 +51,7 @@ export const INITIAL_USER: UserProfile = {
 export const ADMIN_USER: UserProfile = {
   id: 'usr_admin_01',
   name: 'MemoryVerse System Administrator',
-  email: 'adminofmemoryverse@gmail.com',
+  email: 'vsbkaruredu@gmail.com',
   avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
   college: 'MemoryVerse Governance Board',
   department: 'Platform Administration & Security',

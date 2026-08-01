@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DocumentCategory } from '../../types';
-import { downloadDocumentFile } from '../../utils/downloadHelper';
 import { 
   FolderKanban, 
-  FileText, 
   Eye, 
-  Download, 
   Trash2, 
   Grid, 
   List, 
-  Filter, 
-  Search,
-  ExternalLink
+  Search
 } from 'lucide-react';
 
 export const DocumentsVaultView: React.FC = () => {
@@ -122,24 +117,17 @@ export const DocumentsVaultView: React.FC = () => {
 
               <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
                 <span>{doc.uploadDate}</span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setPreviewDoc(doc)}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-400"
-                    title="Inspect AI Extracted Data"
+                    className="px-3 py-1 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold text-xs flex items-center gap-1 border border-indigo-500/30 transition-colors"
+                    title="View & Inspect Document"
                   >
-                    <Eye className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => downloadDocumentFile(doc, user?.name)}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
-                    title="Download Original File"
-                  >
-                    <Download className="w-3.5 h-3.5" />
+                    <Eye className="w-3.5 h-3.5" /> View Document
                   </button>
                   <button
                     onClick={() => deleteDocument(doc.id)}
-                    className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                    className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
                     title="Delete Document"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

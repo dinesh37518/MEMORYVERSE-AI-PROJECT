@@ -21,7 +21,9 @@ import {
   Hash,
   Settings,
   Key,
-  RotateCcw
+  RotateCcw,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export const LoginPageView: React.FC = () => {
@@ -38,6 +40,7 @@ export const LoginPageView: React.FC = () => {
   // Student Form State
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPassword, setStudentPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [name, setName] = useState('');
@@ -295,9 +298,6 @@ export const LoginPageView: React.FC = () => {
 
     // Find student profile in registry
     let foundStudent = registeredStudents.find(s => s.email.toLowerCase() === cleanEmail);
-    if (!foundStudent && (cleanEmail === 'dineshguru0609@gmail.com' || cleanEmail.includes('dineshguru'))) {
-      foundStudent = registeredStudents.find(s => s.email.toLowerCase().includes('dineshguru')) || registeredStudents[0];
-    }
 
     // STRICT PASSWORD VERIFICATION if expectedPassword exists
     if (expectedPassword && studentPassword !== expectedPassword) {
@@ -328,11 +328,11 @@ export const LoginPageView: React.FC = () => {
     setSuccessMessage('');
 
     const cleanEmail = adminEmail.trim().toLowerCase();
-    if (cleanEmail === 'adminofmemoryverse@gmail.com' && adminPassword === 'Admin@123') {
+    if (cleanEmail === 'vsbkaruredu@gmail.com' && adminPassword === 'VSBece@2024') {
       login(cleanEmail, { role: 'admin' });
       setActiveRole('admin');
     } else {
-      setErrorMessage('Invalid Admin Credentials. Required: adminofmemoryverse@gmail.com / Admin@123');
+      setErrorMessage('Invalid Admin Credentials. Required: vsbkaruredu@gmail.com / VSBece@2024');
     }
   };
 
@@ -356,10 +356,10 @@ export const LoginPageView: React.FC = () => {
   };
 
   const handleAdminQuickFill = () => {
-    setAdminEmail('adminofmemoryverse@gmail.com');
-    setAdminPassword('Admin@123');
+    setAdminEmail('vsbkaruredu@gmail.com');
+    setAdminPassword('VSBece@2024');
     setErrorMessage('');
-    setSuccessMessage('Loaded College Admin credentials (adminofmemoryverse@gmail.com). Click Sign In to enter.');
+    setSuccessMessage('Loaded College Admin credentials (vsbkaruredu@gmail.com). Click Sign In to enter.');
   };
 
   return (
@@ -492,13 +492,21 @@ export const LoginPageView: React.FC = () => {
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       required
                       value={studentPassword}
                       onChange={(e) => setStudentPassword(e.target.value)}
                       placeholder="Enter student password"
-                      className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
+                      className="w-full soft-3d-input rounded-xl pl-10 pr-10 py-3 text-xs text-slate-200 font-mono"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
+                      title={showPassword ? "Hide password" : "View password"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-indigo-400" />}
+                    </button>
                   </div>
                 </div>
 
@@ -893,13 +901,21 @@ export const LoginPageView: React.FC = () => {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="w-full soft-3d-input rounded-xl pl-10 pr-4 py-3 text-xs text-slate-200 font-mono"
+                  className="w-full soft-3d-input rounded-xl pl-10 pr-10 py-3 text-xs text-slate-200 font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
+                  title={showPassword ? "Hide password" : "View password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-purple-400" />}
+                </button>
               </div>
             </div>
 

@@ -52,8 +52,11 @@
 - **Original User File Preservation**: Uploading any file (`.pdf`, `.png`, `.jpg`) preserves the exact original binary data URL.
 - **Master Resume & Certificate Generator**: Viewing or downloading documents renders/downloads formal, high-resolution printable HTML/PDF documents with contact info, education marks, project details, credential IDs, and gold seal signatures (no dummy PDFs).
 
-### 4. ⚡ Automated Skill Extraction on Certificate Upload
-- **Smart OCR & File Parsing**: Uploading certificates automatically extracts domain skills (*Python*, *Java*, *Angular*, *AWS*, *Cisco*, *IoT*, *SQL*, etc.) into the student's Skills Matrix and updates profile metrics.
+### 5. 👁️ View Password & View-First Document Vault
+- **View Password Toggle**: Password fields include eye icons (`<Eye />` / `<EyeOff />`) for toggling password visibility on login.
+- **View-First Certificate Preview**: Clicking any vault document or certificate card opens the preview modal first. Original PDF files (HP LIFE, Infosys, Cisco, etc.) load inline cleanly without background network downloads.
+- **On-Demand Downloads**: File downloads are triggered only when clicking the explicit **Download Original** button inside the viewer.
+- **Equal Student Accounts**: All student accounts have equal access; new registrations create isolated independent digital twins dynamically.
 
 ---
 
@@ -69,13 +72,13 @@
 
 ---
 
-## 🔑 Login Credentials
+## 🔑 Platform Access & Credentials
 
-| Role | Email | Password | Access Rights |
-|------|-------|----------|---------------|
-| **College Admin** | `adminofmemoryverse@gmail.com` | `Admin@123` | Full Admin Directory & Student Inspection |
-| **Student (Default)** | `dineshguru0609@gmail.com` | `password123` | Personal Vault & AI Placement Advisor |
-| **New Student** | Any custom email / signup | Any password | Independent Vault & Dynamic AI Advisor |
+| Role | Email | Password | Access Rights & Features |
+|------|-------|----------|--------------------------|
+| 👑 **College Admin** | `vsbkaruredu@gmail.com` | `VSBece@2024` | Full Admin Portal, Student Directory Inspection & Vault Analytics |
+| 🎓 **Student Account** | Any registered email (e.g. `dineshguru0609@gmail.com`) | Account Password | Independent Personal Vault, PDF/Image Previews & Trained Placement AI |
+| 🆕 **New Registration** | Any email (Sign Up) | Custom Password | Self-created independent student digital twin & isolated vault |
 
 ---
 

@@ -427,7 +427,7 @@ export const generateFormalCertificateHtml = (doc: DocumentItem, userName: strin
 };
 
 export const getOriginalDocumentViewUrl = (doc: DocumentItem, userName: string = 'Dineshkumar M'): string => {
-  // If it is a real file URL (data:, blob:, or http/https) and NOT dummy.pdf, return doc.url directly
+  // If doc has a valid file URL (data:, blob:, or http/https) and NOT dummy.pdf, return doc.url directly
   if (doc.url && !doc.url.includes('dummy.pdf') && (doc.url.startsWith('data:') || doc.url.startsWith('blob:') || doc.url.startsWith('http://') || doc.url.startsWith('https://'))) {
     return doc.url;
   }
