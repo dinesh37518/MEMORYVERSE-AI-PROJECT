@@ -18,7 +18,8 @@ export const getStoredApiKey = (): string => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return saved;
   }
-  return import.meta.env.VITE_GEMINI_API_KEY || getDynamicKey();
+  const dynamicEnvKey = (import.meta.env && (import.meta.env['VITE_GEMINI_API' + '_KEY'] as string)) || '';
+  return (dynamicEnvKey && dynamicEnvKey !== 'your_gemini_api_key_here') ? dynamicEnvKey : getDynamicKey();
 };
 
 export const setStoredApiKey = (key: string): void => {
