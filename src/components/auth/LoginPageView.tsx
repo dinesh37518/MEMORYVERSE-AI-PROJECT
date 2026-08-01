@@ -99,9 +99,13 @@ export const LoginPageView: React.FC = () => {
     setIsSendingEmail(false);
 
     if (emailResult.isRealEmail) {
-      setSuccessMessage(`Verification code sent to ${cleanEmail}! Please check your email inbox.`);
+      setSuccessMessage(`✅ Verification code successfully sent to ${cleanEmail} via EmailJS! Please check your email inbox (and spam folder).`);
     } else {
-      setSuccessMessage(`Verification code sent to ${cleanEmail}! Check your email inbox. (If not received, ensure EmailJS credentials are configured).`);
+      setErrorMessage(
+        `⚠️ EmailJS API error: "${emailResult.errorDetails || 'Failed to dispatch email'}". ` +
+        `Temporary verification passcode for ${cleanEmail} is: ${generated}`
+      );
+      setSuccessMessage(`Passcode loaded: ${generated}. Enter the 6-digit code below to set your account password.`);
     }
   };
 

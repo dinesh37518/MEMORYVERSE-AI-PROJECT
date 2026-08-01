@@ -31,6 +31,7 @@ export interface SendEmailResult {
   success: boolean;
   isRealEmail: boolean;
   message: string;
+  errorDetails?: string;
 }
 
 export async function sendVerificationEmail(
@@ -43,6 +44,7 @@ export async function sendVerificationEmail(
   const templateParams = {
     to_email: toEmail,
     email: toEmail,
+    reply_to: toEmail,
     to_name: studentName,
     user_name: studentName,
     passcode: verificationCode,
@@ -54,6 +56,8 @@ export async function sendVerificationEmail(
     message: `Your MemoryVerse AI verification code is: ${verificationCode}. Enter this code to set your account password.`,
     body: `Your MemoryVerse AI verification code is: ${verificationCode}. Enter this code to set your account password.`
   };
+
+  let lastErrorDetails = '';
 
   if (serviceId && templateId && publicKey) {
     const candidateTemplateIds = Array.from(new Set([
@@ -71,18 +75,23 @@ export async function sendVerificationEmail(
             isRealEmail: true,
             message: `Verification code sent to your email (${toEmail}) via EmailJS!`
           };
+        } else {
+          lastErrorDetails = `Status ${response.status}: ${response.text}`;
         }
       } catch (err: any) {
-        const errText = err?.text || err?.message || JSON.stringify(err);
-        console.warn(`EmailJS attempt failed for template ID ${tid}:`, errText);
+        lastErrorDetails = err?.text || err?.message || (typeof err === 'string' ? err : JSON.stringify(err));
+        console.warn(`EmailJS attempt failed for template ID ${tid}:`, lastErrorDetails);
       }
     }
+  } else {
+    lastErrorDetails = 'Missing EmailJS configuration parameters.';
   }
 
-  // Graceful fallback code dispatch so user is never blocked
+  // Fallback code dispatch so user registration is never blocked
   return {
     success: true,
     isRealEmail: false,
-    message: `Verification code generated for ${toEmail}.`
+    message: `Verification code generated for ${toEmail}.`,
+    errorDetails: lastErrorDetails
   };
 }
