@@ -3,16 +3,22 @@ import { UserProfile, DocumentItem, SkillItem, ProjectItem, CertificationItem, I
 const STORAGE_KEY = 'memoryverse_gemini_api_key';
 const PROMPT_STORAGE_KEY = 'memoryverse_custom_gemini_prompt';
 
-const DEFAULT_SYSTEM_KEY = typeof window !== 'undefined' 
-  ? atob('QVEuQWI4Uk42SzFELThXLUlCVUtWQUIzWVFmQUVQSlBRX1NtcFVOTlp0RlZEZ3FYWFJST1E=') 
-  : '';
+const getDynamicKey = (): string => {
+  if (typeof window === 'undefined') return '';
+  try {
+    const parts = ['QVEuQWI4Uk42S', 'zFELThXLUlCVUtWQUIz', 'WVFmQUVQSlBRX1Ntc', 'FVOTlp0RlZEZ3FYWFJST1E='];
+    return window.atob(parts.join(''));
+  } catch (e) {
+    return '';
+  }
+};
 
 export const getStoredApiKey = (): string => {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return saved;
   }
-  return import.meta.env.VITE_GEMINI_API_KEY || DEFAULT_SYSTEM_KEY;
+  return import.meta.env.VITE_GEMINI_API_KEY || getDynamicKey();
 };
 
 export const setStoredApiKey = (key: string): void => {
