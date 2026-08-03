@@ -5,13 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
-    "start": "vite preview --host 0.0.0.0",
-    "serve": "vite preview",
-    "lint": "oxlint",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -29,7 +24,6 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.4",
-    "gh-pages": "^6.3.0",
     "oxlint": "^1.71.0",
     "postcss": "^8.5.25",
     "tailwindcss": "^4.3.3",
