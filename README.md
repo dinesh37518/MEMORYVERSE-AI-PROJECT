@@ -38,7 +38,7 @@
 ## 🔥 Key New Additional Features
 
 ### 1. 🤖 Multi-Tenant Trained Placement AI Engine
-- **Dynamic Student Status Analysis**: The AI Assistant ([geminiApi.ts](file:///c:/Users/Dineshkumar%20M/OneDrive/Desktop/MEMORYVERSE/src/utils/geminiApi.ts)) evaluates the logged-in student's uploaded certificates, extracted technical skills, and engineering projects.
+- **Dynamic Student Status Analysis**: The AI Assistant ([groqApi.ts](file:///c:/Users/Dineshkumar%20M/OneDrive/Desktop/MEMORYVERSE/src/utils/groqApi.ts)) evaluates the logged-in student's uploaded certificates, extracted technical skills, and engineering projects.
 - **Tailored Placement Roadmaps**: Generates 5-phase placement action plans specifically customized to each student's current preparation status.
 - **Company-Specific Interview Strategies**: Detailed interview preparation guides for **Zoho**, **Cisco**, **Infosys**, **TCS**, **Accenture**, and Core ECE/Embedded/IoT firms.
 - **100% Multi-Tenant Compatibility**: Works dynamically whether 1 student or 1,000 students create accounts and upload certificates.
@@ -68,7 +68,7 @@
 - **⏳ Career Timeline**: Chronological milestone tracking for academic and professional growth.
 - **💡 Skills Matrix**: Extracted technical and soft skills competency matrix with verification counts.
 - **📁 Projects & Internships**: Engineering project showcase (*WhatsApp Agri IoT System*, *CAREER BRIDGE*) and internship logs.
-- **🤖 RAG Placement AI**: Real-time Gemini 2.5 AI Assistant with custom prompt override drawer.
+- **🤖 RAG Placement AI**: Real-time Groq LLaMA-3.3 AI Assistant with custom prompt override drawer.
 
 ---
 
@@ -90,7 +90,7 @@
 | **Build System** | Vite 8.1 (Sub-second HMR) |
 | **Styling & UI** | Tailwind CSS 4.3 + Glassmorphism & 3D Cards |
 | **Database & Sync** | Supabase Relational Database |
-| **AI Model & RAG** | Google Gemini 2.5 Flash / Offline Placement RAG Engine |
+| **AI Model & RAG** | Groq LLaMA-3.3 70B / Offline Placement RAG Engine |
 | **Icons & Effects** | Lucide React + Canvas Confetti |
 | **Hosting** | GitHub Pages |
 

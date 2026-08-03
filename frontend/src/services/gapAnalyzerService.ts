@@ -38,7 +38,7 @@ export function analyzeCareerGap(
         { title: 'Generative AI & LLM Engineering', provider: 'DeepLearning.AI', reason: 'Essential for building enterprise AI agents & RAG applications.' }
       ];
       recommendedProjects = [
-        { title: 'Multi-Modal RAG Document Intelligence System', tech: ['Python', 'LangChain', 'Faiss', 'Gemini API'], description: 'Build an enterprise vector search engine for complex PDF documents.' },
+        { title: 'Multi-Modal RAG Document Intelligence System', tech: ['Python', 'LangChain', 'Faiss', 'Groq API'], description: 'Build an enterprise vector search engine for complex PDF documents.' },
         { title: 'Autonomous Multi-Agent AI System', tech: ['Python', 'PyTorch', 'LangChain', 'FastAPI'], description: 'Implement autonomous decision-making agents with tool-use capabilities.' }
       ];
       learningRoadmap = [

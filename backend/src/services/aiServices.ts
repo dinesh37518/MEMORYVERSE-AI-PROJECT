@@ -1,11 +1,11 @@
-import { generateGeminiChatResponse } from '../ai/chat/geminiChat';
+import { generateGroqChatResponse } from '../ai/chat/groqChat';
 import { generatePortfolioData } from '../ai/portfolio/portfolioGenerator';
 import { analyzeResumeData } from '../ai/resume/resumeAnalyzer';
 import { generateCareerInsightsData } from '../ai/career/careerInsights';
 
 export class AIService {
   static async handleChat(prompt: string, contextData: any, customPrompt?: string): Promise<string> {
-    return await generateGeminiChatResponse(prompt, contextData, customPrompt);
+    return await generateGroqChatResponse(prompt, contextData, customPrompt);
   }
 
   static async generatePortfolio(reqData: any) {

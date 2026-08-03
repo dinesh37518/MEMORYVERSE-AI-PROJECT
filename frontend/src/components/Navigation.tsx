@@ -63,7 +63,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenAuth }) => {
     { id: 'internships', label: 'Internships', icon: Building2 },
     { id: 'certifications', label: 'Certifications', icon: Award },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, badge: 'Gemini' },
+    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, badge: 'Groq' },
     { id: 'resume', label: 'Resume Builder', icon: FileText, badge: 'PDF' },
     { id: 'jobs', label: 'Job Tracker', icon: Briefcase, badge: 'Match' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },

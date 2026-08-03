@@ -1,4 +1,4 @@
-import { generateGeminiChatResponse } from '../chat/geminiChat';
+import { generateGroqChatResponse } from '../chat/groqChat';
 import { UserProfile, DocumentItem, SkillItem, ProjectItem, CertificationItem, InternshipItem } from '../../models/types';
 
 interface PortfolioRequest {
@@ -12,7 +12,7 @@ interface PortfolioRequest {
 
 export async function generatePortfolioData(reqData: PortfolioRequest): Promise<{ htmlSnippet: string; summary: string }> {
   const prompt = `Generate a modern, executive single-page HTML portfolio representation highlighting ${reqData.user.name}'s verified engineering background, key projects, certified skills, and internships. Return clean structured HTML with CSS components styling suitable for web preview.`;
-  const responseText = await generateGeminiChatResponse(prompt, reqData);
+  const responseText = await generateGroqChatResponse(prompt, reqData);
 
   const htmlSnippet = `<div class="portfolio-container p-6 bg-slate-900 text-white rounded-xl shadow-2xl space-y-6">
     <header class="border-b border-slate-700 pb-4">
