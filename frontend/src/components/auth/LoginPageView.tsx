@@ -332,11 +332,13 @@ export const LoginPageView: React.FC = () => {
     setSuccessMessage('');
 
     const cleanEmail = adminEmail.trim().toLowerCase();
-    if (cleanEmail === 'vsbkaruredu@gmail.com' && adminPassword === 'VSBece@2024') {
+    if (cleanEmail !== 'vsbkaruredu@gmail.com') {
+      setErrorMessage('Invalid Admin Email.');
+    } else if (adminPassword !== 'VSBece@2024') {
+      setErrorMessage('Password is wrong.');
+    } else {
       login(cleanEmail, { role: 'admin' });
       setActiveRole('admin');
-    } else {
-      setErrorMessage('Invalid Admin Credentials. Required: vsbkaruredu@gmail.com / VSBece@2024');
     }
   };
 

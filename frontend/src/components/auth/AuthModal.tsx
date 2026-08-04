@@ -39,7 +39,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           onClose();
           return;
         } else {
-          setErrorMessage('Incorrect Admin password. Required: VSBece@2024');
+          setErrorMessage('Password is wrong.');
           return;
         }
       }
