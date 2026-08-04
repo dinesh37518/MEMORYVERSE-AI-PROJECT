@@ -51,6 +51,13 @@ export const AdminPanelView: React.FC = () => {
   const totalVaultCerts = registeredStudents.reduce((sum, s) => sum + (s.certsCount || 0), 0);
 
   // Scroll smoothly to Student Directory table
+  const scrollToDirectory = () => {
+    const el = document.getElementById('student-directory-table') || document.getElementById('registered-students-table');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handleSelectStudent = (stRegNo: string) => {
     setSelectedRegNo(stRegNo);
     inspectStudentByRegNo(stRegNo);
